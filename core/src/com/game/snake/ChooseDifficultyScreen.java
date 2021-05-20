@@ -37,6 +37,8 @@ public class ChooseDifficultyScreen implements Screen {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
                 game.setScreen(new GameScreen(game, gameDifficulty));
+                //!Important!
+                ChooseDifficultyScreen.this.dispose();
             }
         });
         return button;
@@ -83,6 +85,6 @@ public class ChooseDifficultyScreen implements Screen {
 
     @Override
     public void dispose() {
-
+        stage.dispose();
     }
 }
