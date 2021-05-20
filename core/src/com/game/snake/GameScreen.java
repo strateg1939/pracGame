@@ -12,6 +12,12 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector3;
+import com.badlogic.gdx.scenes.scene2d.Actor;
+import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.ui.Button;
+import com.badlogic.gdx.scenes.scene2d.ui.Skin;
+import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
+import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.utils.TimeUtils;
@@ -31,10 +37,13 @@ public class GameScreen implements Screen {
     int dropsGathered;
     //currently does nothing
     private GameDifficulty gameDifficulty;
+    private boolean isPaused;
+    private Stage pauseStage;
 
     public GameScreen(final Main gam, GameDifficulty gameDifficulty) {
         this.game = gam;
         this.gameDifficulty = gameDifficulty;
+        pauseStage = new Stage();
         System.out.println(gameDifficulty);
 
         // load the images for the droplet and the bucket, 64x64 pixels each
@@ -76,6 +85,10 @@ public class GameScreen implements Screen {
 
     @Override
     public void render(float delta) {
+        if(isPaused){
+            pause();
+            return;
+        }
         // clear the screen with a dark blue color. The
         // arguments to clear are the red, green
         // blue and alpha component in the range [0,1]
@@ -110,7 +123,8 @@ public class GameScreen implements Screen {
             bucket.x -= 200 * Gdx.graphics.getDeltaTime();
         if (Gdx.input.isKeyPressed(Keys.RIGHT))
             bucket.x += 200 * Gdx.graphics.getDeltaTime();
-
+        //set pause on Space
+        if(Gdx.input.isKeyPressed(Keys.SPACE)) isPaused = true;
         // make sure the bucket stays within the screen bounds
         if (bucket.x < 0)
             bucket.x = 0;
@@ -155,6 +169,31 @@ public class GameScreen implements Screen {
 
     @Override
     public void pause() {
+        if(Gdx.input.isKeyPressed(Keys.SPACE)) {
+            pauseStage.clear();
+            isPaused = false;
+            return;
+        }
+        Gdx.input.setInputProcessor(pauseStage);
+        Button resumeButton = getSettingsButton("Resume", 300);
+        Button exit = getSettingsButton("Exit", 150);
+        exit.addListener(new ChangeListener() {
+            @Override
+            public void changed(ChangeEvent event, Actor actor) {
+                pauseStage.dispose();
+                GameScreen.this.dispose();
+            }
+        });
+        resumeButton.addListener(new ChangeListener() {
+            @Override
+            public void changed(ChangeEvent event, Actor actor) {
+                isPaused = false;
+                pauseStage.clear();
+            }
+        });
+        pauseStage.addActor(resumeButton);
+        pauseStage.addActor(exit);
+        pauseStage.draw();
     }
 
     @Override
@@ -167,6 +206,13 @@ public class GameScreen implements Screen {
         bucketImage.dispose();
  //       dropSound.dispose();
  //       rainMusic.dispose();
+    }
+    private Button getSettingsButton(String buttonText, float positionY){
+        Skin skin = new Skin(Gdx.files.internal("flat-earth/skin/flat-earth-ui.json"));
+        TextButton button = new TextButton(buttonText, skin);
+        button.setSize(200, 100);
+        button.setPosition(300, positionY);
+        return button;
     }
 
 }
