@@ -8,7 +8,7 @@ import com.badlogic.gdx.utils.ScreenUtils;
 public class MainMenuScreen implements Screen {
 
     final Main game;
-    OrthographicCamera camera;
+    private OrthographicCamera camera;
 
     public MainMenuScreen(final Main gam) {
         game = gam;
@@ -30,7 +30,7 @@ public class MainMenuScreen implements Screen {
         game.batch.end();
 
         if (Gdx.input.isTouched()) {
-            game.setScreen(new GameScreen(game));
+            game.setScreen(new ChooseDifficultyScreen(game));
             dispose();
         }
     }

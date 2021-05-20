@@ -29,9 +29,13 @@ public class GameScreen implements Screen {
     Array<Rectangle> raindrops;
     long lastDropTime;
     int dropsGathered;
+    //currently does nothing
+    private GameDifficulty gameDifficulty;
 
-    public GameScreen(final Main gam) {
+    public GameScreen(final Main gam, GameDifficulty gameDifficulty) {
         this.game = gam;
+        this.gameDifficulty = gameDifficulty;
+        System.out.println(gameDifficulty);
 
         // load the images for the droplet and the bucket, 64x64 pixels each
         dropImage = new Texture(Gdx.files.internal("drop.png"));
