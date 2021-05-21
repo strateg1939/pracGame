@@ -124,7 +124,14 @@ public class GameScreen implements Screen {
         if (Gdx.input.isKeyPressed(Keys.RIGHT))
             bucket.x += 200 * Gdx.graphics.getDeltaTime();
         //set pause on Space
-        if(Gdx.input.isKeyPressed(Keys.SPACE)) isPaused = true;
+        if(Gdx.input.isKeyPressed(Keys.SPACE)) {
+            isPaused = true;
+            try {
+                Thread.sleep(200);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
         // make sure the bucket stays within the screen bounds
         if (bucket.x < 0)
             bucket.x = 0;
@@ -172,6 +179,11 @@ public class GameScreen implements Screen {
         if(Gdx.input.isKeyPressed(Keys.SPACE)) {
             pauseStage.clear();
             isPaused = false;
+            try {
+                Thread.sleep(200);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
             return;
         }
         Gdx.input.setInputProcessor(pauseStage);
