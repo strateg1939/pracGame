@@ -187,9 +187,10 @@ public class GameScreen implements Screen {
             return;
         }
         Gdx.input.setInputProcessor(pauseStage);
-        Button resumeButton = getSettingsButton("Resume", 300);
-        Button exit = getSettingsButton("Exit", 150);
-        exit.addListener(new ChangeListener() {
+        Button resumeButton = getSettingsButton("Resume", 350);
+        Button toMainMenuButton = getSettingsButton("To Menu", 200);
+        Button exitButton = getSettingsButton("Exit", 50);
+        exitButton.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
                 pauseStage.dispose();
@@ -203,8 +204,18 @@ public class GameScreen implements Screen {
                 pauseStage.clear();
             }
         });
+        toMainMenuButton.addListener(new ChangeListener() {
+            @Override
+            public void changed(ChangeEvent event, Actor actor) {
+               game.setScreen(new MainMenuScreen(game));
+               pauseStage.dispose();
+               GameScreen.this.dispose();
+            }
+        });
+
         pauseStage.addActor(resumeButton);
-        pauseStage.addActor(exit);
+        pauseStage.addActor(exitButton);
+        pauseStage.addActor(toMainMenuButton);
         pauseStage.draw();
     }
 
