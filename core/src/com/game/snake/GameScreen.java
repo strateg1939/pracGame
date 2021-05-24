@@ -9,6 +9,12 @@ import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.maps.MapLayers;
+import com.badlogic.gdx.maps.tiled.TiledMap;
+import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
+import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
+import com.badlogic.gdx.maps.tiled.tiles.StaticTiledMapTile;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector3;
@@ -26,77 +32,64 @@ public class GameScreen implements Screen {
 
     final Main game;
 
-    Texture dropImage;
-    Texture bucketImage;
-    Sound dropSound;
-    Music rainMusic;
     OrthographicCamera camera;
-    Rectangle bucket;
-    Array<Rectangle> raindrops;
-    long lastDropTime;
-    int dropsGathered;
     //currently does nothing
     private GameDifficulty gameDifficulty;
     private boolean isPaused;
     private Stage pauseStage;
+    private OrthogonalTiledMapRenderer renderer;
+    //amount of rows/columns
+    private int tileRows = 15;
+    private int tileColumns = 10;
 
     public GameScreen(final Main gam, GameDifficulty gameDifficulty) {
         this.game = gam;
         this.gameDifficulty = gameDifficulty;
         pauseStage = new Stage();
         System.out.println(gameDifficulty);
-
-        // load the images for the droplet and the bucket, 64x64 pixels each
-        dropImage = new Texture(Gdx.files.internal("drop.png"));
-        bucketImage = new Texture(Gdx.files.internal("bucket.png"));
-
-        // load the drop sound effect and the rain background "music"
-/*        dropSound = Gdx.audio.newSound(Gdx.files.internal("drop.wav"));
-        rainMusic = Gdx.audio.newMusic(Gdx.files.internal("rain.mp3"));
-        rainMusic.setLooping(true);*/
-
         // create the camera and the SpriteBatch
         camera = new OrthographicCamera();
-        camera.setToOrtho(false, 800, 480);
+        camera.setToOrtho(false, tileRows, tileColumns);
 
-        // create a Rectangle to logically represent the bucket
-        bucket = new Rectangle();
-        bucket.x = 800 / 2 - 64 / 2; // center the bucket horizontally
-        bucket.y = 20; // bottom left corner of the bucket is 20 pixels above
-        // the bottom screen edge
-        bucket.width = 64;
-        bucket.height = 64;
 
-        // create the raindrops array and spawn the first raindrop
-        raindrops = new Array<Rectangle>();
-        spawnRaindrop();
+        Texture tiles = new Texture(Gdx.files.internal("tiles2.png"));
+        TextureRegion[][] splitTiles = TextureRegion.split(tiles, 23, 23);
+        TiledMap map = new TiledMap();
+        MapLayers layers = map.getLayers();
 
-    }
-
-    private void spawnRaindrop() {
-        Rectangle raindrop = new Rectangle();
-        raindrop.x = MathUtils.random(0, 800 - 64);
-        raindrop.y = 480;
-        raindrop.width = 64;
-        raindrop.height = 64;
-        raindrops.add(raindrop);
-        lastDropTime = TimeUtils.nanoTime();
+        TiledMapTileLayer layer = new TiledMapTileLayer(tileRows, tileColumns, 23, 23);
+        for (int x = 0; x < tileRows; x++) {
+            for (int y = 0; y < tileColumns; y++) {
+                int tx = 0;
+                int ty = 0;
+                if(x > 0){
+                    tx++;
+                    if(x == tileRows - 1) tx++;
+                }
+                if(y > 0){
+                    ty++;
+                    if(y == tileColumns - 1) ty++;
+                }
+                TiledMapTileLayer.Cell cell = new TiledMapTileLayer.Cell();
+                cell.setTile(new StaticTiledMapTile(splitTiles[ty][tx]));
+                layer.setCell(x, tileColumns - 1 -y, cell);
+            }
+        }
+        layers.add(layer);
+        float unitScale = 1/23f;
+        renderer = new OrthogonalTiledMapRenderer(map, unitScale);
     }
 
     @Override
     public void render(float delta) {
-        if(isPaused){
+        if (isPaused) {
             pause();
             return;
         }
-        // clear the screen with a dark blue color. The
-        // arguments to clear are the red, green
-        // blue and alpha component in the range [0,1]
-        // of the color to be used to clear the screen.
-        ScreenUtils.clear(0, 0, 0.2f, 1);
-
-        // tell the camera to update its matrices.
+        ScreenUtils.clear(51f / 255f, 123f / 255f, 250f / 255f, 1f);
         camera.update();
+        renderer.setView(camera);
+        renderer.render();
 
         // tell the SpriteBatch to render in the
         // coordinate system specified by the camera.
@@ -105,56 +98,17 @@ public class GameScreen implements Screen {
         // begin a new batch and draw the bucket and
         // all drops
         game.batch.begin();
-        game.font.draw(game.batch, "Drops Collected: " + dropsGathered, 0, 480);
-        game.batch.draw(bucketImage, bucket.x, bucket.y);
-        for (Rectangle raindrop : raindrops) {
-            game.batch.draw(dropImage, raindrop.x, raindrop.y);
-        }
+        //draw smth here
         game.batch.end();
 
         // process user input
-        if (Gdx.input.isTouched()) {
-            Vector3 touchPos = new Vector3();
-            touchPos.set(Gdx.input.getX(), Gdx.input.getY(), 0);
-            camera.unproject(touchPos);
-            bucket.x = touchPos.x - 64 / 2;
-        }
-        if (Gdx.input.isKeyPressed(Keys.LEFT))
-            bucket.x -= 200 * Gdx.graphics.getDeltaTime();
-        if (Gdx.input.isKeyPressed(Keys.RIGHT))
-            bucket.x += 200 * Gdx.graphics.getDeltaTime();
         //set pause on Space
-        if(Gdx.input.isKeyPressed(Keys.SPACE)) {
+        if (Gdx.input.isKeyPressed(Keys.SPACE)) {
             isPaused = true;
             try {
                 Thread.sleep(200);
             } catch (InterruptedException e) {
                 e.printStackTrace();
-            }
-        }
-        // make sure the bucket stays within the screen bounds
-        if (bucket.x < 0)
-            bucket.x = 0;
-        if (bucket.x > 800 - 64)
-            bucket.x = 800 - 64;
-
-        // check if we need to create a new raindrop
-        if (TimeUtils.nanoTime() - lastDropTime > 1000000000)
-            spawnRaindrop();
-
-        // move the raindrops, remove any that are beneath the bottom edge of
-        // the screen or that hit the bucket. In the later case we play back
-        // a sound effect as well.
-        Iterator<Rectangle> iter = raindrops.iterator();
-        while (iter.hasNext()) {
-            Rectangle raindrop = iter.next();
-            raindrop.y -= 200 * Gdx.graphics.getDeltaTime();
-            if (raindrop.y + 64 < 0)
-                iter.remove();
-            if (raindrop.overlaps(bucket)) {
-                dropsGathered++;
-//                dropSound.play();
-                iter.remove();
             }
         }
     }
@@ -167,7 +121,7 @@ public class GameScreen implements Screen {
     public void show() {
         // start the playback of the background music
         // when the screen is shown
- //       rainMusic.play();
+        //       rainMusic.play();
     }
 
     @Override
@@ -176,7 +130,7 @@ public class GameScreen implements Screen {
 
     @Override
     public void pause() {
-        if(Gdx.input.isKeyPressed(Keys.SPACE)) {
+        if (Gdx.input.isKeyPressed(Keys.SPACE)) {
             pauseStage.clear();
             isPaused = false;
             try {
@@ -207,9 +161,9 @@ public class GameScreen implements Screen {
         toMainMenuButton.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
-               game.setScreen(new MainMenuScreen(game));
-               pauseStage.dispose();
-               GameScreen.this.dispose();
+                game.setScreen(new MainMenuScreen(game));
+                pauseStage.dispose();
+                GameScreen.this.dispose();
             }
         });
 
@@ -225,12 +179,11 @@ public class GameScreen implements Screen {
 
     @Override
     public void dispose() {
-        dropImage.dispose();
-        bucketImage.dispose();
- //       dropSound.dispose();
- //       rainMusic.dispose();
+        //       dropSound.dispose();
+        //       rainMusic.dispose();
     }
-    private Button getSettingsButton(String buttonText, float positionY){
+
+    private Button getSettingsButton(String buttonText, float positionY) {
         Skin skin = new Skin(Gdx.files.internal("flat-earth/skin/flat-earth-ui.json"));
         TextButton button = new TextButton(buttonText, skin);
         button.setSize(200, 100);
