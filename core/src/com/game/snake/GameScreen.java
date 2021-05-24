@@ -34,6 +34,7 @@ public class GameScreen implements Screen {
     //amount of rows/columns
     private int tileRows = 10;
     private int tileColumns = 8;
+    Food food;
 
     public GameScreen(final Main gam, GameDifficulty gameDifficulty) {
         this.game = gam;
@@ -43,7 +44,6 @@ public class GameScreen implements Screen {
         // create the camera and the SpriteBatch
         camera = new OrthographicCamera();
         camera.setToOrtho(false, tileRows, tileColumns);
-
         //load map
         TextureRegion[][] splitTilesDark = TextureRegion.split(new Texture(Gdx.files.internal("tiles2.png")), TILE_SIZE_IN_PIXELS, TILE_SIZE_IN_PIXELS);
         TextureRegion[][] splitTilesLight = TextureRegion.split(new Texture(Gdx.files.internal("tiles.png")), TILE_SIZE_IN_PIXELS, TILE_SIZE_IN_PIXELS);
@@ -81,6 +81,7 @@ public class GameScreen implements Screen {
             pause();
             return;
         }
+        createFood();
         ScreenUtils.clear(51f / 255f, 123f / 255f, 250f / 255f, 1f);
         camera.update();
         renderer.setView(camera);
@@ -93,6 +94,7 @@ public class GameScreen implements Screen {
         // begin a new batch and draw the bucket and
         // all drops
         game.batch.begin();
+        game.batch.draw(food.getImage(), 2,3, 1,1);
         //draw smth here
         game.batch.end();
 
@@ -106,6 +108,17 @@ public class GameScreen implements Screen {
                 e.printStackTrace();
             }
         }
+    }
+    //creates consumable items
+    //call food.consume() when it should be consumed
+    private void createFood() {
+        food = new StandardFood();
+        food.setOnConsume(new Food.Consumable() {
+            @Override
+            public void consume() {
+                System.out.println("I was consumed");
+            }
+        });
     }
 
     @Override
