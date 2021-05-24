@@ -1,12 +1,8 @@
 package com.game.snake;
 
-import java.util.Iterator;
-
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input.Keys;
 import com.badlogic.gdx.Screen;
-import com.badlogic.gdx.audio.Music;
-import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
@@ -15,18 +11,13 @@ import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
 import com.badlogic.gdx.maps.tiled.tiles.StaticTiledMapTile;
-import com.badlogic.gdx.math.MathUtils;
-import com.badlogic.gdx.math.Rectangle;
-import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Button;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
-import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.ScreenUtils;
-import com.badlogic.gdx.utils.TimeUtils;
 
 public class GameScreen implements Screen {
 
@@ -39,7 +30,7 @@ public class GameScreen implements Screen {
     private Stage pauseStage;
     private OrthogonalTiledMapRenderer renderer;
     //amount of rows/columns
-    private int tileRows = 15;
+    private int tileRows = 10;
     private int tileColumns = 10;
 
     public GameScreen(final Main gam, GameDifficulty gameDifficulty) {
@@ -52,8 +43,8 @@ public class GameScreen implements Screen {
         camera.setToOrtho(false, tileRows, tileColumns);
 
 
-        Texture tiles = new Texture(Gdx.files.internal("tiles2.png"));
-        TextureRegion[][] splitTiles = TextureRegion.split(tiles, 23, 23);
+        TextureRegion[][] splitTilesDark = TextureRegion.split(new Texture(Gdx.files.internal("tiles2.png")), 23, 23);
+        TextureRegion[][] splitTilesLight = TextureRegion.split(new Texture(Gdx.files.internal("tiles.png")), 23, 23);
         TiledMap map = new TiledMap();
         MapLayers layers = map.getLayers();
 
@@ -71,7 +62,9 @@ public class GameScreen implements Screen {
                     if(y == tileColumns - 1) ty++;
                 }
                 TiledMapTileLayer.Cell cell = new TiledMapTileLayer.Cell();
-                cell.setTile(new StaticTiledMapTile(splitTiles[ty][tx]));
+                if((x+y) % 2 == 0)
+                    cell.setTile(new StaticTiledMapTile(splitTilesDark[ty][tx]));
+                else cell.setTile(new StaticTiledMapTile(splitTilesLight[ty][tx]));
                 layer.setCell(x, tileColumns - 1 -y, cell);
             }
         }
