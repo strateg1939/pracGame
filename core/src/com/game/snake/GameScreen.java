@@ -22,16 +22,18 @@ import com.badlogic.gdx.utils.ScreenUtils;
 public class GameScreen implements Screen {
 
     final Main game;
-
+    //better not change
+    private static final int TILE_SIZE_IN_PIXELS = 23;
     OrthographicCamera camera;
     //currently does nothing
     private GameDifficulty gameDifficulty;
+    //for pause
     private boolean isPaused;
     private Stage pauseStage;
     private OrthogonalTiledMapRenderer renderer;
     //amount of rows/columns
     private int tileRows = 10;
-    private int tileColumns = 10;
+    private int tileColumns = 8;
 
     public GameScreen(final Main gam, GameDifficulty gameDifficulty) {
         this.game = gam;
@@ -42,13 +44,13 @@ public class GameScreen implements Screen {
         camera = new OrthographicCamera();
         camera.setToOrtho(false, tileRows, tileColumns);
 
-
-        TextureRegion[][] splitTilesDark = TextureRegion.split(new Texture(Gdx.files.internal("tiles2.png")), 23, 23);
-        TextureRegion[][] splitTilesLight = TextureRegion.split(new Texture(Gdx.files.internal("tiles.png")), 23, 23);
+        //load map
+        TextureRegion[][] splitTilesDark = TextureRegion.split(new Texture(Gdx.files.internal("tiles2.png")), TILE_SIZE_IN_PIXELS, TILE_SIZE_IN_PIXELS);
+        TextureRegion[][] splitTilesLight = TextureRegion.split(new Texture(Gdx.files.internal("tiles.png")), TILE_SIZE_IN_PIXELS, TILE_SIZE_IN_PIXELS);
         TiledMap map = new TiledMap();
         MapLayers layers = map.getLayers();
 
-        TiledMapTileLayer layer = new TiledMapTileLayer(tileRows, tileColumns, 23, 23);
+        TiledMapTileLayer layer = new TiledMapTileLayer(tileRows, tileColumns, TILE_SIZE_IN_PIXELS, TILE_SIZE_IN_PIXELS);
         for (int x = 0; x < tileRows; x++) {
             for (int y = 0; y < tileColumns; y++) {
                 int tx = 0;
@@ -65,11 +67,11 @@ public class GameScreen implements Screen {
                 if((x+y) % 2 == 0)
                     cell.setTile(new StaticTiledMapTile(splitTilesDark[ty][tx]));
                 else cell.setTile(new StaticTiledMapTile(splitTilesLight[ty][tx]));
-                layer.setCell(x, tileColumns - 1 -y, cell);
+                layer.setCell(x, tileColumns - 1 - y, cell);
             }
         }
         layers.add(layer);
-        float unitScale = 1/23f;
+        float unitScale = 1/(float) TILE_SIZE_IN_PIXELS;
         renderer = new OrthogonalTiledMapRenderer(map, unitScale);
     }
 
