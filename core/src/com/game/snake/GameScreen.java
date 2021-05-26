@@ -34,7 +34,11 @@ public class GameScreen implements Screen {
     //amount of rows/columns
     private int tileRows = 10;
     private int tileColumns = 8;
+    private int startX = 4;
+    private int startY = 4;
+    private int direction = 0;
     Food food;
+    Snake snake;
 
     public GameScreen(final Main gam, GameDifficulty gameDifficulty) {
         this.game = gam;
@@ -82,6 +86,7 @@ public class GameScreen implements Screen {
             return;
         }
         createFood();
+        createSnake();
         ScreenUtils.clear(51f / 255f, 123f / 255f, 250f / 255f, 1f);
         camera.update();
         renderer.setView(camera);
@@ -95,9 +100,92 @@ public class GameScreen implements Screen {
         // all drops
         game.batch.begin();
         game.batch.draw(food.getImage(), 2,3, 1,1);
+        game.batch.draw(snake.getImage(), startX,startY, 1,1);
         //draw smth here
-        game.batch.end();
 
+
+        //snake moves
+        if (Gdx.input.isKeyPressed(Keys.UP)) {
+            direction = 1;
+            startY++;
+            try {
+                Thread.sleep(200);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            game.batch.draw(snake.getImage(), startX,startY, 1,1);
+        }
+        if (Gdx.input.isKeyPressed(Keys.DOWN)) {
+            direction = 2;
+            startY--;
+            try {
+                Thread.sleep(200);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            game.batch.draw(snake.getImage(), startX,startY, 1,1);
+        }
+        if (Gdx.input.isKeyPressed(Keys.RIGHT)) {
+            direction = 3;
+            startX++;
+            try {
+                Thread.sleep(200);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            game.batch.draw(snake.getImage(), startX,startY, 1,1);
+        }
+        if (Gdx.input.isKeyPressed(Keys.LEFT)) {
+            direction = 4;
+            startX--;
+            try {
+                Thread.sleep(200);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            game.batch.draw(snake.getImage(), startX,startY, 1,1);
+        }
+
+/*
+    if (Gdx.input.isKeyPressed(Keys.ANY_KEY)) {
+        while (direction >= 1 && direction <= 4) {
+            if (direction == 1) {
+                startY++;
+                try {
+                    Thread.sleep(200);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+                game.batch.draw(snake.getImage(), startX, startY, 1, 1);
+            } else if (direction == 2) {
+                startY--;
+                try {
+                    Thread.sleep(200);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+                game.batch.draw(snake.getImage(), startX, startY, 1, 1);
+            } else if (direction == 3) {
+                startX++;
+                try {
+                    Thread.sleep(200);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+                game.batch.draw(snake.getImage(), startX, startY, 1, 1);
+            } else {
+                startX--;
+                try {
+                    Thread.sleep(200);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+                game.batch.draw(snake.getImage(), startX, startY, 1, 1);
+            }
+        }
+    }*/
+
+        game.batch.end();
         // process user input
         //set pause on Space
         if (Gdx.input.isKeyPressed(Keys.SPACE)) {
@@ -114,6 +202,16 @@ public class GameScreen implements Screen {
     private void createFood() {
         food = new StandardFood();
         food.setOnConsume(new Food.Consumable() {
+            @Override
+            public void consume() {
+                System.out.println("I was consumed");
+            }
+        });
+    }
+
+    private void createSnake(){
+        snake = new SnakeDesign();
+        snake.setOnConsume(new Food.Consumable() {
             @Override
             public void consume() {
                 System.out.println("I was consumed");
