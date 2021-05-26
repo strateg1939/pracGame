@@ -18,6 +18,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.utils.ScreenUtils;
+import com.badlogic.gdx.utils.TimeUtils;
 
 import java.util.ArrayList;
 
@@ -49,6 +50,7 @@ public class GameScreen implements Screen {
     ArrayList<Snake> snakes = new ArrayList<>();
     ArrayList<Integer> x = new ArrayList<>();
     ArrayList<Integer> y = new ArrayList<>();
+    private long lastSnakeUpdateTime;
 
 
     public GameScreen(final Main gam, GameDifficulty gameDifficulty) {
@@ -64,7 +66,7 @@ public class GameScreen implements Screen {
         TextureRegion[][] splitTilesLight = TextureRegion.split(new Texture(Gdx.files.internal("tiles.png")), TILE_SIZE_IN_PIXELS, TILE_SIZE_IN_PIXELS);
         TiledMap map = new TiledMap();
         MapLayers layers = map.getLayers();
-
+        lastSnakeUpdateTime = TimeUtils.millis();
         TiledMapTileLayer layer = new TiledMapTileLayer(tileRows, tileColumns, TILE_SIZE_IN_PIXELS, TILE_SIZE_IN_PIXELS);
         for (int x = 0; x < tileRows; x++) {
             for (int y = 0; y < tileColumns; y++) {
@@ -122,64 +124,52 @@ public class GameScreen implements Screen {
         snakes.add(snakes.get(0));
 
         //draw smth here
+        for (int i = x.size() - 1; i > x.size() - index; i--) {
+            game.batch.draw(snakes.get(i).getImage(), x.get(i), y.get(i), 1, 1);
+        }
+        game.batch.end();
+        if (Gdx.input.isKeyPressed(Keys.UP)) {
+            direction = 1;
+            //  startY++;
+        }
+        if (Gdx.input.isKeyPressed(Keys.DOWN)) {
+            direction = 2;
+            //  startY--;
+        }
+        if (Gdx.input.isKeyPressed(Keys.RIGHT)) {
+            direction = 3;
+            //  startX++;
+        }
+        if (Gdx.input.isKeyPressed(Keys.LEFT)) {
+            direction = 4;
+            // startX--;
+        }
+        if(TimeUtils.millis() - lastSnakeUpdateTime >= 500) {
+            lastSnakeUpdateTime = TimeUtils.millis();
+            //snake moves
+            //  if(Gdx.input.isKeyPressed(Keys.ANY_KEY)) {
+            if (direction <= 4 && direction >= 1) {
+                if (direction == 1) {
+                    startY++;
+                }
+                if (direction == 2) {
+                    startY--;
+                }
+                if (direction == 3) {
+                    startX++;
+                }
+                if (direction == 4) {
+                    startX--;
+                }
+                x.add(startX);
+                y.add(startY);
 
-
-        //snake moves
-      //  if(Gdx.input.isKeyPressed(Keys.ANY_KEY)) {
-            if (Gdx.input.isKeyPressed(Keys.UP)) {
-                direction = 1;
-              //  startY++;
+                if (startX == foodX && startY == foodY) {
+                    index++;
+                }
             }
-            if (Gdx.input.isKeyPressed(Keys.DOWN)) {
-                direction = 2;
-              //  startY--;
-            }
-            if (Gdx.input.isKeyPressed(Keys.RIGHT)) {
-                direction = 3;
-              //  startX++;
-            }
-            if (Gdx.input.isKeyPressed(Keys.LEFT)) {
-                direction = 4;
-               // startX--;
-            }
-       // }
-        if(direction<=4 && direction>=1) {
-            if (direction == 1) {
-                startY++;
-            }
-            if (direction == 2) {
-                startY--;
-            }
-            if (direction == 3) {
-                startX++;
-            }
-            if (direction == 4) {
-                startX--;
-            }
-            x.add(startX);
-            y.add(startY);
-
-            if(startX==foodX && startY==foodY) {
-                index++;
-            }
-
-            try {
-                Thread.sleep(500);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-
-
-            for (int i = x.size() - 1; i > x.size()-index; i--) {
-                game.batch.draw(snakes.get(i).getImage(), x.get(i), y.get(i), 1, 1);
-            }
-
-
         }
 
-
-
-        game.batch.end();
         // process user input
         //set pause on Space
         if (Gdx.input.isKeyPressed(Keys.SPACE)) {
