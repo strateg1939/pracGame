@@ -19,6 +19,8 @@ import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.utils.ScreenUtils;
 
+import java.util.ArrayList;
+
 public class GameScreen implements Screen {
 
     final Main game;
@@ -32,13 +34,22 @@ public class GameScreen implements Screen {
     private Stage pauseStage;
     private OrthogonalTiledMapRenderer renderer;
     //amount of rows/columns
-    private int tileRows = 10;
-    private int tileColumns = 8;
+    private int tileRows = 20;
+    private int tileColumns = 18;
+    //snake parameters
     private int startX = 4;
     private int startY = 4;
     private int direction = 0;
+    private int index = 1;
     Food food;
-    Snake snake;
+
+    private int foodX = 2;
+    private int foodY = 3;
+    //Snake snake;
+    ArrayList<Snake> snakes = new ArrayList<>();
+    ArrayList<Integer> x = new ArrayList<>();
+    ArrayList<Integer> y = new ArrayList<>();
+
 
     public GameScreen(final Main gam, GameDifficulty gameDifficulty) {
         this.game = gam;
@@ -86,7 +97,12 @@ public class GameScreen implements Screen {
             return;
         }
         createFood();
-        createSnake();
+
+        for (int i = 0; i < tileColumns * tileRows; i++) {
+            snakes.add(createSnake("snake" + i));
+        }
+
+        //createSnake("snake");
         ScreenUtils.clear(51f / 255f, 123f / 255f, 250f / 255f, 1f);
         camera.update();
         renderer.setView(camera);
@@ -99,91 +115,69 @@ public class GameScreen implements Screen {
         // begin a new batch and draw the bucket and
         // all drops
         game.batch.begin();
-        game.batch.draw(food.getImage(), 2,3, 1,1);
-        game.batch.draw(snake.getImage(), startX,startY, 1,1);
+        game.batch.draw(food.getImage(), foodX, foodY, 1, 1);
+        game.batch.draw(snakes.get(0).getImage(), startX, startY, 1, 1);
+        x.add(startX);
+        y.add(startY);
+        snakes.add(snakes.get(0));
+
         //draw smth here
 
 
         //snake moves
-        if (Gdx.input.isKeyPressed(Keys.UP)) {
-            direction = 1;
-            startY++;
-            try {
-                Thread.sleep(200);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
+      //  if(Gdx.input.isKeyPressed(Keys.ANY_KEY)) {
+            if (Gdx.input.isKeyPressed(Keys.UP)) {
+                direction = 1;
+              //  startY++;
             }
-            game.batch.draw(snake.getImage(), startX,startY, 1,1);
-        }
-        if (Gdx.input.isKeyPressed(Keys.DOWN)) {
-            direction = 2;
-            startY--;
-            try {
-                Thread.sleep(200);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
+            if (Gdx.input.isKeyPressed(Keys.DOWN)) {
+                direction = 2;
+              //  startY--;
             }
-            game.batch.draw(snake.getImage(), startX,startY, 1,1);
-        }
-        if (Gdx.input.isKeyPressed(Keys.RIGHT)) {
-            direction = 3;
-            startX++;
-            try {
-                Thread.sleep(200);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
+            if (Gdx.input.isKeyPressed(Keys.RIGHT)) {
+                direction = 3;
+              //  startX++;
             }
-            game.batch.draw(snake.getImage(), startX,startY, 1,1);
-        }
-        if (Gdx.input.isKeyPressed(Keys.LEFT)) {
-            direction = 4;
-            startX--;
-            try {
-                Thread.sleep(200);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
+            if (Gdx.input.isKeyPressed(Keys.LEFT)) {
+                direction = 4;
+               // startX--;
             }
-            game.batch.draw(snake.getImage(), startX,startY, 1,1);
-        }
-
-/*
-    if (Gdx.input.isKeyPressed(Keys.ANY_KEY)) {
-        while (direction >= 1 && direction <= 4) {
+       // }
+        if(direction<=4 && direction>=1) {
             if (direction == 1) {
                 startY++;
-                try {
-                    Thread.sleep(200);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-                game.batch.draw(snake.getImage(), startX, startY, 1, 1);
-            } else if (direction == 2) {
-                startY--;
-                try {
-                    Thread.sleep(200);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-                game.batch.draw(snake.getImage(), startX, startY, 1, 1);
-            } else if (direction == 3) {
-                startX++;
-                try {
-                    Thread.sleep(200);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-                game.batch.draw(snake.getImage(), startX, startY, 1, 1);
-            } else {
-                startX--;
-                try {
-                    Thread.sleep(200);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-                game.batch.draw(snake.getImage(), startX, startY, 1, 1);
             }
+            if (direction == 2) {
+                startY--;
+            }
+            if (direction == 3) {
+                startX++;
+            }
+            if (direction == 4) {
+                startX--;
+            }
+            x.add(startX);
+            y.add(startY);
+
+            if(startX==foodX && startY==foodY) {
+                index++;
+            }
+
+            try {
+                Thread.sleep(500);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+
+
+            for (int i = x.size() - 1; i > x.size()-index; i--) {
+                game.batch.draw(snakes.get(i).getImage(), x.get(i), y.get(i), 1, 1);
+            }
+
+
         }
-    }*/
+
+
 
         game.batch.end();
         // process user input
@@ -209,14 +203,9 @@ public class GameScreen implements Screen {
         });
     }
 
-    private void createSnake(){
-        snake = new SnakeDesign();
-        snake.setOnConsume(new Food.Consumable() {
-            @Override
-            public void consume() {
-                System.out.println("I was consumed");
-            }
-        });
+    private Snake createSnake(String name){
+        Snake snake = new SnakeDesign(name);
+    return snake;
     }
 
     @Override

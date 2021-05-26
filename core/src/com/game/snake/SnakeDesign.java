@@ -9,6 +9,10 @@ public class SnakeDesign extends Snake{
         image = new Texture(Gdx.files.internal("snake.png"));
     }
 
+     public SnakeDesign(String name){
+        this.name= name;
+    }
+
     @Override
     public Texture getImage() {
         return image;
