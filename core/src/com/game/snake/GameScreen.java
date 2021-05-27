@@ -37,7 +37,9 @@ public class GameScreen implements Screen {
     private GameDifficulty gameDifficulty;
     //for pause
     private boolean isPaused;
+    private boolean isOver;
     private Stage pauseStage;
+    private Stage finalStage;
     private OrthogonalTiledMapRenderer renderer;
     //amount of rows/columns
     private int tileRows = 15;
@@ -64,6 +66,7 @@ public class GameScreen implements Screen {
         this.game = gam;
         this.gameDifficulty = gameDifficulty;
         pauseStage = new Stage();
+        finalStage = new Stage();
         lastSnakeMovement = TimeUtils.millis();
         snakeHead = new SnakeHead(rand.nextInt(tileRows), rand.nextInt(tileColumns) + 1);
         snakeTails.add(new SnakeTail());
@@ -113,6 +116,10 @@ public class GameScreen implements Screen {
     public void render(float delta) {
         if (isPaused) {
             pause();
+            return;
+        }
+        if(isOver){
+            showFinalScreen();
             return;
         }
 
@@ -178,7 +185,7 @@ public class GameScreen implements Screen {
                 else if (direction == 3) {
                     snakeHead.x++;
                 }
-                else if (direction == 4) {
+                else{
                     snakeHead.x--;
                 }
                 //to properly add new snakes first check for food then if no food move
@@ -200,14 +207,13 @@ public class GameScreen implements Screen {
             for(int i = 0; i < snakeTails.size(); i++){
                 if(snakeHead.x == X.get(i) && snakeHead.y == Y.get(i)){
                     System.out.println("Game over");
-                    System.exit(0);
+                    showFinalScreen();
                 }
             }
             //check if head collides with borders
             if(snakeHead.x < 0 || snakeHead.x > tileColumns - 1 || snakeHead.y > tileRows - 1 || snakeHead.y < 0){
                 System.out.println("Game over");
-
-                System.exit(0);
+                showFinalScreen();
             }
         }
 
@@ -221,6 +227,32 @@ public class GameScreen implements Screen {
                 e.printStackTrace();
             }
         }
+    }
+
+    private void showFinalScreen() {
+        isOver = true;
+        Gdx.input.setInputProcessor(finalStage);
+        Button toMainMenuButton = getSettingsButton("To Menu", 300);
+        Button exitButton = getSettingsButton("Exit", 150);
+        exitButton.addListener(new ChangeListener() {
+            @Override
+            public void changed(ChangeEvent event, Actor actor) {
+                finalStage.dispose();
+                GameScreen.this.dispose();
+                game.dispose();
+            }
+        });
+        toMainMenuButton.addListener(new ChangeListener() {
+            @Override
+            public void changed(ChangeEvent event, Actor actor) {
+                game.setScreen(new MainMenuScreen(game));
+                finalStage.dispose();
+                GameScreen.this.dispose();
+            }
+        });
+        finalStage.addActor(exitButton);
+        finalStage.addActor(toMainMenuButton);
+        finalStage.draw();
     }
 
     //creates consumable items
@@ -273,6 +305,7 @@ public class GameScreen implements Screen {
             public void changed(ChangeEvent event, Actor actor) {
                 pauseStage.dispose();
                 GameScreen.this.dispose();
+                game.dispose();
             }
         });
         resumeButton.addListener(new ChangeListener() {
@@ -294,6 +327,7 @@ public class GameScreen implements Screen {
         pauseStage.addActor(resumeButton);
         pauseStage.addActor(exitButton);
         pauseStage.addActor(toMainMenuButton);
+
         pauseStage.draw();
     }
 
