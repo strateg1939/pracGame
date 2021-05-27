@@ -42,8 +42,8 @@ public class GameScreen implements Screen {
     private Stage finalStage;
     private OrthogonalTiledMapRenderer renderer;
     //amount of rows/columns
-    private int tileRows = 15;
-    private int tileColumns = 15;
+    private int tileRows = 2;
+    private int tileColumns = 2;
     //snake parameters
     private int snakeTailFirstX;
     private int snakeTailFirstY;
@@ -68,14 +68,19 @@ public class GameScreen implements Screen {
         pauseStage = new Stage();
         finalStage = new Stage();
         lastSnakeMovement = TimeUtils.millis();
-        snakeHead = new SnakeHead(rand.nextInt(tileRows), rand.nextInt(tileColumns) + 1);
+        if(tileColumns < 2) throw new RuntimeException("TO FEW COLUMNS");
+        snakeHead = new SnakeHead(rand.nextInt(tileRows), rand.nextInt(tileColumns - 1));
+        System.out.println(snakeHead.x);
+        System.out.println(snakeHead.y);
         snakeTails.add(new SnakeTail());
         snakeTailFirstX = snakeHead.x;
         X.add(snakeTailFirstX);
+        System.out.println(X);
         X.add(snakeTailFirstX);
-        snakeTailFirstY = snakeHead.y - 1;
+        snakeTailFirstY = snakeHead.y + 1;
         Y.add(snakeTailFirstY);
-        Y.add(snakeTailFirstY - 1);
+        Y.add(snakeTailFirstY + 1);
+        System.out.println(Y);
         createFood();
         System.out.println(gameDifficulty);
         // create the camera and the SpriteBatch
