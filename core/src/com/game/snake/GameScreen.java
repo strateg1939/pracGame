@@ -259,9 +259,9 @@ public class GameScreen implements Screen {
             return;
         }
         Gdx.input.setInputProcessor(pauseStage);
-        Button resumeButton = getSettingsButton("Resume", 350);
-        Button toMainMenuButton = getSettingsButton("To Menu", 200);
-        Button exitButton = getSettingsButton("Exit", 50);
+        Button resumeButton = getSettingsButton("Resume", 450);
+        Button toMainMenuButton = getSettingsButton("To Menu", 300);
+        Button exitButton = getSettingsButton("Exit", 150);
         exitButton.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
@@ -305,7 +305,7 @@ public class GameScreen implements Screen {
         Skin skin = new Skin(Gdx.files.internal("flat-earth/skin/flat-earth-ui.json"));
         TextButton button = new TextButton(buttonText, skin);
         button.setSize(200, 100);
-        button.setPosition(300, positionY);
+        button.setPosition(400, positionY);
         return button;
     }
 

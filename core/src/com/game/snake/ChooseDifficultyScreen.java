@@ -26,13 +26,13 @@ public class ChooseDifficultyScreen implements Screen {
         stage.addActor(getDefaultButtonForThisScreen("Medium", 200, GameDifficulty.MEDIUM, skin));
         stage.addActor(getDefaultButtonForThisScreen("Hard", 50, GameDifficulty.HARD, skin));
         camera = new OrthographicCamera();
-        camera.setToOrtho(false, 800, 480);
+        camera.setToOrtho(false, 1000, 680);
     }
     //returns TextButton with size 200,100; x= 300, skin from assets and on click start of game
     private Button getDefaultButtonForThisScreen(String buttonText, float positionY, final GameDifficulty gameDifficulty, Skin skin){
         TextButton button = new TextButton(buttonText, skin);
         button.setSize(200, 100);
-        button.setPosition(300, positionY);
+        button.setPosition(400, positionY);
         button.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
@@ -59,7 +59,7 @@ public class ChooseDifficultyScreen implements Screen {
 
         game.batch.begin();
         stage.draw();
-        game.font.draw(game.batch, "Choose difficulty setting (currently does nothing)", 500, 600);
+        game.font.draw(game.batch, "Choose difficulty setting (currently does nothing)", 400, 500);
         game.batch.end();
     }
 
