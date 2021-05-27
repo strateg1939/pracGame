@@ -20,6 +20,7 @@ import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.utils.TimeUtils;
 
+import java.util.LinkedList;
 import java.util.Random;
 
 import java.util.ArrayList;
@@ -39,21 +40,21 @@ public class GameScreen implements Screen {
     private Stage pauseStage;
     private OrthogonalTiledMapRenderer renderer;
     //amount of rows/columns
-    private int tileRows = 7;
-    private int tileColumns = 7;
+    private int tileRows = 15;
+    private int tileColumns = 15;
     //snake parameters
-    private int startX = 4;
-    private int startY = 4;
+    private int startX;
+    private int startY;
     private int direction = 0;
-    private int index = 1;
     Food food;
-
     private int foodX = 2;
     private int foodY = 3;
+    Random rand = new Random();
     //Snake snake;
-    ArrayList<Snake> snakes = new ArrayList<>();
-    ArrayList<Integer> x = new ArrayList<>();
-    ArrayList<Integer> y = new ArrayList<>();
+    ArrayList<Snake> snakeTails = new ArrayList<>();
+    LinkedList<Integer> X = new LinkedList<>();
+    LinkedList<Integer> Y = new LinkedList<>();
+    SnakeHead snakeHead;
     private long lastSnakeMovement;
 
 
@@ -62,6 +63,13 @@ public class GameScreen implements Screen {
         this.gameDifficulty = gameDifficulty;
         pauseStage = new Stage();
         lastSnakeMovement = TimeUtils.millis();
+        snakeHead = new SnakeHead(rand.nextInt(tileRows), rand.nextInt(tileColumns) + 1);
+        snakeTails.add(new SnakeTail());
+        startX = snakeHead.x;
+        X.add(startX);
+        startY = snakeHead.y - 1;
+        Y.add(startY);
+        createFood();
         System.out.println(gameDifficulty);
         // create the camera and the SpriteBatch
         camera = new OrthographicCamera();
@@ -103,11 +111,6 @@ public class GameScreen implements Screen {
             pause();
             return;
         }
-        createFood();
-
-        for (int i = 0; i < tileColumns * tileRows; i++) {
-            snakes.add(createSnake("snake" + i));
-        }
 
         ScreenUtils.clear(51f / 255f, 123f / 255f, 250f / 255f, 1f);
         camera.update();
@@ -122,15 +125,11 @@ public class GameScreen implements Screen {
         // all drops
 
         game.batch.begin();
-        Random rand = new Random();
 
         game.batch.draw(food.getImage(), foodX, foodY, 1, 1);
-        game.batch.draw(snakes.get(0).getImage(), startX, startY, 1, 1);
-        x.add(startX);
-        y.add(startY);
-        snakes.add(snakes.get(0));
-        for (int i = x.size() - 1; i > x.size() - index; i--) {
-            game.batch.draw(snakes.get(i).getImage(), x.get(i), y.get(i), 1, 1);
+        game.batch.draw(snakeHead.getImage(), snakeHead.x, snakeHead.y, 1, 1);
+        for (int i = 0; i < snakeTails.size(); i++) {
+            game.batch.draw(snakeTails.get(i).getImage(), X.get(i), Y.get(i), 1, 1);
         }
         game.batch.draw(food.getImage(), foodX, foodY, 1, 1);
         game.batch.end();
@@ -165,32 +164,35 @@ public class GameScreen implements Screen {
         if (TimeUtils.millis() - lastSnakeMovement > SNAKE_SPEED) {
             lastSnakeMovement = TimeUtils.millis();
             if (direction <= 4 && direction >= 1) {
+                startX = snakeHead.x;
+                startY = snakeHead.y;
                 if (direction == 1) {
-                    startY++;
+                    snakeHead.y++;
                 }
                 else if (direction == 2) {
-                    startY--;
+                    snakeHead.y--;
                 }
                 else if (direction == 3) {
-                    startX++;
+                    snakeHead.x++;
                 }
                 else if (direction == 4) {
-                    startX--;
+                    snakeHead.x--;
                 }
-                x.add(startX);
-                y.add(startY);
+                X.addFirst(startX);
+                X.removeLast();
+                Y.addFirst(startY);
+                Y.removeLast();
             }
-            if (startX == foodX && startY == foodY) {
-                index += 2;
-                createFood();
+            if(snakeHead.x == foodX && snakeHead.y == foodY) {
+                food.consume();
                 foodX = rand.nextInt(tileRows);
                 foodY = rand.nextInt(tileColumns);
+                createFood();
             }
-            for (int i = x.size() - 1; i > x.size() - index; i--) {
-                for (int j = 0; j < index; j++) {
-                    if (x.get(i) == x.get(i - index) && y.get(i) == y.get(i - index)) {
-                        System.out.println("colision");
-                    }
+            for(int i = 0; i < snakeTails.size(); i++){
+                if(snakeHead.x == X.get(i) && snakeHead.y == Y.get(i)){
+                    System.out.println("Game over");
+                    System.exit(0);
                 }
             }
         }
@@ -217,11 +219,6 @@ public class GameScreen implements Screen {
                 System.out.println("I was consumed");
             }
         });
-    }
-
-    private Snake createSnake(String name) {
-        Snake snake = new SnakeDesign(name);
-        return snake;
     }
 
     @Override

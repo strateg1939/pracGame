@@ -3,14 +3,16 @@ package com.game.snake;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
 
-public class SnakeDesign extends Snake{
+public class SnakeHead extends Snake{
     private static Texture image;
+    public int x;
+    public int y;
+    public SnakeHead(int x, int y){
+        this.x = x;
+        this.y = y;
+    }
     static {
         image = new Texture(Gdx.files.internal("snake.png"));
-    }
-
-     public SnakeDesign(String name){
-        this.name= name;
     }
 
     @Override
