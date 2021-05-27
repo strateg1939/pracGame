@@ -59,7 +59,7 @@ public class ChooseDifficultyScreen implements Screen {
 
         game.batch.begin();
         stage.draw();
-        game.font.draw(game.batch, "Choose difficulty setting (currently does nothing)", 300, 470);
+        game.font.draw(game.batch, "Choose difficulty setting (currently does nothing)", 500, 600);
         game.batch.end();
     }
 
