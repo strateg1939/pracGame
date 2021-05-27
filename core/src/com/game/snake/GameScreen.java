@@ -18,6 +18,8 @@ import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.utils.ScreenUtils;
+import com.badlogic.gdx.utils.TimeUtils;
+
 import java.util.Random;
 
 import java.util.ArrayList;
@@ -27,6 +29,8 @@ public class GameScreen implements Screen {
     final Main game;
     //better not change
     private static final int TILE_SIZE_IN_PIXELS = 23;
+    //less == faster
+    private static final int SNAKE_SPEED = 400;
     OrthographicCamera camera;
     //currently does nothing
     private GameDifficulty gameDifficulty;
@@ -50,12 +54,14 @@ public class GameScreen implements Screen {
     ArrayList<Snake> snakes = new ArrayList<>();
     ArrayList<Integer> x = new ArrayList<>();
     ArrayList<Integer> y = new ArrayList<>();
+    private long lastSnakeMovement;
 
 
     public GameScreen(final Main gam, GameDifficulty gameDifficulty) {
         this.game = gam;
         this.gameDifficulty = gameDifficulty;
         pauseStage = new Stage();
+        lastSnakeMovement = TimeUtils.millis();
         System.out.println(gameDifficulty);
         // create the camera and the SpriteBatch
         camera = new OrthographicCamera();
@@ -71,23 +77,23 @@ public class GameScreen implements Screen {
             for (int y = 0; y < tileColumns; y++) {
                 int tx = 0;
                 int ty = 0;
-                if(x > 0){
+                if (x > 0) {
                     tx++;
-                    if(x == tileRows - 1) tx++;
+                    if (x == tileRows - 1) tx++;
                 }
-                if(y > 0){
+                if (y > 0) {
                     ty++;
-                    if(y == tileColumns - 1) ty++;
+                    if (y == tileColumns - 1) ty++;
                 }
                 TiledMapTileLayer.Cell cell = new TiledMapTileLayer.Cell();
-                if((x+y) % 2 == 0)
+                if ((x + y) % 2 == 0)
                     cell.setTile(new StaticTiledMapTile(splitTilesDark[ty][tx]));
                 else cell.setTile(new StaticTiledMapTile(splitTilesLight[ty][tx]));
                 layer.setCell(x, tileColumns - 1 - y, cell);
             }
         }
         layers.add(layer);
-        float unitScale = 1/(float) TILE_SIZE_IN_PIXELS;
+        float unitScale = 1 / (float) TILE_SIZE_IN_PIXELS;
         renderer = new OrthogonalTiledMapRenderer(map, unitScale);
     }
 
@@ -123,86 +129,72 @@ public class GameScreen implements Screen {
         x.add(startX);
         y.add(startY);
         snakes.add(snakes.get(0));
-
+        for (int i = x.size() - 1; i > x.size() - index; i--) {
+            game.batch.draw(snakes.get(i).getImage(), x.get(i), y.get(i), 1, 1);
+        }
+        game.batch.draw(food.getImage(), foodX, foodY, 1, 1);
+        game.batch.end();
         //draw smth here
 
 
         //snake moves
-      //  if(Gdx.input.isKeyPressed(Keys.ANY_KEY)) {
-        if (direction!=2) {
+        if (direction != 2) {
             if (Gdx.input.isKeyPressed(Keys.UP)) {
                 direction = 1;
                 //  startY++;
             }
         }
-        if (direction!=1) {
+        if (direction != 1) {
             if (Gdx.input.isKeyPressed(Keys.DOWN)) {
                 direction = 2;
                 //  startY--;
             }
         }
-        if (direction!=4) {
+        if (direction != 4) {
             if (Gdx.input.isKeyPressed(Keys.RIGHT)) {
                 direction = 3;
                 //  startX++;
             }
         }
-        if (direction!=3) {
+        if (direction != 3) {
             if (Gdx.input.isKeyPressed(Keys.LEFT)) {
                 direction = 4;
                 // startX--;
             }
         }
-       // }
-        if(direction<=4 && direction>=1) {
-            if (direction == 1) {
-                startY++;
+        if (TimeUtils.millis() - lastSnakeMovement > SNAKE_SPEED) {
+            lastSnakeMovement = TimeUtils.millis();
+            if (direction <= 4 && direction >= 1) {
+                if (direction == 1) {
+                    startY++;
+                }
+                else if (direction == 2) {
+                    startY--;
+                }
+                else if (direction == 3) {
+                    startX++;
+                }
+                else if (direction == 4) {
+                    startX--;
+                }
+                x.add(startX);
+                y.add(startY);
             }
-            if (direction == 2) {
-                startY--;
-            }
-            if (direction == 3) {
-                startX++;
-            }
-            if (direction == 4) {
-                startX--;
-            }
-            x.add(startX);
-            y.add(startY);
-
-            if(startX==foodX && startY==foodY) {
-                index+=2;
+            if (startX == foodX && startY == foodY) {
+                index += 2;
                 createFood();
-
-                    foodX = rand.nextInt(tileRows);
-                    foodY = rand.nextInt(tileColumns);
-
-                game.batch.draw(food.getImage(), foodX, foodY, 1, 1);
+                foodX = rand.nextInt(tileRows);
+                foodY = rand.nextInt(tileColumns);
             }
-
-            try {
-                Thread.sleep(400);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-            for (int i = x.size() - 1; i > x.size()-index; i--) {
-                for (int j=0; j<index; j++) {
+            for (int i = x.size() - 1; i > x.size() - index; i--) {
+                for (int j = 0; j < index; j++) {
                     if (x.get(i) == x.get(i - index) && y.get(i) == y.get(i - index)) {
                         System.out.println("colision");
                     }
                 }
             }
-
-
-            for (int i = x.size() - 1; i > x.size()-index; i--) {
-                game.batch.draw(snakes.get(i).getImage(), x.get(i), y.get(i), 1, 1);
-            }
-
         }
 
-
-
-        game.batch.end();
         // process user input
         //set pause on Space
         if (Gdx.input.isKeyPressed(Keys.SPACE)) {
@@ -214,6 +206,7 @@ public class GameScreen implements Screen {
             }
         }
     }
+
     //creates consumable items
     //call food.consume() when it should be consumed
     private void createFood() {
@@ -226,9 +219,9 @@ public class GameScreen implements Screen {
         });
     }
 
-    private Snake createSnake(String name){
+    private Snake createSnake(String name) {
         Snake snake = new SnakeDesign(name);
-    return snake;
+        return snake;
     }
 
     @Override
