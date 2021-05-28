@@ -4,7 +4,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
 
 public class SnakeHead extends Snake{
-    private static Texture image;
+    protected static Texture image;
     public int x;
     public int y;
     public SnakeHead(int x, int y){

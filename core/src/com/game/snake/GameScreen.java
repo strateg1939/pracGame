@@ -157,6 +157,7 @@ public class GameScreen implements Screen {
                 direction = 1;
                 //  snakeTailFirstY++;
                 SnakeTail.image = new Texture(Gdx.files.internal("snakeLeft.png"));
+                SnakeHead.image  = new Texture(Gdx.files.internal("snakeHeadDown.png"));
             }
         }
         if (direction != 1) {
@@ -164,6 +165,7 @@ public class GameScreen implements Screen {
                 direction = 2;
                 //  snakeTailFirstY--;
                 SnakeTail.image = new Texture(Gdx.files.internal("snakeRight.png"));
+                SnakeHead.image  = new Texture(Gdx.files.internal("snakeHeadUp.png"));
             }
         }
         if (direction != 4) {
@@ -171,6 +173,7 @@ public class GameScreen implements Screen {
                 direction = 3;
                 //  snakeTailFirstX++;
                 SnakeTail.image = new Texture(Gdx.files.internal("snakeUp.png"));
+                SnakeHead.image  = new Texture(Gdx.files.internal("snakeHeadLeft.png"));
             }
         }
         if (direction != 3) {
@@ -178,6 +181,7 @@ public class GameScreen implements Screen {
                 direction = 4;
                 // snakeTailFirstX--;
                 SnakeTail.image = new Texture(Gdx.files.internal("snakeDown.png"));
+                SnakeHead.image  = new Texture(Gdx.files.internal("snakeHeadRight.png"));
             }
         }
         //snake moves
