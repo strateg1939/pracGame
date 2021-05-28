@@ -42,12 +42,12 @@ public class GameScreen implements Screen {
     private Stage finalStage;
     private OrthogonalTiledMapRenderer renderer;
     //amount of rows/columns
-    private int tileRows = 2;
-    private int tileColumns = 2;
+    private int tileRows = 20;
+    private int tileColumns = 18;
     //snake parameters
     private int snakeTailFirstX;
     private int snakeTailFirstY;
-    private int direction = 0;
+    public static int direction = 0;
     Food food;
     private int foodX = 2;
     private int foodY = 3;
@@ -151,28 +151,33 @@ public class GameScreen implements Screen {
         game.batch.end();
         //draw smth here
         //input
+
         if (direction != 2) {
             if (Gdx.input.isKeyPressed(Keys.UP)) {
                 direction = 1;
                 //  snakeTailFirstY++;
+                SnakeTail.image = new Texture(Gdx.files.internal("snakeLeft.png"));
             }
         }
         if (direction != 1) {
             if (Gdx.input.isKeyPressed(Keys.DOWN)) {
                 direction = 2;
                 //  snakeTailFirstY--;
+                SnakeTail.image = new Texture(Gdx.files.internal("snakeRight.png"));
             }
         }
         if (direction != 4) {
             if (Gdx.input.isKeyPressed(Keys.RIGHT)) {
                 direction = 3;
                 //  snakeTailFirstX++;
+                SnakeTail.image = new Texture(Gdx.files.internal("snakeUp.png"));
             }
         }
         if (direction != 3) {
             if (Gdx.input.isKeyPressed(Keys.LEFT)) {
                 direction = 4;
                 // snakeTailFirstX--;
+                SnakeTail.image = new Texture(Gdx.files.internal("snakeDown.png"));
             }
         }
         //snake moves

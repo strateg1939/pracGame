@@ -4,9 +4,12 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
 
 public class SnakeTail extends Snake{
-    private static Texture image;
+    protected static Texture image;
     static {
-        image = new Texture(Gdx.files.internal("snake.png"));
+        if (GameScreen.direction==0) {
+            image = new Texture(Gdx.files.internal("snake2.png"));
+        }
+
     }
 
     @Override
