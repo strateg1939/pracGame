@@ -3,8 +3,11 @@ package com.game.snake;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input.Keys;
 import com.badlogic.gdx.Screen;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.maps.MapLayers;
 import com.badlogic.gdx.maps.tiled.TiledMap;
@@ -14,6 +17,7 @@ import com.badlogic.gdx.maps.tiled.tiles.StaticTiledMapTile;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Button;
+import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
@@ -62,11 +66,17 @@ public class GameScreen implements Screen {
     LinkedList<Integer> Y = new LinkedList<>();
     SnakeHead snakeHead;
     private long lastSnakeMovement;
+    private IntWrapper score;
+    private static final int SCORE_PER_TICK = 5;
+    private BitmapFont scoreLabel;
 
 
     public GameScreen(final Main gam, GameDifficulty gameDifficulty) {
         this.game = gam;
         this.gameDifficulty = gameDifficulty;
+        score = new IntWrapper(0);
+//        scoreLabel = new BitmapFont();
+ //       scoreLabel.getData().setScale(0.1f, 0.05f);
         switch(gameDifficulty){
             case EASY:
                 snakeSpeed = 500;
@@ -82,6 +92,7 @@ public class GameScreen implements Screen {
                 break;
         }
         speedDelta = 0;
+
         pauseStage = new Stage();
         finalStage = new Stage();
         lastSnakeMovement = TimeUtils.millis();
@@ -102,7 +113,7 @@ public class GameScreen implements Screen {
         System.out.println(gameDifficulty);
         // create the camera and the SpriteBatch
         camera = new OrthographicCamera();
-        camera.setToOrtho(false, tileRows, tileColumns);
+        camera.setToOrtho(false, tileRows, tileColumns+1);
         //load map
         TextureRegion[][] splitTilesDark = TextureRegion.split(new Texture(Gdx.files.internal("tiles2.png")), TILE_SIZE_IN_PIXELS, TILE_SIZE_IN_PIXELS);
         TextureRegion[][] splitTilesLight = TextureRegion.split(new Texture(Gdx.files.internal("tiles.png")), TILE_SIZE_IN_PIXELS, TILE_SIZE_IN_PIXELS);
@@ -161,6 +172,7 @@ public class GameScreen implements Screen {
 
         game.batch.draw(food.getImage(), foodX, foodY, 1, 1);
         game.batch.draw(snakeHead.getImage(), snakeHead.x, snakeHead.y, 1, 1);
+//        scoreLabel.draw(game.batch, "Your score is : " + score.value, 1,tileColumns);
         for (int i = 0; i < snakeTails.size(); i++) {
             game.batch.draw(snakeTails.get(i).getImage(), X.get(i), Y.get(i), 1, 1);
         }
@@ -192,9 +204,11 @@ public class GameScreen implements Screen {
                 // snakeTailFirstX--;
             }
         }
+
         //snake moves
         if (TimeUtils.millis() - lastSnakeMovement > snakeSpeed + speedDelta) {
             if(speedDelta > 0) speedDelta -= 10;
+            score.value += SCORE_PER_TICK * snakeTails.size();
             lastSnakeMovement = TimeUtils.millis();
             if (direction <= 4 && direction >= 1) {
                 snakeTailFirstX = snakeHead.x;
@@ -213,7 +227,7 @@ public class GameScreen implements Screen {
                 }
                 //to properly add new snakes first check for food then if no food move
                 if(snakeHead.x == foodX && snakeHead.y == foodY) {
-                    food.consume();
+                    food.consume(score);
                     foodX = rand.nextInt(tileRows);
                     foodY = rand.nextInt(tileColumns);
                     createFood();
@@ -260,6 +274,7 @@ public class GameScreen implements Screen {
 
     private void showFinalScreen() {
         isOver = true;
+        System.out.println(score.value);
         Gdx.input.setInputProcessor(finalStage);
         Button toMainMenuButton = getSettingsButton("To Menu", 300);
         Button exitButton = getSettingsButton("Exit", 150);
@@ -419,3 +434,4 @@ public class GameScreen implements Screen {
     }
 
 }
+

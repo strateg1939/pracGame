@@ -7,8 +7,17 @@ public abstract class Food {
     public void setOnConsume(Consumable consume){
         consumable = consume;
     }
-    public void consume(){
+    public abstract int getScoreIncrease();
+
+    /**
+     * does what was set on consume
+     * and increases score
+     *
+     * @param score
+     */
+    public void consume(IntWrapper score){
         consumable.consume();
+        score.value += getScoreIncrease();
     }
     public abstract Texture getImage();
 

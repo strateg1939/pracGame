@@ -5,8 +5,15 @@ import com.badlogic.gdx.graphics.Texture;
 
 public class StandardFood extends Food{
     private static Texture image;
+    private static int scoreIncrease;
     static {
         image = new Texture(Gdx.files.internal("apple.png"));
+        scoreIncrease = 100;
+    }
+
+    @Override
+    public int getScoreIncrease() {
+        return scoreIncrease;
     }
 
     @Override
