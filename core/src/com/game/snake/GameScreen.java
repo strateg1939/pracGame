@@ -20,10 +20,8 @@ import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.utils.TimeUtils;
 
-import java.util.LinkedList;
-import java.util.Random;
-
-import java.util.ArrayList;
+import java.lang.reflect.InvocationTargetException;
+import java.util.*;
 
 public class GameScreen implements Screen {
 
@@ -31,7 +29,9 @@ public class GameScreen implements Screen {
     //better not change
     private static final int TILE_SIZE_IN_PIXELS = 23;
     //less == faster
-    private static final int SNAKE_SPEED = 400;
+    private int snakeSpeed;
+    private int speedDelta;
+    private float advancedFoodSpawnChance;
     OrthographicCamera camera;
     //currently does nothing
     private GameDifficulty gameDifficulty;
@@ -42,13 +42,15 @@ public class GameScreen implements Screen {
     private Stage finalStage;
     private OrthogonalTiledMapRenderer renderer;
     //amount of rows/columns
-    private int tileRows = 2;
-    private int tileColumns = 2;
+    private int tileRows = 10;
+    private int tileColumns = 12;
     //snake parameters
     private int snakeTailFirstX;
     private int snakeTailFirstY;
     private int direction = 0;
     Food food;
+    private static final List<Class<? extends Food>> advancedFoodClasses =
+            Collections.unmodifiableList(Arrays.asList(DoubleStandardFood.class, ReduceSpeedFood.class));
     private int foodX = 2;
     private int foodY = 3;
     Random rand = new Random();
@@ -65,6 +67,21 @@ public class GameScreen implements Screen {
     public GameScreen(final Main gam, GameDifficulty gameDifficulty) {
         this.game = gam;
         this.gameDifficulty = gameDifficulty;
+        switch(gameDifficulty){
+            case EASY:
+                snakeSpeed = 500;
+                advancedFoodSpawnChance = 0.5f;
+                break;
+            case MEDIUM:
+                snakeSpeed = 350;
+                advancedFoodSpawnChance = 0.3f;
+                break;
+            case HARD:
+                snakeSpeed = 200;
+                advancedFoodSpawnChance = 0.15f;
+                break;
+        }
+        speedDelta = 0;
         pauseStage = new Stage();
         finalStage = new Stage();
         lastSnakeMovement = TimeUtils.millis();
@@ -176,7 +193,8 @@ public class GameScreen implements Screen {
             }
         }
         //snake moves
-        if (TimeUtils.millis() - lastSnakeMovement > SNAKE_SPEED) {
+        if (TimeUtils.millis() - lastSnakeMovement > snakeSpeed + speedDelta) {
+            if(speedDelta > 0) speedDelta -= 10;
             lastSnakeMovement = TimeUtils.millis();
             if (direction <= 4 && direction >= 1) {
                 snakeTailFirstX = snakeHead.x;
@@ -263,15 +281,55 @@ public class GameScreen implements Screen {
     //creates consumable items
     //call food.consume() when it should be consumed
     private void createFood() {
-        food = new StandardFood();
-        food.setOnConsume(new Food.Consumable() {
+        if(Math.random() < advancedFoodSpawnChance){
+            try {
+                food = advancedFoodClasses.get(rand.nextInt(advancedFoodClasses.size())).getDeclaredConstructor().newInstance();
+            } catch (InstantiationException e) {
+                e.printStackTrace();
+            } catch (IllegalAccessException e) {
+                e.printStackTrace();
+            } catch (InvocationTargetException e) {
+                e.printStackTrace();
+            } catch (NoSuchMethodException e) {
+                e.printStackTrace();
+            }
+            if(food instanceof ReduceSpeedFood) food.setOnConsume(getReducedSpeedEffect());
+            else if(food instanceof DoubleStandardFood) food.setOnConsume(getDoubleInstanceEffect());
+        }
+        else {
+            food = new StandardFood();
+            food.setOnConsume(new Food.Consumable() {
+                @Override
+                public void consume() {
+                    snakeTails.add(new SnakeTail());
+                    X.addFirst(snakeTailFirstX);
+                    Y.addFirst(snakeTailFirstY);
+                }
+            });
+        }
+    }
+
+    private Food.Consumable getDoubleInstanceEffect() {
+        return new Food.Consumable() {
             @Override
             public void consume() {
                 snakeTails.add(new SnakeTail());
                 X.addFirst(snakeTailFirstX);
                 Y.addFirst(snakeTailFirstY);
+                snakeTails.add(new SnakeTail());
+                X.addLast(X.getLast() - 1);
+                Y.addLast(Y.getLast() - 1);
             }
-        });
+        };
+    }
+
+    private Food.Consumable getReducedSpeedEffect() {
+        return new Food.Consumable() {
+            @Override
+            public void consume() {
+                speedDelta = 100;
+            }
+        };
     }
 
     @Override
