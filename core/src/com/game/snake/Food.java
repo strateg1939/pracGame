@@ -15,9 +15,10 @@ public abstract class Food {
      *
      * @param score
      */
-    public void consume(IntWrapper score){
+    public void consume(IntWrapper score, IntWrapper scoreMultiplier){
         consumable.consume();
-        score.value += getScoreIncrease();
+        score.value += getScoreIncrease() * scoreMultiplier.value;
+        scoreMultiplier.value = getScoreDuplication();
     }
     public abstract Texture getImage();
     public int getScoreDuplication(){return 1;}

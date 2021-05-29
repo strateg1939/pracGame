@@ -7,8 +7,8 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
-import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import com.badlogic.gdx.maps.MapLayers;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
@@ -68,17 +68,19 @@ public class GameScreen implements Screen {
     private long lastSnakeMovement;
     private IntWrapper score;
     private static final int SCORE_PER_TICK = 5;
-    private BitmapFont scoreLabel;
     private long lastScoreDuplication;
     private int MillisecondsForActiveScoreDuplication;
-
+    private Stage effectsStage;
+    private Label scoreLabel;
+    private IntWrapper scoreMultiplier;
+    private Texture labelForReducedSpeed;
+    private Texture labelForMultiplication;
 
     public GameScreen(final Main gam, GameDifficulty gameDifficulty) {
         this.game = gam;
         this.gameDifficulty = gameDifficulty;
         score = new IntWrapper(0);
-//        scoreLabel = new BitmapFont();
- //       scoreLabel.getData().setScale(0.1f, 0.05f);
+        scoreMultiplier = new IntWrapper(0);
         switch(gameDifficulty){
             case EASY:
                 snakeSpeed = 500;
@@ -96,7 +98,12 @@ public class GameScreen implements Screen {
         MillisecondsForActiveScoreDuplication = snakeSpeed * 20;
         lastScoreDuplication = 0;
         speedDelta = 0;
-
+        Label.LabelStyle style = new Label.LabelStyle(new BitmapFont(), Color.BLACK);
+        scoreLabel = new Label("Your score is : " + score.value, style);
+        scoreLabel.setSize(10,10);
+        scoreLabel.setPosition(10,650);
+        effectsStage = new Stage();
+        effectsStage.addActor(scoreLabel);
         pauseStage = new Stage();
         finalStage = new Stage();
         lastSnakeMovement = TimeUtils.millis();
@@ -162,6 +169,7 @@ public class GameScreen implements Screen {
 
         ScreenUtils.clear(51f / 255f, 123f / 255f, 250f / 255f, 1f);
         camera.update();
+
         renderer.setView(camera);
         renderer.render();
 
@@ -176,12 +184,14 @@ public class GameScreen implements Screen {
 
         game.batch.draw(food.getImage(), foodX, foodY, 1, 1);
         game.batch.draw(snakeHead.getImage(), snakeHead.x, snakeHead.y, 1, 1);
-//        scoreLabel.draw(game.batch, "Your score is : " + score.value, 1,tileColumns);
         for (int i = 0; i < snakeTails.size(); i++) {
             game.batch.draw(snakeTails.get(i).getImage(), X.get(i), Y.get(i), 1, 1);
         }
+        if(labelForMultiplication != null) game.batch.draw(labelForMultiplication, tileRows - 2, tileColumns, 1,1);
+        if(labelForReducedSpeed != null) game.batch.draw(labelForReducedSpeed, tileRows - 1, tileColumns, 1,1);
         game.batch.draw(food.getImage(), foodX, foodY, 1, 1);
         game.batch.end();
+        effectsStage.draw();
         //draw smth here
         //input
         if (direction != 2) {
@@ -214,9 +224,14 @@ public class GameScreen implements Screen {
             if(TimeUtils.millis() - lastScoreDuplication > MillisecondsForActiveScoreDuplication) {
                 lastScoreDuplication = 0;
                 score.value += SCORE_PER_TICK * snakeTails.size();
+                labelForMultiplication = null;
             }
-            else score.value += SCORE_PER_TICK * snakeTails.size() * food.getScoreDuplication();
+            else{
+                score.value += SCORE_PER_TICK * snakeTails.size() * scoreMultiplier.value;
+            }
+            scoreLabel.setText("Your score is : " + score.value);
             if(speedDelta > 0) speedDelta -= 10;
+            else labelForReducedSpeed = null;
             lastSnakeMovement = TimeUtils.millis();
             if (direction <= 4 && direction >= 1) {
                 snakeTailFirstX = snakeHead.x;
@@ -235,7 +250,7 @@ public class GameScreen implements Screen {
                 }
                 //to properly add new snakes first check for food then if no food move
                 if(snakeHead.x == foodX && snakeHead.y == foodY) {
-                    food.consume(score);
+                    food.consume(score, scoreMultiplier);
                     foodX = rand.nextInt(tileRows);
                     foodY = rand.nextInt(tileColumns);
                     createFood();
@@ -339,6 +354,7 @@ public class GameScreen implements Screen {
             public void consume() {
                 moveSnake();
                 lastScoreDuplication = TimeUtils.millis();
+                labelForMultiplication = new ScoreTriplicate().getImage();
             }
         };
     }
@@ -349,6 +365,7 @@ public class GameScreen implements Screen {
             public void consume() {
                 moveSnake();
                 lastScoreDuplication = TimeUtils.millis();
+                labelForMultiplication = new ScoreDuplicate().getImage();
             }
         };
     }
@@ -371,8 +388,9 @@ public class GameScreen implements Screen {
         return new Food.Consumable() {
             @Override
             public void consume() {
-                speedDelta = 100;
+                speedDelta = 200;
                 moveSnake();
+                labelForReducedSpeed = new ReduceSpeedFood().getImage();
             }
         };
     }
