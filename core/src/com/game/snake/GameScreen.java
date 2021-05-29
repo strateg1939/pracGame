@@ -52,7 +52,7 @@ public class GameScreen implements Screen {
     private static final List<Class<? extends Food>> advancedFoodClasses =
             Collections.unmodifiableList(Arrays.asList(DoubleStandardFood.class, ReduceSpeedFood.class));
     private int foodX = 2;
-    private int foodY = 3;
+    private int foodY = 2;
     Random rand = new Random();
     //Snake snake;
     ArrayList<Snake> snakeTails = new ArrayList<>();
@@ -220,10 +220,7 @@ public class GameScreen implements Screen {
                 }
                 else{
                     //move snake
-                    X.addFirst(snakeTailFirstX);
-                    Y.addFirst(snakeTailFirstY);
-                    Y.removeLast();
-                    X.removeLast();
+                    moveSnake();
                 }
             }
             //check if head collides with body
@@ -234,8 +231,10 @@ public class GameScreen implements Screen {
                 }
             }
             //check if head collides with borders
-            if(snakeHead.x < 0 || snakeHead.x > tileColumns - 1 || snakeHead.y > tileRows - 1 || snakeHead.y < 0){
+            if(snakeHead.x < 0 || snakeHead.x > tileRows - 1 || snakeHead.y > tileColumns - 1 || snakeHead.y < 0){
                 System.out.println("Game over");
+                System.out.println(snakeHead.x);
+                System.out.println(snakeHead.y);
                 showFinalScreen();
             }
         }
@@ -250,6 +249,13 @@ public class GameScreen implements Screen {
                 e.printStackTrace();
             }
         }
+    }
+
+    private void moveSnake() {
+        X.addFirst(snakeTailFirstX);
+        Y.addFirst(snakeTailFirstY);
+        Y.removeLast();
+        X.removeLast();
     }
 
     private void showFinalScreen() {
@@ -284,13 +290,7 @@ public class GameScreen implements Screen {
         if(Math.random() < advancedFoodSpawnChance){
             try {
                 food = advancedFoodClasses.get(rand.nextInt(advancedFoodClasses.size())).getDeclaredConstructor().newInstance();
-            } catch (InstantiationException e) {
-                e.printStackTrace();
-            } catch (IllegalAccessException e) {
-                e.printStackTrace();
-            } catch (InvocationTargetException e) {
-                e.printStackTrace();
-            } catch (NoSuchMethodException e) {
+            } catch (InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
                 e.printStackTrace();
             }
             if(food instanceof ReduceSpeedFood) food.setOnConsume(getReducedSpeedEffect());
@@ -328,6 +328,7 @@ public class GameScreen implements Screen {
             @Override
             public void consume() {
                 speedDelta = 100;
+                moveSnake();
             }
         };
     }
@@ -360,7 +361,7 @@ public class GameScreen implements Screen {
             return;
         }
         Gdx.input.setInputProcessor(pauseStage);
-        Button resumeButton = getSettingsButton("Resume", 450);
+        final Button resumeButton = getSettingsButton("Resume", 450);
         Button toMainMenuButton = getSettingsButton("To Menu", 300);
         Button exitButton = getSettingsButton("Exit", 150);
         exitButton.addListener(new ChangeListener() {
@@ -374,8 +375,13 @@ public class GameScreen implements Screen {
         resumeButton.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
-                isPaused = false;
                 pauseStage.clear();
+                try {
+                    Thread.sleep(200);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+                isPaused = false;
             }
         });
         toMainMenuButton.addListener(new ChangeListener() {
