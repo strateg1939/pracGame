@@ -54,7 +54,7 @@ public class GameScreen implements Screen {
     private int direction = 0;
     Food food;
     private static final List<Class<? extends Food>> advancedFoodClasses =
-            Collections.unmodifiableList(Arrays.asList(DoubleStandardFood.class, ReduceSpeedFood.class));
+            Collections.unmodifiableList(Arrays.asList(DoubleStandardFood.class, ReduceSpeedFood.class, ScoreTriplicate.class, ScoreDuplicate.class));
     private int foodX = 2;
     private int foodY = 2;
     Random rand = new Random();
@@ -69,6 +69,8 @@ public class GameScreen implements Screen {
     private IntWrapper score;
     private static final int SCORE_PER_TICK = 5;
     private BitmapFont scoreLabel;
+    private long lastScoreDuplication;
+    private int MillisecondsForActiveScoreDuplication;
 
 
     public GameScreen(final Main gam, GameDifficulty gameDifficulty) {
@@ -91,6 +93,8 @@ public class GameScreen implements Screen {
                 advancedFoodSpawnChance = 0.15f;
                 break;
         }
+        MillisecondsForActiveScoreDuplication = snakeSpeed * 20;
+        lastScoreDuplication = 0;
         speedDelta = 0;
 
         pauseStage = new Stage();
@@ -207,8 +211,12 @@ public class GameScreen implements Screen {
 
         //snake moves
         if (TimeUtils.millis() - lastSnakeMovement > snakeSpeed + speedDelta) {
+            if(TimeUtils.millis() - lastScoreDuplication > MillisecondsForActiveScoreDuplication) {
+                lastScoreDuplication = 0;
+                score.value += SCORE_PER_TICK * snakeTails.size();
+            }
+            else score.value += SCORE_PER_TICK * snakeTails.size() * food.getScoreDuplication();
             if(speedDelta > 0) speedDelta -= 10;
-            score.value += SCORE_PER_TICK * snakeTails.size();
             lastSnakeMovement = TimeUtils.millis();
             if (direction <= 4 && direction >= 1) {
                 snakeTailFirstX = snakeHead.x;
@@ -274,7 +282,6 @@ public class GameScreen implements Screen {
 
     private void showFinalScreen() {
         isOver = true;
-        System.out.println(score.value);
         Gdx.input.setInputProcessor(finalStage);
         Button toMainMenuButton = getSettingsButton("To Menu", 300);
         Button exitButton = getSettingsButton("Exit", 150);
@@ -310,6 +317,8 @@ public class GameScreen implements Screen {
             }
             if(food instanceof ReduceSpeedFood) food.setOnConsume(getReducedSpeedEffect());
             else if(food instanceof DoubleStandardFood) food.setOnConsume(getDoubleInstanceEffect());
+            else if (food instanceof ScoreDuplicate) food.setOnConsume(getScoreDuplicationEffect());
+            else if (food instanceof ScoreTriplicate) food.setOnConsume(getScoreTriplicationEffect());
         }
         else {
             food = new StandardFood();
@@ -322,6 +331,26 @@ public class GameScreen implements Screen {
                 }
             });
         }
+    }
+
+    private Food.Consumable getScoreTriplicationEffect() {
+        return new Food.Consumable() {
+            @Override
+            public void consume() {
+                moveSnake();
+                lastScoreDuplication = TimeUtils.millis();
+            }
+        };
+    }
+
+    private Food.Consumable getScoreDuplicationEffect() {
+        return new Food.Consumable() {
+            @Override
+            public void consume() {
+                moveSnake();
+                lastScoreDuplication = TimeUtils.millis();
+            }
+        };
     }
 
     private Food.Consumable getDoubleInstanceEffect() {

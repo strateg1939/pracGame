@@ -20,6 +20,7 @@ public abstract class Food {
         score.value += getScoreIncrease();
     }
     public abstract Texture getImage();
+    public int getScoreDuplication(){return 1;}
 
     interface Consumable{
         void consume();
