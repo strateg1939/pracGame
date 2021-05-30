@@ -3,9 +3,12 @@ package com.game.snake;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input.Keys;
 import com.badlogic.gdx.Screen;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import com.badlogic.gdx.maps.MapLayers;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
@@ -14,6 +17,7 @@ import com.badlogic.gdx.maps.tiled.tiles.StaticTiledMapTile;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Button;
+import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
@@ -22,7 +26,8 @@ import com.badlogic.gdx.utils.TimeUtils;
 
 import java.util.LinkedList;
 import java.util.Random;
-
+import java.lang.reflect.InvocationTargetException;
+import java.util.*;
 import java.util.ArrayList;
 
 public class GameScreen implements Screen {
@@ -31,7 +36,9 @@ public class GameScreen implements Screen {
     //better not change
     private static final int TILE_SIZE_IN_PIXELS = 23;
     //less == faster
-    private static final int SNAKE_SPEED = 400;
+    private int snakeSpeed;
+    private int speedDelta;
+    private float advancedFoodSpawnChance;
     OrthographicCamera camera;
     //currently does nothing
     private GameDifficulty gameDifficulty;
@@ -47,8 +54,10 @@ public class GameScreen implements Screen {
     //snake parameters
     private int snakeTailFirstX;
     private int snakeTailFirstY;
-    public static int direction = 0;
+    private int direction = 0;
     Food food;
+    private static final List<Class<? extends Food>> advancedFoodClasses =
+            Collections.unmodifiableList(Arrays.asList(DoubleStandardFood.class, ReduceSpeedFood.class, ScoreTriplicate.class, ScoreDuplicate.class));
     private int foodX = 2;
     private int foodY = 3;
     Random rand = new Random();
@@ -60,11 +69,44 @@ public class GameScreen implements Screen {
     LinkedList<Integer> Y = new LinkedList<>();
     SnakeHead snakeHead;
     private long lastSnakeMovement;
-
+    private IntWrapper score;
+    private static final int SCORE_PER_TICK = 5;
+    private long lastScoreDuplication;
+    private int MillisecondsForActiveScoreDuplication;
+    private Stage effectsStage;
+    private Label scoreLabel;
+    private IntWrapper scoreMultiplier;
+    private Texture labelForReducedSpeed;
+    private Texture labelForMultiplication;
 
     public GameScreen(final Main gam, GameDifficulty gameDifficulty) {
         this.game = gam;
         this.gameDifficulty = gameDifficulty;
+        score = new IntWrapper(0);
+        scoreMultiplier = new IntWrapper(0);
+        switch(gameDifficulty){
+            case EASY:
+                snakeSpeed = 500;
+                advancedFoodSpawnChance = 0.5f;
+                break;
+            case MEDIUM:
+                snakeSpeed = 350;
+                advancedFoodSpawnChance = 0.3f;
+                break;
+            case HARD:
+                snakeSpeed = 200;
+                advancedFoodSpawnChance = 0.15f;
+                break;
+        }
+        MillisecondsForActiveScoreDuplication = snakeSpeed * 20;
+        lastScoreDuplication = 0;
+        speedDelta = 0;
+        Label.LabelStyle style = new Label.LabelStyle(new BitmapFont(), Color.BLACK);
+        scoreLabel = new Label("Your score is : " + score.value, style);
+        scoreLabel.setSize(10,10);
+        scoreLabel.setPosition(10,650);
+        effectsStage = new Stage();
+        effectsStage.addActor(scoreLabel);
         pauseStage = new Stage();
         finalStage = new Stage();
         lastSnakeMovement = TimeUtils.millis();
@@ -85,7 +127,7 @@ public class GameScreen implements Screen {
         System.out.println(gameDifficulty);
         // create the camera and the SpriteBatch
         camera = new OrthographicCamera();
-        camera.setToOrtho(false, tileRows, tileColumns);
+        camera.setToOrtho(false, tileRows, tileColumns+1);
         //load map
         TextureRegion[][] splitTilesDark = TextureRegion.split(new Texture(Gdx.files.internal("tiles2.png")), TILE_SIZE_IN_PIXELS, TILE_SIZE_IN_PIXELS);
         TextureRegion[][] splitTilesLight = TextureRegion.split(new Texture(Gdx.files.internal("tiles.png")), TILE_SIZE_IN_PIXELS, TILE_SIZE_IN_PIXELS);
@@ -147,11 +189,13 @@ public class GameScreen implements Screen {
         for (int i = 0; i < snakeTails.size(); i++) {
             game.batch.draw(snakeTails.get(i).getImage(), X.get(i), Y.get(i), 1, 1);
         }
+        if(labelForMultiplication != null) game.batch.draw(labelForMultiplication, tileRows - 2, tileColumns, 1,1);
+        if(labelForReducedSpeed != null) game.batch.draw(labelForReducedSpeed, tileRows - 1, tileColumns, 1,1);
         game.batch.draw(food.getImage(), foodX, foodY, 1, 1);
         game.batch.end();
+        effectsStage.draw();
         //draw smth here
         //input
-
         if (direction != 2) {
             if (Gdx.input.isKeyPressed(Keys.UP)) {
                 direction = 1;
@@ -196,9 +240,20 @@ public class GameScreen implements Screen {
             }
         }
         //snake moves
-        if (TimeUtils.millis() - lastSnakeMovement > SNAKE_SPEED) {
+        if (TimeUtils.millis() - lastSnakeMovement > snakeSpeed + speedDelta) {
+            scoreLabel.setText("Your score is : " + score.value);
             lastSnakeMovement = TimeUtils.millis();
             if (direction <= 4 && direction >= 1) {
+                if(TimeUtils.millis() - lastScoreDuplication > MillisecondsForActiveScoreDuplication) {
+                    lastScoreDuplication = 0;
+                    score.value += SCORE_PER_TICK * snakeTails.size();
+                    labelForMultiplication = null;
+                }
+                else{
+                    score.value += SCORE_PER_TICK * snakeTails.size() * scoreMultiplier.value;
+                }
+                if(speedDelta > 0) speedDelta -= 10;
+                else labelForReducedSpeed = null;
                 snakeTailFirstX = snakeHead.x;
                 snakeTailFirstY = snakeHead.y;
                 if (direction == 1) {
@@ -215,21 +270,14 @@ public class GameScreen implements Screen {
                 }
                 //to properly add new snakes first check for food then if no food move
                 if(snakeHead.x == foodX && snakeHead.y == foodY) {
-                    food.consume();
+                    food.consume(score, scoreMultiplier);
                     foodX = rand.nextInt(tileRows);
-                   /* for(int i=0;i<snakeTails.size();i++)
-                    (snakeTails.get(i) == foodX && snakeHead.y == foodY){
-
-                    }*/
-                        foodY = rand.nextInt(tileColumns);
+                    foodY = rand.nextInt(tileColumns);
                     createFood();
                 }
                 else{
                     //move snake
-                    X.addFirst(snakeTailFirstX);
-                    Y.addFirst(snakeTailFirstY);
-                    Y.removeLast();
-                    X.removeLast();
+                    moveSnake();
                 }
             }
             //check if head collides with body
@@ -240,8 +288,7 @@ public class GameScreen implements Screen {
                 }
             }
             //check if head collides with borders
-            if(snakeHead.x < 0 || snakeHead.x > tileColumns + 1 || snakeHead.y > tileRows + 1 || snakeHead.y < 0){
-                direction = 0;
+            if(snakeHead.x < 0 || snakeHead.x > tileRows - 1 || snakeHead.y > tileColumns - 1 || snakeHead.y < 0){
                 System.out.println("Game over");
                 showFinalScreen();
             }
@@ -257,6 +304,13 @@ public class GameScreen implements Screen {
                 e.printStackTrace();
             }
         }
+    }
+
+    private void moveSnake() {
+        X.addFirst(snakeTailFirstX);
+        Y.addFirst(snakeTailFirstY);
+        Y.removeLast();
+        X.removeLast();
     }
 
     private void showFinalScreen() {
@@ -280,6 +334,15 @@ public class GameScreen implements Screen {
                 GameScreen.this.dispose();
             }
         });
+        scoreLabel.setText("Your final score is : " + score.value);
+        FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal("OpenSans-Regular.ttf"));
+        FreeTypeFontGenerator.FreeTypeFontParameter parameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
+        parameter.size = 30;
+        BitmapFont font12 = generator.generateFont(parameter);
+        generator.dispose();
+        scoreLabel.setStyle(new Label.LabelStyle(font12, Color.BLACK));
+        scoreLabel.setPosition(300, 450);
+        finalStage.addActor(scoreLabel);
         finalStage.addActor(exitButton);
         finalStage.addActor(toMainMenuButton);
         finalStage.draw();
@@ -288,15 +351,75 @@ public class GameScreen implements Screen {
     //creates consumable items
     //call food.consume() when it should be consumed
     private void createFood() {
-        food = new StandardFood();
-        food.setOnConsume(new Food.Consumable() {
+        if(Math.random() < advancedFoodSpawnChance){
+            try {
+                food = advancedFoodClasses.get(rand.nextInt(advancedFoodClasses.size())).getDeclaredConstructor().newInstance();
+            } catch (InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
+                e.printStackTrace();
+            }
+            if(food instanceof ReduceSpeedFood) food.setOnConsume(getReducedSpeedEffect());
+            else if(food instanceof DoubleStandardFood) food.setOnConsume(getDoubleInstanceEffect());
+            else if (food instanceof ScoreDuplicate) food.setOnConsume(getScoreDuplicationEffect());
+            else if (food instanceof ScoreTriplicate) food.setOnConsume(getScoreTriplicationEffect());
+        }
+        else {
+            food = new StandardFood();
+            food.setOnConsume(new Food.Consumable() {
+                @Override
+                public void consume() {
+                    snakeTails.add(new SnakeTail());
+                    X.addFirst(snakeTailFirstX);
+                    Y.addFirst(snakeTailFirstY);
+                }
+            });
+        }
+    }
+
+    private Food.Consumable getScoreTriplicationEffect() {
+        return new Food.Consumable() {
+            @Override
+            public void consume() {
+                moveSnake();
+                lastScoreDuplication = TimeUtils.millis();
+                labelForMultiplication = new ScoreTriplicate().getImage();
+            }
+        };
+    }
+
+    private Food.Consumable getScoreDuplicationEffect() {
+        return new Food.Consumable() {
+            @Override
+            public void consume() {
+                moveSnake();
+                lastScoreDuplication = TimeUtils.millis();
+                labelForMultiplication = new ScoreDuplicate().getImage();
+            }
+        };
+    }
+
+    private Food.Consumable getDoubleInstanceEffect() {
+        return new Food.Consumable() {
             @Override
             public void consume() {
                 snakeTails.add(new SnakeTail(1,1));
                 X.addFirst(snakeTailFirstX);
                 Y.addFirst(snakeTailFirstY);
+                snakeTails.add(new SnakeTail());
+                X.addLast(X.getLast() - 1);
+                Y.addLast(Y.getLast() - 1);
             }
-        });
+        };
+    }
+
+    private Food.Consumable getReducedSpeedEffect() {
+        return new Food.Consumable() {
+            @Override
+            public void consume() {
+                speedDelta = 200;
+                moveSnake();
+                labelForReducedSpeed = new ReduceSpeedFood().getImage();
+            }
+        };
     }
 
     @Override
@@ -327,7 +450,7 @@ public class GameScreen implements Screen {
             return;
         }
         Gdx.input.setInputProcessor(pauseStage);
-        Button resumeButton = getSettingsButton("Resume", 450);
+        final Button resumeButton = getSettingsButton("Resume", 450);
         Button toMainMenuButton = getSettingsButton("To Menu", 300);
         Button exitButton = getSettingsButton("Exit", 150);
         exitButton.addListener(new ChangeListener() {
@@ -341,8 +464,13 @@ public class GameScreen implements Screen {
         resumeButton.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
-                isPaused = false;
                 pauseStage.clear();
+                try {
+                    Thread.sleep(200);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+                isPaused = false;
             }
         });
         toMainMenuButton.addListener(new ChangeListener() {
@@ -374,8 +502,8 @@ public class GameScreen implements Screen {
     private Button getSettingsButton(String buttonText, float positionY) {
         Skin skin = new Skin(Gdx.files.internal("flat-earth/skin/flat-earth-ui.json"));
         TextButton button = new TextButton(buttonText, skin);
-        button.setSize(200, 100);
-        button.setPosition(400, positionY);
+        button.setSize(300, 100);
+        button.setPosition(300, positionY);
         return button;
     }
 

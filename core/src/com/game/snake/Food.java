@@ -7,10 +7,21 @@ public abstract class Food {
     public void setOnConsume(Consumable consume){
         consumable = consume;
     }
-    public void consume(){
+    public abstract int getScoreIncrease();
+
+    /**
+     * does what was set on consume
+     * and increases score
+     *
+     * @param score
+     */
+    public void consume(IntWrapper score, IntWrapper scoreMultiplier){
         consumable.consume();
+        score.value += getScoreIncrease() * scoreMultiplier.value;
+        scoreMultiplier.value = getScoreDuplication();
     }
     public abstract Texture getImage();
+    public int getScoreDuplication(){return 1;}
 
     interface Consumable{
         void consume();
