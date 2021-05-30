@@ -221,19 +221,19 @@ public class GameScreen implements Screen {
 
         //snake moves
         if (TimeUtils.millis() - lastSnakeMovement > snakeSpeed + speedDelta) {
-            if(TimeUtils.millis() - lastScoreDuplication > MillisecondsForActiveScoreDuplication) {
-                lastScoreDuplication = 0;
-                score.value += SCORE_PER_TICK * snakeTails.size();
-                labelForMultiplication = null;
-            }
-            else{
-                score.value += SCORE_PER_TICK * snakeTails.size() * scoreMultiplier.value;
-            }
             scoreLabel.setText("Your score is : " + score.value);
-            if(speedDelta > 0) speedDelta -= 10;
-            else labelForReducedSpeed = null;
             lastSnakeMovement = TimeUtils.millis();
             if (direction <= 4 && direction >= 1) {
+                if(TimeUtils.millis() - lastScoreDuplication > MillisecondsForActiveScoreDuplication) {
+                    lastScoreDuplication = 0;
+                    score.value += SCORE_PER_TICK * snakeTails.size();
+                    labelForMultiplication = null;
+                }
+                else{
+                    score.value += SCORE_PER_TICK * snakeTails.size() * scoreMultiplier.value;
+                }
+                if(speedDelta > 0) speedDelta -= 10;
+                else labelForReducedSpeed = null;
                 snakeTailFirstX = snakeHead.x;
                 snakeTailFirstY = snakeHead.y;
                 if (direction == 1) {
@@ -316,6 +316,15 @@ public class GameScreen implements Screen {
                 GameScreen.this.dispose();
             }
         });
+        scoreLabel.setText("Your final score is : " + score.value);
+        FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal("OpenSans-Regular.ttf"));
+        FreeTypeFontGenerator.FreeTypeFontParameter parameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
+        parameter.size = 30;
+        BitmapFont font12 = generator.generateFont(parameter);
+        generator.dispose();
+        scoreLabel.setStyle(new Label.LabelStyle(font12, Color.BLACK));
+        scoreLabel.setPosition(300, 450);
+        finalStage.addActor(scoreLabel);
         finalStage.addActor(exitButton);
         finalStage.addActor(toMainMenuButton);
         finalStage.draw();
@@ -475,8 +484,8 @@ public class GameScreen implements Screen {
     private Button getSettingsButton(String buttonText, float positionY) {
         Skin skin = new Skin(Gdx.files.internal("flat-earth/skin/flat-earth-ui.json"));
         TextButton button = new TextButton(buttonText, skin);
-        button.setSize(200, 100);
-        button.setPosition(400, positionY);
+        button.setSize(300, 100);
+        button.setPosition(300, positionY);
         return button;
     }
 
