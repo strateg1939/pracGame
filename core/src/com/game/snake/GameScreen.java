@@ -62,11 +62,12 @@ public class GameScreen implements Screen {
     private int foodY = 3;
     Random rand = new Random();
     //Snake snake;
-    public ArrayList<Snake> snakeTails = new ArrayList<>();
+    public ArrayList<SnakeTail> snakeTails = new ArrayList<>();
     //!!!size of x and y is 1 bigger than tails
     //to properly add new pieces of snake when it eats
     LinkedList<Integer> X = new LinkedList<>();
     LinkedList<Integer> Y = new LinkedList<>();
+    LinkedList<Integer> tailsDirections = new LinkedList<>();
     SnakeHead snakeHead;
     private long lastSnakeMovement;
     private IntWrapper score;
@@ -123,6 +124,8 @@ public class GameScreen implements Screen {
         Y.add(snakeTailFirstY);
         Y.add(snakeTailFirstY + 1);
         System.out.println(Y);
+        tailsDirections.add(2);
+        tailsDirections.add(2);
         createFood();
         System.out.println(gameDifficulty);
         // create the camera and the SpriteBatch
@@ -181,13 +184,41 @@ public class GameScreen implements Screen {
 
         // begin a new batch and draw the bucket and
         // all drops
-
+        if (direction != 2) {
+            if (Gdx.input.isKeyPressed(Keys.UP)) {
+                direction = 1;
+                SnakeHead.image  = new Texture(Gdx.files.internal("snakeHeadDown.png"));
+            }
+        }
+        if (direction != 1) {
+            if (Gdx.input.isKeyPressed(Keys.DOWN)) {
+                direction = 2;
+                SnakeHead.image  = new Texture(Gdx.files.internal("snakeHeadUp.png"));
+            }
+        }
+        if (direction != 4) {
+            if (Gdx.input.isKeyPressed(Keys.RIGHT)) {
+                direction = 3;
+                SnakeHead.image  = new Texture(Gdx.files.internal("snakeHeadLeft.png"));
+            }
+        }
+        if (direction != 3) {
+            if (Gdx.input.isKeyPressed(Keys.LEFT)) {
+                direction = 4;
+                SnakeHead.image = new Texture(Gdx.files.internal("snakeHeadRight.png"));
+            }
+        }
         game.batch.begin();
 
         game.batch.draw(food.getImage(), foodX, foodY, 1, 1);
         game.batch.draw(snakeHead.getImage(), snakeHead.x, snakeHead.y, 1, 1);
         for (int i = 0; i < snakeTails.size(); i++) {
+            if(tailsDirections.get(i) == 1) snakeTails.get(i).setImage(new Texture(Gdx.files.internal("snakeLeft.png")));
+            else if(tailsDirections.get(i) == 2) snakeTails.get(i).setImage(new Texture(Gdx.files.internal("snakeRight.png")));
+            else if(tailsDirections.get(i) == 3) snakeTails.get(i).setImage(new Texture(Gdx.files.internal("snakeUp.png")));
+            else  snakeTails.get(i).setImage(new Texture(Gdx.files.internal("snakeDown.png")));
             game.batch.draw(snakeTails.get(i).getImage(), X.get(i), Y.get(i), 1, 1);
+
         }
         if(labelForMultiplication != null) game.batch.draw(labelForMultiplication, tileRows - 2, tileColumns, 1,1);
         if(labelForReducedSpeed != null) game.batch.draw(labelForReducedSpeed, tileRows - 1, tileColumns, 1,1);
@@ -196,49 +227,7 @@ public class GameScreen implements Screen {
         effectsStage.draw();
         //draw smth here
         //input
-        if (direction != 2) {
-            if (Gdx.input.isKeyPressed(Keys.UP)) {
-                direction = 1;
-                //  snakeTailFirstY++;
-                SnakeTail.image = new Texture(Gdx.files.internal("snakeLeft.png"));
-                SnakeHead.image  = new Texture(Gdx.files.internal("snakeHeadDown.png"));
-            }
-        }
-        if (direction != 1) {
-            if (Gdx.input.isKeyPressed(Keys.DOWN)) {
-                direction = 2;
-                //  snakeTailFirstY--;
-                SnakeTail.image = new Texture(Gdx.files.internal("snakeRight.png"));
-                SnakeHead.image  = new Texture(Gdx.files.internal("snakeHeadUp.png"));
-            }
-        }
-        if (direction != 4) {
-            if (Gdx.input.isKeyPressed(Keys.RIGHT)) {
-                direction = 3;
-                //  snakeTailFirstX++;
-                SnakeTail.image = new Texture(Gdx.files.internal("snakeUp.png"));
-                SnakeHead.image  = new Texture(Gdx.files.internal("snakeHeadLeft.png"));
-            }
-        }
-        if (direction != 3) {
-           /* if (!(Gdx.input.isKeyPressed(Keys.ANY_KEY))){
 
-            }*/
-            if (Gdx.input.isKeyPressed(Keys.LEFT)) {
-                if(direction==1) {
-                    direction = 4;
-                    SnakeTail.image = new Texture(Gdx.files.internal("snakeDown.png"));
-                    SnakeHead.image = new Texture(Gdx.files.internal("snakeHeadRight.png"));
-                }
-                if (direction==2){
-                    direction = 4;
-                 //   SnakeTails
-                    SnakeTail.image = new Texture(Gdx.files.internal("snakeDown.png"));
-                    SnakeHead.image = new Texture(Gdx.files.internal("snakeHeadRight.png"));
-
-                }
-            }
-        }
         //snake moves
         if (TimeUtils.millis() - lastSnakeMovement > snakeSpeed + speedDelta) {
             scoreLabel.setText("Your score is : " + score.value);
@@ -311,6 +300,8 @@ public class GameScreen implements Screen {
         Y.addFirst(snakeTailFirstY);
         Y.removeLast();
         X.removeLast();
+        tailsDirections.addFirst(direction);
+        tailsDirections.removeLast();
     }
 
     private void showFinalScreen() {
@@ -370,6 +361,7 @@ public class GameScreen implements Screen {
                     snakeTails.add(new SnakeTail(1,1));
                     X.addFirst(snakeTailFirstX);
                     Y.addFirst(snakeTailFirstY);
+                    tailsDirections.addFirst(direction);
                 }
             });
         }
@@ -407,6 +399,8 @@ public class GameScreen implements Screen {
                 snakeTails.add(new SnakeTail(1,1));
                 X.addLast(X.getLast() - 1);
                 Y.addLast(Y.getLast() - 1);
+                tailsDirections.addFirst(direction);
+                tailsDirections.addLast(1);
             }
         };
     }
