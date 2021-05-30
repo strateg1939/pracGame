@@ -54,7 +54,7 @@ public class GameScreen implements Screen {
     //snake parameters
     private int snakeTailFirstX;
     private int snakeTailFirstY;
-    private int direction = 0;
+    static int direction = 0;
     Food food;
     private static final List<Class<? extends Food>> advancedFoodClasses =
             Collections.unmodifiableList(Arrays.asList(DoubleStandardFood.class, ReduceSpeedFood.class, ScoreTriplicate.class, ScoreDuplicate.class));
@@ -62,7 +62,7 @@ public class GameScreen implements Screen {
     private int foodY = 3;
     Random rand = new Random();
     //Snake snake;
-    public static ArrayList<Snake> snakeTails = new ArrayList<>();
+    public ArrayList<Snake> snakeTails = new ArrayList<>();
     //!!!size of x and y is 1 bigger than tails
     //to properly add new pieces of snake when it eats
     LinkedList<Integer> X = new LinkedList<>();
@@ -367,7 +367,7 @@ public class GameScreen implements Screen {
             food.setOnConsume(new Food.Consumable() {
                 @Override
                 public void consume() {
-                    snakeTails.add(new SnakeTail());
+                    snakeTails.add(new SnakeTail(1,1));
                     X.addFirst(snakeTailFirstX);
                     Y.addFirst(snakeTailFirstY);
                 }
@@ -404,7 +404,7 @@ public class GameScreen implements Screen {
                 snakeTails.add(new SnakeTail(1,1));
                 X.addFirst(snakeTailFirstX);
                 Y.addFirst(snakeTailFirstY);
-                snakeTails.add(new SnakeTail());
+                snakeTails.add(new SnakeTail(1,1));
                 X.addLast(X.getLast() - 1);
                 Y.addLast(Y.getLast() - 1);
             }
