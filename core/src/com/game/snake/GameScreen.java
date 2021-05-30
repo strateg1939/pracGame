@@ -53,7 +53,7 @@ public class GameScreen implements Screen {
     private int foodY = 3;
     Random rand = new Random();
     //Snake snake;
-    ArrayList<Snake> snakeTails = new ArrayList<>();
+    public static ArrayList<Snake> snakeTails = new ArrayList<>();
     //!!!size of x and y is 1 bigger than tails
     //to properly add new pieces of snake when it eats
     LinkedList<Integer> X = new LinkedList<>();
@@ -72,7 +72,7 @@ public class GameScreen implements Screen {
         snakeHead = new SnakeHead(rand.nextInt(tileRows), rand.nextInt(tileColumns - 1));
         System.out.println(snakeHead.x);
         System.out.println(snakeHead.y);
-        snakeTails.add(new SnakeTail());
+        snakeTails.add(new SnakeTail(1,1));
         snakeTailFirstX = snakeHead.x;
         X.add(snakeTailFirstX);
         System.out.println(X);
@@ -177,11 +177,22 @@ public class GameScreen implements Screen {
             }
         }
         if (direction != 3) {
+           /* if (!(Gdx.input.isKeyPressed(Keys.ANY_KEY))){
+
+            }*/
             if (Gdx.input.isKeyPressed(Keys.LEFT)) {
-                direction = 4;
-                // snakeTailFirstX--;
-                SnakeTail.image = new Texture(Gdx.files.internal("snakeDown.png"));
-                SnakeHead.image  = new Texture(Gdx.files.internal("snakeHeadRight.png"));
+                if(direction==1) {
+                    direction = 4;
+                    SnakeTail.image = new Texture(Gdx.files.internal("snakeDown.png"));
+                    SnakeHead.image = new Texture(Gdx.files.internal("snakeHeadRight.png"));
+                }
+                if (direction==2){
+                    direction = 4;
+                 //   SnakeTails
+                    SnakeTail.image = new Texture(Gdx.files.internal("snakeDown.png"));
+                    SnakeHead.image = new Texture(Gdx.files.internal("snakeHeadRight.png"));
+
+                }
             }
         }
         //snake moves
@@ -206,7 +217,11 @@ public class GameScreen implements Screen {
                 if(snakeHead.x == foodX && snakeHead.y == foodY) {
                     food.consume();
                     foodX = rand.nextInt(tileRows);
-                    foodY = rand.nextInt(tileColumns);
+                   /* for(int i=0;i<snakeTails.size();i++)
+                    (snakeTails.get(i) == foodX && snakeHead.y == foodY){
+
+                    }*/
+                        foodY = rand.nextInt(tileColumns);
                     createFood();
                 }
                 else{
@@ -225,7 +240,8 @@ public class GameScreen implements Screen {
                 }
             }
             //check if head collides with borders
-            if(snakeHead.x < 0 || snakeHead.x > tileColumns - 1 || snakeHead.y > tileRows - 1 || snakeHead.y < 0){
+            if(snakeHead.x < 0 || snakeHead.x > tileColumns + 1 || snakeHead.y > tileRows + 1 || snakeHead.y < 0){
+                direction = 0;
                 System.out.println("Game over");
                 showFinalScreen();
             }
@@ -276,7 +292,7 @@ public class GameScreen implements Screen {
         food.setOnConsume(new Food.Consumable() {
             @Override
             public void consume() {
-                snakeTails.add(new SnakeTail());
+                snakeTails.add(new SnakeTail(1,1));
                 X.addFirst(snakeTailFirstX);
                 Y.addFirst(snakeTailFirstY);
             }
