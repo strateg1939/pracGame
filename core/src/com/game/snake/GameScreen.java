@@ -213,11 +213,49 @@ public class GameScreen implements Screen {
         game.batch.draw(food.getImage(), foodX, foodY, 1, 1);
         game.batch.draw(snakeHead.getImage(), snakeHead.x, snakeHead.y, 1, 1);
         for (int i = 0; i < snakeTails.size(); i++) {
-            if(tailsDirections.get(i) == 1) snakeTails.get(i).setImage(new Texture(Gdx.files.internal("snakeLeft.png")));
-            else if(tailsDirections.get(i) == 2) snakeTails.get(i).setImage(new Texture(Gdx.files.internal("snakeRight.png")));
-            else if(tailsDirections.get(i) == 3) snakeTails.get(i).setImage(new Texture(Gdx.files.internal("snakeUp.png")));
-            else  snakeTails.get(i).setImage(new Texture(Gdx.files.internal("snakeDown.png")));
-            game.batch.draw(snakeTails.get(i).getImage(), X.get(i), Y.get(i), 1, 1);
+            if(i==0) {
+                if (tailsDirections.get(i) == 1) {
+                    snakeTails.get(i).setImage(new Texture(Gdx.files.internal("snakeLeft.png")));
+                } else if (tailsDirections.get(i) == 2) {
+                    snakeTails.get(i).setImage(new Texture(Gdx.files.internal("snakeRight.png")));
+                } else if (tailsDirections.get(i) == 3) {
+                    snakeTails.get(i).setImage(new Texture(Gdx.files.internal("snakeUp.png")));
+                } else {
+                    snakeTails.get(i).setImage(new Texture(Gdx.files.internal("snakeDown.png")));
+                }
+            }else{
+                if (tailsDirections.get(i) == 1) {
+                    if (tailsDirections.get(i-1) == 1 && tailsDirections.get(i+1) == 4) {
+                        snakeTails.get(i).setImage(new Texture(Gdx.files.internal("snakeUpRight2.png")));
+                    }else if (tailsDirections.get(i-1) == 1 && tailsDirections.get(i+1) == 3) {
+                        snakeTails.get(i).setImage(new Texture(Gdx.files.internal("snakeUpLeft.png")));//like
+                    }else
+                    snakeTails.get(i).setImage(new Texture(Gdx.files.internal("snakeLeft.png")));
+                } else if (tailsDirections.get(i) == 2) {
+                    if (tailsDirections.get(i-1) == 2 && tailsDirections.get(i+1) == 3) {
+                       snakeTails.get(i).setImage(new Texture(Gdx.files.internal("snakeLeftDown2.png")));
+                    }else if (tailsDirections.get(i-1) == 2 && tailsDirections.get(i+1) == 4) {
+                        snakeTails.get(i).setImage(new Texture(Gdx.files.internal("snakeDownRight.png")));//like
+                    }else
+                    snakeTails.get(i).setImage(new Texture(Gdx.files.internal("snakeRight.png")));
+                } else if (tailsDirections.get(i) == 3) {
+                    if (tailsDirections.get(i-1) == 3 && tailsDirections.get(i+1) == 1) {
+                        snakeTails.get(i).setImage(new Texture(Gdx.files.internal("snakeDownRight2.png")));
+                    }else if (tailsDirections.get(i-1) == 3 && tailsDirections.get(i+1) == 2) {
+                        snakeTails.get(i).setImage(new Texture(Gdx.files.internal("snakeLeftUp.png")));//like
+                    }else
+                    snakeTails.get(i).setImage(new Texture(Gdx.files.internal("snakeUp.png")));
+                } else {
+                    if (tailsDirections.get(i-1) == 4 && tailsDirections.get(i+1) == 2) {
+                        snakeTails.get(i).setImage(new Texture(Gdx.files.internal("snakeLeftUp2.png")));
+                    }else if (tailsDirections.get(i-1) == 4 && tailsDirections.get(i+1) == 1) {
+                        snakeTails.get(i).setImage(new Texture(Gdx.files.internal("snakeRightDown.png")));//like
+                    }else
+                    snakeTails.get(i).setImage(new Texture(Gdx.files.internal("snakeDown.png")));
+                }
+            }
+                game.batch.draw(snakeTails.get(i).getImage(), X.get(i), Y.get(i), 1, 1);
+
 
         }
         if(labelForMultiplication != null) game.batch.draw(labelForMultiplication, tileRows - 2, tileColumns, 1,1);
