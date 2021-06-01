@@ -38,14 +38,15 @@ public class GameScreen implements Screen {
     private static final int TILE_SIZE_IN_PIXELS = 23;
     //less == faster
     protected int snakeSpeed;
+    //speed reduction gradually negated after eating speed reduce
     private int speedDelta;
+    //all that is not a simple food
     protected float advancedFoodSpawnChance;
     OrthographicCamera camera;
-    //currently does nothing
     private GameDifficulty gameDifficulty;
     //for pause
     private boolean isPaused;
-    private boolean isOver;
+    protected boolean isOver;
     private Stage pauseStage;
     private Stage finalStage;
     private OrthogonalTiledMapRenderer renderer;
@@ -55,8 +56,9 @@ public class GameScreen implements Screen {
     //snake parameters
     private int snakeTailFirstX;
     private int snakeTailFirstY;
-    static int direction = 0;
+    protected static int direction = 0;
     protected Food food;
+    //used in creation of food
     protected static List<Class<? extends Food>> advancedFoodClasses =
             Collections.unmodifiableList(Arrays.asList(DoubleStandardFood.class, ReduceSpeedFood.class, ScoreTriplicate.class, ScoreDuplicate.class));
     protected int foodX;
@@ -70,10 +72,17 @@ public class GameScreen implements Screen {
     LinkedList<Integer> Y = new LinkedList<>();
     LinkedList<Integer> tailsDirections = new LinkedList<>();
     protected SnakeHead snakeHead;
+    //timer on movement
     private long lastSnakeMovement;
     protected IntWrapper score;
+    /**
+     * score per changing the tile
+     */
     private static final int SCORE_PER_TICK = 5;
+    //timer for dupli/triplication
     private long lastScoreDuplication;
+    //how long in milliseconds score is being dupli/triplicated
+    //depends on difficulty
     private int MillisecondsForActiveScoreDuplication;
     private Stage effectsStage;
     protected Label scoreLabel;
@@ -87,6 +96,7 @@ public class GameScreen implements Screen {
         this.gameDifficulty = gameDifficulty;
         score = new IntWrapper(0);
         scoreMultiplier = new IntWrapper(0);
+        //difficulty
         switch(gameDifficulty){
             case EASY:
                 snakeSpeed = 500;
@@ -104,6 +114,7 @@ public class GameScreen implements Screen {
         MillisecondsForActiveScoreDuplication = snakeSpeed * 20;
         lastScoreDuplication = 0;
         speedDelta = 0;
+        //labels
         Label.LabelStyle style = new Label.LabelStyle(new BitmapFont(), Color.BLACK);
         scoreLabel = new Label("Your score is : " + score.value, style);
         scoreLabel.setSize(10,10);
@@ -112,6 +123,7 @@ public class GameScreen implements Screen {
         effectsStage.addActor(scoreLabel);
         pauseStage = new Stage();
         finalStage = new Stage();
+        //snake
         lastSnakeMovement = TimeUtils.millis();
         if(tileRows < 2) throw new RuntimeException("TO FEW COLUMNS");
         snakeHead = new SnakeHead(rand.nextInt(tileColumns), rand.nextInt(tileRows - 1));
@@ -122,8 +134,11 @@ public class GameScreen implements Screen {
         snakeTailFirstY = snakeHead.y + 1;
         Y.add(snakeTailFirstY);
         Y.add(snakeTailFirstY + 1);
+        direction = 0;
+        SnakeHead.setDefaultImage();
         tailsDirections.add(2);
         tailsDirections.add(2);
+        //food
         do {
             foodX = rand.nextInt(tileColumns);
             foodY = rand.nextInt(tileRows);
@@ -323,14 +338,12 @@ public class GameScreen implements Screen {
             //check if head collides with body
             for(int i = 0; i < snakeTails.size(); i++){
                 if(snakeHead.x == X.get(i) && snakeHead.y == Y.get(i)){
-                    System.out.println("Game over");
-                    showFinalScreen();
+                    createFinalScreen("You have collided with yourself");
                 }
             }
             //check if head collides with borders
             if(snakeHead.x < 0 || snakeHead.x > tileColumns - 1 || snakeHead.y > tileRows - 1 || snakeHead.y < 0){
-                System.out.println("Game over");
-                showFinalScreen();
+                createFinalScreen("You have collided with borders");
             }
         }
 
@@ -345,10 +358,13 @@ public class GameScreen implements Screen {
             }
         }
     }
-
+    /**
+    check if snake is eating foor
+     */
     protected void checkForFood() {
         if(snakeHead.x == foodX && snakeHead.y == foodY) {
             food.consume(score, scoreMultiplier);
+            //to not spawn food in the same tile as snake head
             while (true) {
                 foodX = rand.nextInt(tileColumns);
                 foodY = rand.nextInt(tileRows);
@@ -363,6 +379,9 @@ public class GameScreen implements Screen {
         }
     }
 
+    /**
+     * move snake by 1 tile
+     */
     protected void moveSnake() {
         X.addFirst(snakeTailFirstX);
         Y.addFirst(snakeTailFirstY);
@@ -372,7 +391,7 @@ public class GameScreen implements Screen {
         tailsDirections.removeLast();
     }
 
-    protected void showFinalScreen() {
+    protected void createFinalScreen(String finalMessage) {
         isOver = true;
         Gdx.input.setInputProcessor(finalStage);
         Button toMainMenuButton = getSettingsButton("To Menu", 300);
@@ -383,6 +402,7 @@ public class GameScreen implements Screen {
                 finalStage.dispose();
                 GameScreen.this.dispose();
                 game.dispose();
+                System.exit(0);
             }
         });
         toMainMenuButton.addListener(new ChangeListener() {
@@ -391,6 +411,7 @@ public class GameScreen implements Screen {
                 game.setScreen(new MainMenuScreen(game));
                 finalStage.dispose();
                 GameScreen.this.dispose();
+                direction = 0;
             }
         });
         scoreLabel.setText("Your final score is : " + score.value);
@@ -399,16 +420,24 @@ public class GameScreen implements Screen {
         parameter.size = 30;
         BitmapFont font12 = generator.generateFont(parameter);
         generator.dispose();
-        scoreLabel.setStyle(new Label.LabelStyle(font12, Color.BLACK));
+        Label.LabelStyle style = new Label.LabelStyle(font12, Color.WHITE);
+        scoreLabel.setStyle(style);
         scoreLabel.setPosition(300, 450);
+        Label finalMessageLabel = new Label(finalMessage, style);
+        finalMessageLabel.setPosition(250, 550);
         finalStage.addActor(scoreLabel);
         finalStage.addActor(exitButton);
         finalStage.addActor(toMainMenuButton);
+        finalStage.addActor(finalMessageLabel);
         finalStage.draw();
     }
-
-    //creates consumable items
-    //call food.consume() when it should be consumed
+    protected void showFinalScreen(){
+        finalStage.draw();
+    }
+    /**
+    creates food
+    call food.consume() when it should be consumed
+     */
     protected void createFood() {
         if(Math.random() < advancedFoodSpawnChance){
             try {
@@ -434,7 +463,7 @@ public class GameScreen implements Screen {
             });
         }
     }
-
+    //set different effects for different food
     private Food.Consumable getScoreTriplicationEffect() {
         return new Food.Consumable() {
             @Override
@@ -541,6 +570,7 @@ public class GameScreen implements Screen {
                 game.setScreen(new MainMenuScreen(game));
                 pauseStage.dispose();
                 GameScreen.this.dispose();
+                direction = 0;
             }
         });
 
@@ -561,6 +591,12 @@ public class GameScreen implements Screen {
         //       rainMusic.dispose();
     }
 
+    /**
+     * create button
+     * @param buttonText text
+     * @param positionY X position is equal for all buttons
+     * @return
+     */
     private Button getSettingsButton(String buttonText, float positionY) {
         Skin skin = new Skin(Gdx.files.internal("flat-earth/skin/flat-earth-ui.json"));
         TextButton button = new TextButton(buttonText, skin);

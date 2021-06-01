@@ -12,11 +12,14 @@ public class SnakeHead extends Snake{
         this.y = y;
     }
     static {
-        image = new Texture(Gdx.files.internal("snake.png"));
+        setDefaultImage();
     }
 
     @Override
     public Texture getImage() {
         return image;
+    }
+    public static void setDefaultImage(){
+        image = new Texture(Gdx.files.internal("snakeHeadUp.png"));
     }
 }

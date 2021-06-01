@@ -7,11 +7,11 @@ import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.utils.TimeUtils;
 
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
 
 public class MathGameScreen extends GameScreen{
+    //time in seconds to solve exercise. Less with increased difficulty
     private static int maxTimerInSeconds = 35;
+    //actual timer
     private long timerInMillis;
     private ArrayList<MathFood> answers;
     private Stage mathAnswersStage;
@@ -21,19 +21,20 @@ public class MathGameScreen extends GameScreen{
     private String exercise;
     private Label exerciseLabel;
     private Label timerLabel;
+    int result;
     public MathGameScreen(Main gam, GameDifficulty gameDifficulty) {
         super(gam, gameDifficulty);
         advancedFoodSpawnChance = 1f;
         snakeSpeed = 350;
         switch(gameDifficulty){
             case EASY:
-                maxTimerInSeconds = 45;
-                break;
-            case MEDIUM:
                 maxTimerInSeconds = 35;
                 break;
-            case HARD:
+            case MEDIUM:
                 maxTimerInSeconds = 25;
+                break;
+            case HARD:
+                maxTimerInSeconds = 20;
                 break;
         }
         foodX = tileColumns + 10;
@@ -45,7 +46,13 @@ public class MathGameScreen extends GameScreen{
     public void render(float delta) {
         super.render(delta);
         timerLabel.setText(Long.toString((timerInMillis - TimeUtils.millis()) / 1000));
-        if(timerInMillis <= TimeUtils.millis()) showFinalScreen();
+        if(timerInMillis <= TimeUtils.millis()) {
+            if(isOver) {
+                showFinalScreen();
+            }
+            else createFinalScreen("Game over! Time is up");
+            return;
+        }
         game.batch.begin();
         mathAnswersStage.draw();
         game.batch.end();
@@ -57,18 +64,19 @@ public class MathGameScreen extends GameScreen{
              answers) {
             if(snakeHead.x == food.x && snakeHead.y == food.y) {
                 food.consume(score, scoreMultiplier);
-                createFood();
+                if(!isOver)
+                    createFood();
+                return;
             }
         }
         moveSnake();
     }
-
+    //most of the creation is done here
     protected void createFood(){
         if(mathAnswersStage == null) mathAnswersStage = new Stage();
         mathAnswersStage.clear();
-
         answers = new ArrayList<>();
-        final int result = generateExercise();
+        result = generateExercise();
         for (int i = 0; i < rand.nextInt(3) + 3; i++) {
             final MathFood mathFood = new MathFood();
             mathFood.x = generateRandomInBounds(0, tileColumns, snakeHead.x);
@@ -78,8 +86,11 @@ public class MathGameScreen extends GameScreen{
             mathFood.setOnConsume(new Food.Consumable() {
                 @Override
                 public void consume() {
+                    if(mathFood.answer != result) {
+                        createFinalScreen("Your answer was wrong. Actual answer is " + result);
+                        return;
+                    }
                     moveSnake();
-                    if(mathFood.answer != result) showFinalScreen();
                 }
             });
             answers.add(mathFood);
@@ -104,6 +115,13 @@ public class MathGameScreen extends GameScreen{
 
     }
 
+    /**
+     * generate random int in bounds (inclusive)
+     * @param min
+     * @param max
+     * @param toExclude number to exclude from generation
+     * @return
+     */
     private int generateRandomInBounds(int min, int max, int toExclude) {
         int result = toExclude;
         while (result == toExclude){
@@ -112,6 +130,11 @@ public class MathGameScreen extends GameScreen{
         return result;
     }
 
+    /**
+     * generate math exercise
+     * String exercise is changed
+     * @return answer to that exercise
+     */
     private int generateExercise() {
         int result = rand.nextInt(maxForExercise);
         exercise = result + " ";
@@ -123,6 +146,11 @@ public class MathGameScreen extends GameScreen{
         return result;
     }
 
+    /**
+     * procedurally generated next step for exercise
+     * @param firstOperand result from previous generations
+     * @return result for this generation
+     */
     private int generateNextStep(int firstOperand) {
         boolean isPlus = rand.nextBoolean();
         exercise += (isPlus) ? "+ " : "- ";
@@ -135,4 +163,9 @@ public class MathGameScreen extends GameScreen{
         return (isPlus) ? firstOperand + secondOperand : firstOperand - secondOperand;
     }
 
+    @Override
+    protected void createFinalScreen(String finalMessage) {
+        super.createFinalScreen(finalMessage);
+        mathAnswersStage.dispose();
+    }
 }
