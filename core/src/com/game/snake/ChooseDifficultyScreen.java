@@ -15,8 +15,10 @@ public class ChooseDifficultyScreen implements Screen {
     final Main game;
     private OrthographicCamera camera;
     private Stage stage;
+    private boolean isMathMode;
 
-    public ChooseDifficultyScreen(final Main gam) {
+    public ChooseDifficultyScreen(final Main gam, boolean isMathMode) {
+        this.isMathMode = isMathMode;
         game = gam;
         stage = new Stage();
         Gdx.input.setInputProcessor(stage);
@@ -36,7 +38,7 @@ public class ChooseDifficultyScreen implements Screen {
         button.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
-                game.setScreen(new GameScreen(game, gameDifficulty));
+                game.setScreen((isMathMode) ? new MathGameScreen(game, gameDifficulty) : new GameScreen(game, gameDifficulty));
                 //!Important!
                 ChooseDifficultyScreen.this.dispose();
             }
