@@ -23,7 +23,6 @@ public class MathGameScreen extends GameScreen{
     private Label timerLabel;
     public MathGameScreen(Main gam, GameDifficulty gameDifficulty) {
         super(gam, gameDifficulty);
-        advancedFoodClasses = Collections.unmodifiableList(Arrays.asList(MathFood.class));
         advancedFoodSpawnChance = 1f;
         snakeSpeed = 350;
         switch(gameDifficulty){
@@ -37,8 +36,8 @@ public class MathGameScreen extends GameScreen{
                 maxTimerInSeconds = 25;
                 break;
         }
-        foodX = tileRows + 10;
-        foodY = tileColumns + 10;
+        foodX = tileColumns + 10;
+        foodY = tileRows + 10;
         timerInMillis = TimeUtils.millis() + maxTimerInSeconds * 1000;
     }
 
@@ -72,8 +71,8 @@ public class MathGameScreen extends GameScreen{
         final int result = generateExercise();
         for (int i = 0; i < rand.nextInt(3) + 3; i++) {
             final MathFood mathFood = new MathFood();
-            mathFood.x = rand.nextInt(tileRows);
-            mathFood.y = rand.nextInt(tileColumns);
+            mathFood.x = generateRandomInBounds(0, tileColumns, snakeHead.x);
+            mathFood.y = generateRandomInBounds(0, tileRows, snakeHead.y);
             if(i == 0) mathFood.answer = result;
             else mathFood.answer = generateRandomInBounds(result / 2, result * 2 + 2, result);
             mathFood.setOnConsume(new Food.Consumable() {
@@ -93,8 +92,8 @@ public class MathGameScreen extends GameScreen{
         for (MathFood answer:
              answers) {
             Label answerLabel = new Label(Integer.toString(answer.answer), style);
-            answerLabel.setSize(GameScreen.WIDTH_IN_PIXELS / tileRows, GameScreen.HEIGHT_IN_PIXELS / (tileColumns + 1));
-            answerLabel.setPosition(answer.x * GameScreen.WIDTH_IN_PIXELS / tileRows + 10, answer.y * GameScreen.HEIGHT_IN_PIXELS / (tileColumns + 1));
+            answerLabel.setSize(GameScreen.WIDTH_IN_PIXELS / tileColumns, GameScreen.HEIGHT_IN_PIXELS / (tileRows + 1));
+            answerLabel.setPosition(answer.x * GameScreen.WIDTH_IN_PIXELS / tileColumns + 10, answer.y * GameScreen.HEIGHT_IN_PIXELS / (tileRows + 1));
             mathAnswersStage.addActor(answerLabel);
         }
         timerInMillis = TimeUtils.millis() + maxTimerInSeconds * 1000;

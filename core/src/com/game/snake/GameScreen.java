@@ -50,20 +50,17 @@ public class GameScreen implements Screen {
     private Stage finalStage;
     private OrthogonalTiledMapRenderer renderer;
     //amount of rows/columns
+    protected int tileColumns = 10;
     protected int tileRows = 15;
-    protected int tileColumns = 15;
     //snake parameters
     private int snakeTailFirstX;
     private int snakeTailFirstY;
     static int direction = 0;
     protected Food food;
-    //fucking java with its stupid generics
-    //have to use compile-unsafe conversions
-    // List<Class<MathFood>> does not cast to List<Class<? extends Food> !!!! MathFood extends Food
-    protected static List advancedFoodClasses =
+    protected static List<Class<? extends Food>> advancedFoodClasses =
             Collections.unmodifiableList(Arrays.asList(DoubleStandardFood.class, ReduceSpeedFood.class, ScoreTriplicate.class, ScoreDuplicate.class));
-    protected int foodX = 2;
-    protected int foodY = 3;
+    protected int foodX;
+    protected int foodY;
     Random rand = new Random();
     //Snake snake;
     public ArrayList<SnakeTail> snakeTails = new ArrayList<>();
@@ -116,50 +113,50 @@ public class GameScreen implements Screen {
         pauseStage = new Stage();
         finalStage = new Stage();
         lastSnakeMovement = TimeUtils.millis();
-        if(tileColumns < 2) throw new RuntimeException("TO FEW COLUMNS");
-        snakeHead = new SnakeHead(rand.nextInt(tileRows), rand.nextInt(tileColumns - 1));
-        System.out.println(snakeHead.x);
-        System.out.println(snakeHead.y);
+        if(tileRows < 2) throw new RuntimeException("TO FEW COLUMNS");
+        snakeHead = new SnakeHead(rand.nextInt(tileColumns), rand.nextInt(tileRows - 1));
         snakeTails.add(new SnakeTail(1,1));
         snakeTailFirstX = snakeHead.x;
         X.add(snakeTailFirstX);
-        System.out.println(X);
         X.add(snakeTailFirstX);
         snakeTailFirstY = snakeHead.y + 1;
         Y.add(snakeTailFirstY);
         Y.add(snakeTailFirstY + 1);
-        System.out.println(Y);
         tailsDirections.add(2);
         tailsDirections.add(2);
+        do {
+            foodX = rand.nextInt(tileColumns);
+            foodY = rand.nextInt(tileRows);
+        }
+        while ((foodX == snakeHead.x || foodX == snakeTailFirstX) && (foodY == snakeHead.y || foodY == snakeTailFirstY));
         createFood();
-        System.out.println(gameDifficulty);
         // create the camera and the SpriteBatch
         camera = new OrthographicCamera();
-        camera.setToOrtho(false, tileRows, tileColumns+1);
+        camera.setToOrtho(false, tileColumns, tileRows +1);
         //load map
         TextureRegion[][] splitTilesDark = TextureRegion.split(new Texture(Gdx.files.internal("tiles2.png")), TILE_SIZE_IN_PIXELS, TILE_SIZE_IN_PIXELS);
         TextureRegion[][] splitTilesLight = TextureRegion.split(new Texture(Gdx.files.internal("tiles.png")), TILE_SIZE_IN_PIXELS, TILE_SIZE_IN_PIXELS);
         TiledMap map = new TiledMap();
         MapLayers layers = map.getLayers();
 
-        TiledMapTileLayer layer = new TiledMapTileLayer(tileRows, tileColumns, TILE_SIZE_IN_PIXELS, TILE_SIZE_IN_PIXELS);
-        for (int x = 0; x < tileRows; x++) {
-            for (int y = 0; y < tileColumns; y++) {
+        TiledMapTileLayer layer = new TiledMapTileLayer(tileColumns, tileRows, TILE_SIZE_IN_PIXELS, TILE_SIZE_IN_PIXELS);
+        for (int x = 0; x < tileColumns; x++) {
+            for (int y = 0; y < tileRows; y++) {
                 int tx = 0;
                 int ty = 0;
                 if (x > 0) {
                     tx++;
-                    if (x == tileRows - 1) tx++;
+                    if (x == tileColumns - 1) tx++;
                 }
                 if (y > 0) {
                     ty++;
-                    if (y == tileColumns - 1) ty++;
+                    if (y == tileRows - 1) ty++;
                 }
                 TiledMapTileLayer.Cell cell = new TiledMapTileLayer.Cell();
                 if ((x + y) % 2 == 0)
                     cell.setTile(new StaticTiledMapTile(splitTilesDark[ty][tx]));
                 else cell.setTile(new StaticTiledMapTile(splitTilesLight[ty][tx]));
-                layer.setCell(x, tileColumns - 1 - y, cell);
+                layer.setCell(x, tileRows - 1 - y, cell);
             }
         }
         layers.add(layer);
@@ -284,8 +281,8 @@ public class GameScreen implements Screen {
 
 
         }
-        if(labelForMultiplication != null) game.batch.draw(labelForMultiplication, tileRows - 2, tileColumns, 1,1);
-        if(labelForReducedSpeed != null) game.batch.draw(labelForReducedSpeed, tileRows - 1, tileColumns, 1,1);
+        if(labelForMultiplication != null) game.batch.draw(labelForMultiplication, tileColumns - 2, tileRows, 1,1);
+        if(labelForReducedSpeed != null) game.batch.draw(labelForReducedSpeed, tileColumns - 1, tileRows, 1,1);
         game.batch.end();
         effectsStage.draw();
         //draw smth here
@@ -331,7 +328,7 @@ public class GameScreen implements Screen {
                 }
             }
             //check if head collides with borders
-            if(snakeHead.x < 0 || snakeHead.x > tileRows - 1 || snakeHead.y > tileColumns - 1 || snakeHead.y < 0){
+            if(snakeHead.x < 0 || snakeHead.x > tileColumns - 1 || snakeHead.y > tileRows - 1 || snakeHead.y < 0){
                 System.out.println("Game over");
                 showFinalScreen();
             }
@@ -352,8 +349,12 @@ public class GameScreen implements Screen {
     protected void checkForFood() {
         if(snakeHead.x == foodX && snakeHead.y == foodY) {
             food.consume(score, scoreMultiplier);
-            foodX = rand.nextInt(tileRows);
-            foodY = rand.nextInt(tileColumns);
+            while (true) {
+                foodX = rand.nextInt(tileColumns);
+                foodY = rand.nextInt(tileRows);
+                if(foodX == snakeHead.x && foodY == snakeHead.y) continue;
+                break;
+            }
             createFood();
         }
         else{
@@ -411,8 +412,7 @@ public class GameScreen implements Screen {
     protected void createFood() {
         if(Math.random() < advancedFoodSpawnChance){
             try {
-                Class foodExtends = (Class) advancedFoodClasses.get(rand.nextInt(advancedFoodClasses.size()));
-                food = (Food) foodExtends.getDeclaredConstructor().newInstance();
+                food = advancedFoodClasses.get(rand.nextInt(advancedFoodClasses.size())).getDeclaredConstructor().newInstance();
             } catch (InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
                 e.printStackTrace();
             }
