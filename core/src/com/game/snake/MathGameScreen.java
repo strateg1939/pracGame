@@ -45,13 +45,12 @@ public class MathGameScreen extends GameScreen{
     @Override
     public void render(float delta) {
         super.render(delta);
-        timerLabel.setText(Long.toString((timerInMillis - TimeUtils.millis()) / 1000));
-        if(timerInMillis <= TimeUtils.millis()) {
-            if(isOver) {
-                showFinalScreen();
+        if(!isOver && !isPaused) {
+            timerLabel.setText(Long.toString((timerInMillis - TimeUtils.millis()) / 1000));
+            if (timerInMillis <= TimeUtils.millis()) {
+                createFinalScreen("Game over! Time is up");
+                return;
             }
-            else createFinalScreen("Game over! Time is up");
-            return;
         }
         game.batch.begin();
         mathAnswersStage.draw();
@@ -166,6 +165,5 @@ public class MathGameScreen extends GameScreen{
     @Override
     protected void createFinalScreen(String finalMessage) {
         super.createFinalScreen(finalMessage);
-        mathAnswersStage.dispose();
     }
 }

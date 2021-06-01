@@ -45,7 +45,7 @@ public class GameScreen implements Screen {
     OrthographicCamera camera;
     private GameDifficulty gameDifficulty;
     //for pause
-    private boolean isPaused;
+    protected boolean isPaused;
     protected boolean isOver;
     private Stage pauseStage;
     private Stage finalStage;
@@ -414,18 +414,18 @@ public class GameScreen implements Screen {
                 direction = 0;
             }
         });
-        scoreLabel.setText("Your final score is : " + score.value);
         FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal("OpenSans-Regular.ttf"));
         FreeTypeFontGenerator.FreeTypeFontParameter parameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
         parameter.size = 30;
         BitmapFont font12 = generator.generateFont(parameter);
         generator.dispose();
         Label.LabelStyle style = new Label.LabelStyle(font12, Color.WHITE);
-        scoreLabel.setStyle(style);
-        scoreLabel.setPosition(300, 450);
+        Label finalScoreLabel = new Label("Your final score is : " + score.value, style);
+        finalScoreLabel.setStyle(style);
+        finalScoreLabel.setPosition(300, 450);
         Label finalMessageLabel = new Label(finalMessage, style);
         finalMessageLabel.setPosition(250, 550);
-        finalStage.addActor(scoreLabel);
+        finalStage.addActor(finalScoreLabel);
         finalStage.addActor(exitButton);
         finalStage.addActor(toMainMenuButton);
         finalStage.addActor(finalMessageLabel);
