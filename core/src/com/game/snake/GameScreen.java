@@ -38,32 +38,31 @@ public class GameScreen implements Screen {
     private static final int TILE_SIZE_IN_PIXELS = 23;
     //less == faster
     protected int snakeSpeed;
+    //speed reduction gradually negated after eating speed reduce
     private int speedDelta;
+    //all that is not a simple food
     protected float advancedFoodSpawnChance;
     OrthographicCamera camera;
-    //currently does nothing
     private GameDifficulty gameDifficulty;
     //for pause
     private boolean isPaused;
-    private boolean isOver;
+    protected boolean isOver;
     private Stage pauseStage;
     private Stage finalStage;
     private OrthogonalTiledMapRenderer renderer;
     //amount of rows/columns
+    protected int tileColumns = 10;
     protected int tileRows = 15;
-    protected int tileColumns = 15;
     //snake parameters
     private int snakeTailFirstX;
     private int snakeTailFirstY;
-    static int direction = 0;
+    protected static int direction = 0;
     protected Food food;
-    //fucking java with its stupid generics
-    //have to use compile-unsafe conversions
-    // List<Class<MathFood>> does not cast to List<Class<? extends Food> !!!! MathFood extends Food
-    protected static List advancedFoodClasses =
+    //used in creation of food
+    protected static List<Class<? extends Food>> advancedFoodClasses =
             Collections.unmodifiableList(Arrays.asList(DoubleStandardFood.class, ReduceSpeedFood.class, ScoreTriplicate.class, ScoreDuplicate.class));
-    protected int foodX = 2;
-    protected int foodY = 3;
+    protected int foodX;
+    protected int foodY;
     Random rand = new Random();
     //Snake snake;
     public ArrayList<SnakeTail> snakeTails = new ArrayList<>();
@@ -73,10 +72,17 @@ public class GameScreen implements Screen {
     LinkedList<Integer> Y = new LinkedList<>();
     LinkedList<Integer> tailsDirections = new LinkedList<>();
     protected SnakeHead snakeHead;
+    //timer on movement
     private long lastSnakeMovement;
     protected IntWrapper score;
+    /**
+     * score per changing the tile
+     */
     private static final int SCORE_PER_TICK = 5;
+    //timer for dupli/triplication
     private long lastScoreDuplication;
+    //how long in milliseconds score is being dupli/triplicated
+    //depends on difficulty
     private int MillisecondsForActiveScoreDuplication;
     private Stage effectsStage;
     protected Label scoreLabel;
@@ -90,6 +96,7 @@ public class GameScreen implements Screen {
         this.gameDifficulty = gameDifficulty;
         score = new IntWrapper(0);
         scoreMultiplier = new IntWrapper(0);
+        //difficulty
         switch(gameDifficulty){
             case EASY:
                 snakeSpeed = 500;
@@ -107,6 +114,7 @@ public class GameScreen implements Screen {
         MillisecondsForActiveScoreDuplication = snakeSpeed * 20;
         lastScoreDuplication = 0;
         speedDelta = 0;
+        //labels
         Label.LabelStyle style = new Label.LabelStyle(new BitmapFont(), Color.BLACK);
         scoreLabel = new Label("Your score is : " + score.value, style);
         scoreLabel.setSize(10,10);
@@ -115,51 +123,55 @@ public class GameScreen implements Screen {
         effectsStage.addActor(scoreLabel);
         pauseStage = new Stage();
         finalStage = new Stage();
+        //snake
         lastSnakeMovement = TimeUtils.millis();
-        if(tileColumns < 2) throw new RuntimeException("TO FEW COLUMNS");
-        snakeHead = new SnakeHead(rand.nextInt(tileRows), rand.nextInt(tileColumns - 1));
-        System.out.println(snakeHead.x);
-        System.out.println(snakeHead.y);
+        if(tileRows < 2) throw new RuntimeException("TO FEW COLUMNS");
+        snakeHead = new SnakeHead(rand.nextInt(tileColumns), rand.nextInt(tileRows - 1));
         snakeTails.add(new SnakeTail(1,1));
         snakeTailFirstX = snakeHead.x;
         X.add(snakeTailFirstX);
-        System.out.println(X);
         X.add(snakeTailFirstX);
         snakeTailFirstY = snakeHead.y + 1;
         Y.add(snakeTailFirstY);
         Y.add(snakeTailFirstY + 1);
-        System.out.println(Y);
+        direction = 0;
+        SnakeHead.setDefaultImage();
         tailsDirections.add(2);
         tailsDirections.add(2);
+        //food
+        do {
+            foodX = rand.nextInt(tileColumns);
+            foodY = rand.nextInt(tileRows);
+        }
+        while ((foodX == snakeHead.x || foodX == snakeTailFirstX) && (foodY == snakeHead.y || foodY == snakeTailFirstY));
         createFood();
-        System.out.println(gameDifficulty);
         // create the camera and the SpriteBatch
         camera = new OrthographicCamera();
-        camera.setToOrtho(false, tileRows, tileColumns+1);
+        camera.setToOrtho(false, tileColumns, tileRows +1);
         //load map
         TextureRegion[][] splitTilesDark = TextureRegion.split(new Texture(Gdx.files.internal("tiles2.png")), TILE_SIZE_IN_PIXELS, TILE_SIZE_IN_PIXELS);
         TextureRegion[][] splitTilesLight = TextureRegion.split(new Texture(Gdx.files.internal("tiles.png")), TILE_SIZE_IN_PIXELS, TILE_SIZE_IN_PIXELS);
         TiledMap map = new TiledMap();
         MapLayers layers = map.getLayers();
 
-        TiledMapTileLayer layer = new TiledMapTileLayer(tileRows, tileColumns, TILE_SIZE_IN_PIXELS, TILE_SIZE_IN_PIXELS);
-        for (int x = 0; x < tileRows; x++) {
-            for (int y = 0; y < tileColumns; y++) {
+        TiledMapTileLayer layer = new TiledMapTileLayer(tileColumns, tileRows, TILE_SIZE_IN_PIXELS, TILE_SIZE_IN_PIXELS);
+        for (int x = 0; x < tileColumns; x++) {
+            for (int y = 0; y < tileRows; y++) {
                 int tx = 0;
                 int ty = 0;
                 if (x > 0) {
                     tx++;
-                    if (x == tileRows - 1) tx++;
+                    if (x == tileColumns - 1) tx++;
                 }
                 if (y > 0) {
                     ty++;
-                    if (y == tileColumns - 1) ty++;
+                    if (y == tileRows - 1) ty++;
                 }
                 TiledMapTileLayer.Cell cell = new TiledMapTileLayer.Cell();
                 if ((x + y) % 2 == 0)
                     cell.setTile(new StaticTiledMapTile(splitTilesDark[ty][tx]));
                 else cell.setTile(new StaticTiledMapTile(splitTilesLight[ty][tx]));
-                layer.setCell(x, tileColumns - 1 - y, cell);
+                layer.setCell(x, tileRows - 1 - y, cell);
             }
         }
         layers.add(layer);
@@ -300,8 +312,8 @@ public class GameScreen implements Screen {
 
 
         }
-        if(labelForMultiplication != null) game.batch.draw(labelForMultiplication, tileRows - 2, tileColumns, 1,1);
-        if(labelForReducedSpeed != null) game.batch.draw(labelForReducedSpeed, tileRows - 1, tileColumns, 1,1);
+        if(labelForMultiplication != null) game.batch.draw(labelForMultiplication, tileColumns - 2, tileRows, 1,1);
+        if(labelForReducedSpeed != null) game.batch.draw(labelForReducedSpeed, tileColumns - 1, tileRows, 1,1);
         game.batch.end();
         effectsStage.draw();
         //draw smth here
@@ -342,14 +354,12 @@ public class GameScreen implements Screen {
             //check if head collides with body
             for(int i = 0; i < snakeTails.size(); i++){
                 if(snakeHead.x == X.get(i) && snakeHead.y == Y.get(i)){
-                    System.out.println("Game over");
-                    showFinalScreen();
+                    createFinalScreen("You have collided with yourself");
                 }
             }
             //check if head collides with borders
-            if(snakeHead.x < 0 || snakeHead.x > tileRows - 1 || snakeHead.y > tileColumns - 1 || snakeHead.y < 0){
-                System.out.println("Game over");
-                showFinalScreen();
+            if(snakeHead.x < 0 || snakeHead.x > tileColumns - 1 || snakeHead.y > tileRows - 1 || snakeHead.y < 0){
+                createFinalScreen("You have collided with borders");
             }
         }
 
@@ -364,12 +374,19 @@ public class GameScreen implements Screen {
             }
         }
     }
-
+    /**
+    check if snake is eating foor
+     */
     protected void checkForFood() {
         if(snakeHead.x == foodX && snakeHead.y == foodY) {
             food.consume(score, scoreMultiplier);
-            foodX = rand.nextInt(tileRows);
-            foodY = rand.nextInt(tileColumns);
+            //to not spawn food in the same tile as snake head
+            while (true) {
+                foodX = rand.nextInt(tileColumns);
+                foodY = rand.nextInt(tileRows);
+                if(foodX == snakeHead.x && foodY == snakeHead.y) continue;
+                break;
+            }
             createFood();
         }
         else{
@@ -378,6 +395,9 @@ public class GameScreen implements Screen {
         }
     }
 
+    /**
+     * move snake by 1 tile
+     */
     protected void moveSnake() {
         X.addFirst(snakeTailFirstX);
         Y.addFirst(snakeTailFirstY);
@@ -387,7 +407,7 @@ public class GameScreen implements Screen {
         tailsDirections.removeLast();
     }
 
-    protected void showFinalScreen() {
+    protected void createFinalScreen(String finalMessage) {
         isOver = true;
         Gdx.input.setInputProcessor(finalStage);
         Button toMainMenuButton = getSettingsButton("To Menu", 300);
@@ -398,6 +418,7 @@ public class GameScreen implements Screen {
                 finalStage.dispose();
                 GameScreen.this.dispose();
                 game.dispose();
+                System.exit(0);
             }
         });
         toMainMenuButton.addListener(new ChangeListener() {
@@ -406,6 +427,7 @@ public class GameScreen implements Screen {
                 game.setScreen(new MainMenuScreen(game));
                 finalStage.dispose();
                 GameScreen.this.dispose();
+                direction = 0;
             }
         });
         scoreLabel.setText("Your final score is : " + score.value);
@@ -414,21 +436,28 @@ public class GameScreen implements Screen {
         parameter.size = 30;
         BitmapFont font12 = generator.generateFont(parameter);
         generator.dispose();
-        scoreLabel.setStyle(new Label.LabelStyle(font12, Color.BLACK));
+        Label.LabelStyle style = new Label.LabelStyle(font12, Color.WHITE);
+        scoreLabel.setStyle(style);
         scoreLabel.setPosition(300, 450);
+        Label finalMessageLabel = new Label(finalMessage, style);
+        finalMessageLabel.setPosition(250, 550);
         finalStage.addActor(scoreLabel);
         finalStage.addActor(exitButton);
         finalStage.addActor(toMainMenuButton);
+        finalStage.addActor(finalMessageLabel);
         finalStage.draw();
     }
-
-    //creates consumable items
-    //call food.consume() when it should be consumed
+    protected void showFinalScreen(){
+        finalStage.draw();
+    }
+    /**
+    creates food
+    call food.consume() when it should be consumed
+     */
     protected void createFood() {
         if(Math.random() < advancedFoodSpawnChance){
             try {
-                Class foodExtends = (Class) advancedFoodClasses.get(rand.nextInt(advancedFoodClasses.size()));
-                food = (Food) foodExtends.getDeclaredConstructor().newInstance();
+                food = advancedFoodClasses.get(rand.nextInt(advancedFoodClasses.size())).getDeclaredConstructor().newInstance();
             } catch (InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
                 e.printStackTrace();
             }
@@ -450,7 +479,7 @@ public class GameScreen implements Screen {
             });
         }
     }
-
+    //set different effects for different food
     private Food.Consumable getScoreTriplicationEffect() {
         return new Food.Consumable() {
             @Override
@@ -557,6 +586,7 @@ public class GameScreen implements Screen {
                 game.setScreen(new MainMenuScreen(game));
                 pauseStage.dispose();
                 GameScreen.this.dispose();
+                direction = 0;
             }
         });
 
@@ -577,6 +607,12 @@ public class GameScreen implements Screen {
         //       rainMusic.dispose();
     }
 
+    /**
+     * create button
+     * @param buttonText text
+     * @param positionY X position is equal for all buttons
+     * @return
+     */
     private Button getSettingsButton(String buttonText, float positionY) {
         Skin skin = new Skin(Gdx.files.internal("flat-earth/skin/flat-earth-ui.json"));
         TextButton button = new TextButton(buttonText, skin);
