@@ -15,7 +15,7 @@ public class MathGameScreen extends GameScreen{
     private long timerInMillis;
     private ArrayList<MathFood> answers;
     private Stage mathAnswersStage;
-    private static int maxForExercise = 15;
+    private static int maxForExercise = 400;
     //min is 0
     private static int maxlengthOfExercise = 5;
     private String exercise;
@@ -73,15 +73,24 @@ public class MathGameScreen extends GameScreen{
     //most of the creation is done here
     protected void createFood(){
         if(mathAnswersStage == null) mathAnswersStage = new Stage();
+
         mathAnswersStage.clear();
         answers = new ArrayList<>();
         result = generateExercise();
         for (int i = 0; i < rand.nextInt(3) + 3; i++) {
             final MathFood mathFood = new MathFood();
-            mathFood.x = generateRandomInBounds(0, tileColumns, snakeHead.x);
-            mathFood.y = generateRandomInBounds(0, tileRows, snakeHead.y);
+            while (true) {
+                mathFood.x = generateRandomInBounds(0, tileColumns);
+                mathFood.y = generateRandomInBounds(0, tileRows);
+                boolean isOverlapping = false;
+                for (int j = 0; j < answers.size(); j++) {
+                    if(answers.get(j).x == mathFood.x && answers.get(j).y == mathFood.y) isOverlapping = true;
+                }
+                if((mathFood.x == snakeHead.x && mathFood.y == snakeHead.y) || isOverlapping) continue;
+                break;
+            }
             if(i == 0) mathFood.answer = result;
-            else mathFood.answer = generateRandomInBounds(result / 2, result * 2 + 2, result);
+            else mathFood.answer = generateRandomInBounds(result / 2, result * 2 + 3);
             mathFood.setOnConsume(new Food.Consumable() {
                 @Override
                 public void consume() {
@@ -94,22 +103,22 @@ public class MathGameScreen extends GameScreen{
             });
             answers.add(mathFood);
         }
-        Label.LabelStyle style = new Label.LabelStyle(new BitmapFont(), Color.BLACK);
+        System.out.println(answers.size());
+        Label.LabelStyle style = new Label.LabelStyle(fontForExercise, Color.BLACK);
         exerciseLabel = new Label(exercise, style);
         exerciseLabel.setSize(10, 10);
-        exerciseLabel.setPosition(scoreLabel.getMaxWidth() + 200, 650);
+        exerciseLabel.setPosition(scoreLabel.getMaxWidth() + 300, 660);
         mathAnswersStage.addActor(exerciseLabel);
         for (MathFood answer:
              answers) {
             Label answerLabel = new Label(Integer.toString(answer.answer), style);
-            answerLabel.setSize(GameScreen.WIDTH_IN_PIXELS / tileColumns, GameScreen.HEIGHT_IN_PIXELS / (tileRows + 1));
-            answerLabel.setPosition(answer.x * GameScreen.WIDTH_IN_PIXELS / tileColumns + 10, answer.y * GameScreen.HEIGHT_IN_PIXELS / (tileRows + 1));
+            answerLabel.setPosition((answer.x + 0.3f) * GameScreen.WIDTH_IN_PIXELS / tileColumns, answer.y * GameScreen.HEIGHT_IN_PIXELS / (tileRows + 1));
             mathAnswersStage.addActor(answerLabel);
         }
         timerInMillis = TimeUtils.millis() + maxTimerInSeconds * 1000;
         timerLabel = new Label(Integer.toString(maxForExercise), style);
         timerLabel.setSize(10, 10);
-        timerLabel.setPosition(800, 650);
+        timerLabel.setPosition(800, 660);
         mathAnswersStage.addActor(timerLabel);
 
     }
@@ -127,6 +136,9 @@ public class MathGameScreen extends GameScreen{
             result = rand.nextInt(max - min) + min;
         }
         return result;
+    }
+    private int generateRandomInBounds(int min, int max){
+       return generateRandomInBounds(min, max, Integer.MAX_VALUE);
     }
 
     /**

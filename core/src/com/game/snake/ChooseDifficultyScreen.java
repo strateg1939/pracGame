@@ -3,6 +3,8 @@ package com.game.snake;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.OrthographicCamera;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
+import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Button;
@@ -16,6 +18,7 @@ public class ChooseDifficultyScreen implements Screen {
     private OrthographicCamera camera;
     private Stage stage;
     private boolean isMathMode;
+    BitmapFont font12;
 
     public ChooseDifficultyScreen(final Main gam, boolean isMathMode) {
         this.isMathMode = isMathMode;
@@ -29,6 +32,11 @@ public class ChooseDifficultyScreen implements Screen {
         stage.addActor(getDefaultButtonForThisScreen("Hard", 50, GameDifficulty.HARD, skin));
         camera = new OrthographicCamera();
         camera.setToOrtho(false, 1000, 680);
+        FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal("OpenSans-Regular.ttf"));
+        FreeTypeFontGenerator.FreeTypeFontParameter parameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
+        parameter.size = 30;
+        font12 = generator.generateFont(parameter);
+        generator.dispose();
     }
     //returns TextButton with size 200,100; x= 300, skin from assets and on click start of game
     private Button getDefaultButtonForThisScreen(String buttonText, float positionY, final GameDifficulty gameDifficulty, Skin skin){
@@ -61,7 +69,7 @@ public class ChooseDifficultyScreen implements Screen {
 
         game.batch.begin();
         stage.draw();
-        game.font.draw(game.batch, "Choose difficulty setting", 410, 500);
+        font12.draw(game.batch, "Choose difficulty setting", 330, 550);
         game.batch.end();
     }
 

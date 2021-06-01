@@ -51,7 +51,7 @@ public class GameScreen implements Screen {
     private Stage finalStage;
     private OrthogonalTiledMapRenderer renderer;
     //amount of rows/columns
-    protected int tileColumns = 10;
+    protected int tileColumns = 15;
     protected int tileRows = 15;
     //snake parameters
     private int snakeTailFirstX;
@@ -115,10 +115,16 @@ public class GameScreen implements Screen {
         lastScoreDuplication = 0;
         speedDelta = 0;
         //labels
-        Label.LabelStyle style = new Label.LabelStyle(new BitmapFont(), Color.BLACK);
+        FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal("OpenSans-Regular.ttf"));
+        FreeTypeFontGenerator.FreeTypeFontParameter parameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
+        int sizeOfFont = (int)( 30 * Math.pow(1/2.0, (tileRows - 25) / 10.0) );
+        parameter.size = (sizeOfFont > 30) ? 30 : sizeOfFont;
+        fontForExercise = generator.generateFont(parameter);
+        generator.dispose();
+        Label.LabelStyle style = new Label.LabelStyle(fontForExercise, Color.BLACK);
         scoreLabel = new Label("Your score is : " + score.value, style);
         scoreLabel.setSize(10,10);
-        scoreLabel.setPosition(10,650);
+        scoreLabel.setPosition(10,660);
         effectsStage = new Stage();
         effectsStage.addActor(scoreLabel);
         pauseStage = new Stage();
