@@ -31,14 +31,15 @@ import java.util.*;
 import java.util.ArrayList;
 
 public class GameScreen implements Screen {
-
+    public static final int WIDTH_IN_PIXELS = 1000;
+    public static final int HEIGHT_IN_PIXELS = 680;
     final Main game;
     //better not change
     private static final int TILE_SIZE_IN_PIXELS = 23;
     //less == faster
-    private int snakeSpeed;
+    protected int snakeSpeed;
     private int speedDelta;
-    private float advancedFoodSpawnChance;
+    protected float advancedFoodSpawnChance;
     OrthographicCamera camera;
     //currently does nothing
     private GameDifficulty gameDifficulty;
@@ -49,17 +50,20 @@ public class GameScreen implements Screen {
     private Stage finalStage;
     private OrthogonalTiledMapRenderer renderer;
     //amount of rows/columns
-    private int tileRows = 20;
-    private int tileColumns = 18;
+    protected int tileRows = 15;
+    protected int tileColumns = 15;
     //snake parameters
     private int snakeTailFirstX;
     private int snakeTailFirstY;
     static int direction = 0;
-    Food food;
-    private static final List<Class<? extends Food>> advancedFoodClasses =
+    protected Food food;
+    //fucking java with its stupid generics
+    //have to use compile-unsafe conversions
+    // List<Class<MathFood>> does not cast to List<Class<? extends Food> !!!! MathFood extends Food
+    protected static List advancedFoodClasses =
             Collections.unmodifiableList(Arrays.asList(DoubleStandardFood.class, ReduceSpeedFood.class, ScoreTriplicate.class, ScoreDuplicate.class));
-    private int foodX = 2;
-    private int foodY = 3;
+    protected int foodX = 2;
+    protected int foodY = 3;
     Random rand = new Random();
     //Snake snake;
     public ArrayList<SnakeTail> snakeTails = new ArrayList<>();
@@ -68,17 +72,18 @@ public class GameScreen implements Screen {
     LinkedList<Integer> X = new LinkedList<>();
     LinkedList<Integer> Y = new LinkedList<>();
     LinkedList<Integer> tailsDirections = new LinkedList<>();
-    SnakeHead snakeHead;
+    protected SnakeHead snakeHead;
     private long lastSnakeMovement;
-    private IntWrapper score;
+    protected IntWrapper score;
     private static final int SCORE_PER_TICK = 5;
     private long lastScoreDuplication;
     private int MillisecondsForActiveScoreDuplication;
     private Stage effectsStage;
-    private Label scoreLabel;
-    private IntWrapper scoreMultiplier;
+    protected Label scoreLabel;
+    protected IntWrapper scoreMultiplier;
     private Texture labelForReducedSpeed;
     private Texture labelForMultiplication;
+    protected BitmapFont fontForExercise;
 
     public GameScreen(final Main gam, GameDifficulty gameDifficulty) {
         this.game = gam;
@@ -160,6 +165,7 @@ public class GameScreen implements Screen {
         layers.add(layer);
         float unitScale = 1 / (float) TILE_SIZE_IN_PIXELS;
         renderer = new OrthogonalTiledMapRenderer(map, unitScale);
+
     }
 
     @Override
@@ -210,7 +216,7 @@ public class GameScreen implements Screen {
         }
         game.batch.begin();
 
-        game.batch.draw(food.getImage(), foodX, foodY, 1, 1);
+        if(food != null) game.batch.draw(food.getImage(), foodX, foodY, 1, 1);
         game.batch.draw(snakeHead.getImage(), snakeHead.x, snakeHead.y, 1, 1);
         for (int i = 0; i < snakeTails.size(); i++) {
             if(i==0) {
@@ -280,7 +286,6 @@ public class GameScreen implements Screen {
         }
         if(labelForMultiplication != null) game.batch.draw(labelForMultiplication, tileRows - 2, tileColumns, 1,1);
         if(labelForReducedSpeed != null) game.batch.draw(labelForReducedSpeed, tileRows - 1, tileColumns, 1,1);
-        game.batch.draw(food.getImage(), foodX, foodY, 1, 1);
         game.batch.end();
         effectsStage.draw();
         //draw smth here
@@ -316,16 +321,7 @@ public class GameScreen implements Screen {
                     snakeHead.x--;
                 }
                 //to properly add new snakes first check for food then if no food move
-                if(snakeHead.x == foodX && snakeHead.y == foodY) {
-                    food.consume(score, scoreMultiplier);
-                    foodX = rand.nextInt(tileRows);
-                    foodY = rand.nextInt(tileColumns);
-                    createFood();
-                }
-                else{
-                    //move snake
-                    moveSnake();
-                }
+                checkForFood();
             }
             //check if head collides with body
             for(int i = 0; i < snakeTails.size(); i++){
@@ -353,7 +349,20 @@ public class GameScreen implements Screen {
         }
     }
 
-    private void moveSnake() {
+    protected void checkForFood() {
+        if(snakeHead.x == foodX && snakeHead.y == foodY) {
+            food.consume(score, scoreMultiplier);
+            foodX = rand.nextInt(tileRows);
+            foodY = rand.nextInt(tileColumns);
+            createFood();
+        }
+        else{
+            //move snake
+            moveSnake();
+        }
+    }
+
+    protected void moveSnake() {
         X.addFirst(snakeTailFirstX);
         Y.addFirst(snakeTailFirstY);
         Y.removeLast();
@@ -362,7 +371,7 @@ public class GameScreen implements Screen {
         tailsDirections.removeLast();
     }
 
-    private void showFinalScreen() {
+    protected void showFinalScreen() {
         isOver = true;
         Gdx.input.setInputProcessor(finalStage);
         Button toMainMenuButton = getSettingsButton("To Menu", 300);
@@ -399,10 +408,11 @@ public class GameScreen implements Screen {
 
     //creates consumable items
     //call food.consume() when it should be consumed
-    private void createFood() {
+    protected void createFood() {
         if(Math.random() < advancedFoodSpawnChance){
             try {
-                food = advancedFoodClasses.get(rand.nextInt(advancedFoodClasses.size())).getDeclaredConstructor().newInstance();
+                Class foodExtends = (Class) advancedFoodClasses.get(rand.nextInt(advancedFoodClasses.size()));
+                food = (Food) foodExtends.getDeclaredConstructor().newInstance();
             } catch (InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
                 e.printStackTrace();
             }
