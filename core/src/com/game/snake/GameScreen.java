@@ -91,7 +91,7 @@ public class GameScreen implements Screen {
     private Texture labelForReducedSpeed;
     private Texture labelForMultiplication;
     protected BitmapFont fontForExercise;
-    private boolean lockedMouse;
+    private boolean lockedInput;
 
     public GameScreen(final Main gam, GameDifficulty gameDifficulty) {
         this.game = gam;
@@ -185,7 +185,7 @@ public class GameScreen implements Screen {
         layers.add(layer);
         float unitScale = 1 / (float) TILE_SIZE_IN_PIXELS;
         renderer = new OrthogonalTiledMapRenderer(map, unitScale);
-        lockedMouse = false;
+        lockedInput = false;
     }
 
     @Override
@@ -210,25 +210,28 @@ public class GameScreen implements Screen {
 
         // begin a new batch and draw the bucket and
         // all drops
-        if (direction != 2 && Gdx.input.isKeyPressed(Keys.UP)) {
+        if(!lockedInput) {
+            if (direction != 2 && Gdx.input.isKeyPressed(Keys.UP)) {
                 direction = 1;
-        }
-        else if (direction != 1 && Gdx.input.isKeyPressed(Keys.DOWN)) {
+                lockedInput = true;
+            } else if (direction != 1 && Gdx.input.isKeyPressed(Keys.DOWN)) {
                 direction = 2;
-        }
-        else if (direction != 4 && Gdx.input.isKeyPressed(Keys.RIGHT)) {
+                lockedInput = true;
+            } else if (direction != 4 && Gdx.input.isKeyPressed(Keys.RIGHT)) {
                 direction = 3;
-        }
-        else if (direction != 3 && Gdx.input.isKeyPressed(Keys.LEFT)) {
+                lockedInput = true;
+            } else if (direction != 3 && Gdx.input.isKeyPressed(Keys.LEFT)) {
                 direction = 4;
-        }
-        if(Gdx.input.isButtonPressed(Input.Buttons.LEFT) && !lockedMouse){
-            direction = (direction < 3) ? direction + 2 : 5 - direction;
-            lockedMouse = true;
-        }
-        if(Gdx.input.isButtonPressed(Input.Buttons.RIGHT) && !lockedMouse){
-            lockedMouse = true;
-            direction = (direction < 3) ? 5 - direction : -2 + direction;
+                lockedInput = true;
+            }
+            if (Gdx.input.isButtonPressed(Input.Buttons.LEFT)) {
+                direction = (direction < 3) ? direction + 2 : 5 - direction;
+                lockedInput = true;
+            }
+            if (Gdx.input.isButtonPressed(Input.Buttons.RIGHT)) {
+                lockedInput = true;
+                direction = (direction < 3) ? 5 - direction : -2 + direction;
+            }
         }
 
 
@@ -332,7 +335,7 @@ public class GameScreen implements Screen {
         //snake moves
         if (TimeUtils.millis() - lastSnakeMovement > snakeSpeed + speedDelta) {
             scoreLabel.setText("Your score is : " + score.value);
-            lockedMouse = false;
+            lockedInput = false;
             lastSnakeMovement = TimeUtils.millis();
             if (direction <= 4 && direction >= 1) {
                 if(TimeUtils.millis() - lastScoreDuplication > MillisecondsForActiveScoreDuplication) {
