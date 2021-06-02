@@ -277,6 +277,10 @@ public class GameScreen implements Screen {
                         snakeTails.get(i).setImage(new Texture(Gdx.files.internal("snakeUpRight2.png")));
                     }else if (tailsDirections.get(i-1) == 4 && tailsDirections.get(i+1) == 3) {
                         snakeTails.get(i).setImage(new Texture(Gdx.files.internal("snakeUpLeft.png")));
+                    }else if (tailsDirections.get(i-1) == 3 && tailsDirections.get(i+1) == 3) {
+                        snakeTails.get(i).setImage(new Texture(Gdx.files.internal("snakeUpLeft.png")));//new//
+                    }else if (tailsDirections.get(i-1) == 4 && tailsDirections.get(i+1) == 4) {
+                        snakeTails.get(i).setImage(new Texture(Gdx.files.internal("snakeUpRight2.png")));//new//
                     }else
                     snakeTails.get(i).setImage(new Texture(Gdx.files.internal("snakeLeft.png")));
                 } else if (tailsDirections.get(i) == 2) {
@@ -288,6 +292,10 @@ public class GameScreen implements Screen {
                         snakeTails.get(i).setImage(new Texture(Gdx.files.internal("snakeLeftDown2.png")));
                     }else if (tailsDirections.get(i-1) == 3 && tailsDirections.get(i+1) == 4) {
                         snakeTails.get(i).setImage(new Texture(Gdx.files.internal("snakeDownRight.png")));
+                    }else if (tailsDirections.get(i-1) == 3 && tailsDirections.get(i+1) == 3) {
+                        snakeTails.get(i).setImage(new Texture(Gdx.files.internal("snakeLeftDown2.png")));//new//
+                    }else if (tailsDirections.get(i-1) == 4 && tailsDirections.get(i+1) == 4) {
+                        snakeTails.get(i).setImage(new Texture(Gdx.files.internal("snakeDownRight.png")));//new//
                     }else
                     snakeTails.get(i).setImage(new Texture(Gdx.files.internal("snakeRight.png")));
                 } else if (tailsDirections.get(i) == 3) {
@@ -299,6 +307,10 @@ public class GameScreen implements Screen {
                         snakeTails.get(i).setImage(new Texture(Gdx.files.internal("snakeLeftUp.png")));
                     }else if (tailsDirections.get(i-1) == 2 && tailsDirections.get(i+1) == 1) {
                         snakeTails.get(i).setImage(new Texture(Gdx.files.internal("snakeDownRight2.png")));
+                    }else if (tailsDirections.get(i-1) == 1 && tailsDirections.get(i+1) == 1) {
+                        snakeTails.get(i).setImage(new Texture(Gdx.files.internal("snakeDownRight2.png")));//new//
+                    }else if (tailsDirections.get(i-1) == 2 && tailsDirections.get(i+1) == 2) {
+                        snakeTails.get(i).setImage(new Texture(Gdx.files.internal("snakeLeftUp.png")));//new//
                     }else
                     snakeTails.get(i).setImage(new Texture(Gdx.files.internal("snakeUp.png")));
                 } else {
@@ -310,6 +322,10 @@ public class GameScreen implements Screen {
                         snakeTails.get(i).setImage(new Texture(Gdx.files.internal("snakeRightDown.png")));
                     }else if (tailsDirections.get(i-1) == 1 && tailsDirections.get(i+1) == 2) {
                           snakeTails.get(i).setImage(new Texture(Gdx.files.internal("snakeLeftUp2.png")));
+                    }else if (tailsDirections.get(i-1) == 1 && tailsDirections.get(i+1) == 1) {
+                        snakeTails.get(i).setImage(new Texture(Gdx.files.internal("snakeRightDown.png")));//new
+                    }else if (tailsDirections.get(i-1) == 2 && tailsDirections.get(i+1) == 2) {
+                        snakeTails.get(i).setImage(new Texture(Gdx.files.internal("snakeDownRight.png")));//new
                     }else
                     snakeTails.get(i).setImage(new Texture(Gdx.files.internal("snakeDown.png")));
                 }
