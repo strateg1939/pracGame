@@ -424,7 +424,6 @@ public class GameScreen implements Screen {
                 finalStage.dispose();
                 GameScreen.this.dispose();
                 game.dispose();
-                System.exit(0);
             }
         });
         toMainMenuButton.addListener(new ChangeListener() {
@@ -452,6 +451,9 @@ public class GameScreen implements Screen {
         finalStage.addActor(toMainMenuButton);
         finalStage.addActor(finalMessageLabel);
         finalStage.draw();
+        Record record = new Record(score.value, gameDifficulty, "Map`s size was " + tileColumns + "x" + tileRows,
+                this instanceof MathGameScreen, game.userName, snakeTails.size() + 1);
+        game.records.add(record);
     }
     protected void showFinalScreen(){
         finalStage.draw();

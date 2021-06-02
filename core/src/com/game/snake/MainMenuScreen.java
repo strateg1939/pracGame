@@ -17,6 +17,7 @@ public class MainMenuScreen implements Screen {
     private OrthographicCamera camera;
     private Stage stage;
     private boolean isMathMode = false;
+    SwingTableScreen screen;
 
     public MainMenuScreen(final Main gam) {
         game = gam;
@@ -44,9 +45,20 @@ public class MainMenuScreen implements Screen {
                 game.setScreen(new ChooseDifficultyScreen(game, isMathMode));
                 //!Important!
                 MainMenuScreen.this.dispose();
+                if(screen != null) screen.dispose();
             }
         });
         stage.addActor(button);
+        TextButton scoreBoard = new TextButton("Show score records", skin);
+        scoreBoard.setSize(200, 100);
+        scoreBoard.setPosition(300, 100);
+        scoreBoard.addListener(new ChangeListener() {
+            @Override
+            public void changed(ChangeEvent event, Actor actor) {
+                screen = new SwingTableScreen(game);
+            }
+        });
+        stage.addActor(scoreBoard);
     }
 
     @Override

@@ -54,6 +54,7 @@ public class MathGameScreen extends GameScreen{
         }
         game.batch.begin();
         mathAnswersStage.draw();
+        showFinalScreen();
         game.batch.end();
     }
 
