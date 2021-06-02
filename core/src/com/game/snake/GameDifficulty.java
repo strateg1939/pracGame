@@ -1,6 +1,8 @@
 package com.game.snake;
 
-public enum GameDifficulty {
+import java.io.Serializable;
+
+public enum GameDifficulty implements Serializable {
     EASY,
     MEDIUM,
     HARD

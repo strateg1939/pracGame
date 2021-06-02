@@ -8,57 +8,41 @@ import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.CheckBox;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
+import com.badlogic.gdx.scenes.scene2d.ui.TextField;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.utils.ScreenUtils;
 
-public class MainMenuScreen implements Screen {
-
+public class SetNameScreen implements Screen {
     final Main game;
     private OrthographicCamera camera;
     private Stage stage;
-    private boolean isMathMode = false;
-    SwingTableScreen screen;
 
-    public MainMenuScreen(final Main gam) {
+    public SetNameScreen(final Main gam) {
         game = gam;
         stage = new Stage();
         Gdx.input.setInputProcessor(stage);
         camera = new OrthographicCamera();
         camera.setToOrtho(false, 1000, 680);
         Skin skin = new Skin(Gdx.files.internal("flat-earth/skin/flat-earth-ui.json"));
-        CheckBox checkBoxForMathGame = new CheckBox("   Math Game Mode", skin);
-        checkBoxForMathGame.addListener(new ChangeListener() {
-            @Override
-            public void changed(ChangeEvent event, Actor actor) {
-                isMathMode = !isMathMode;
-            }
-        });
-        checkBoxForMathGame.setSize(100, 100);
-        checkBoxForMathGame.setPosition(300, 300);
-        stage.addActor(checkBoxForMathGame);
-        TextButton button = new TextButton("Begin!", skin);
+        Skin neonSkin = new Skin(Gdx.files.internal("neon/skin/neon-ui.json"));
+        final TextField textField = new TextField("", neonSkin);
+        textField.setMessageText("Your name");
+        textField.setSize(200, 30);
+        textField.setPosition(400, 500);
+        TextButton button = new TextButton("To Menu", skin);
         button.setSize(200, 100);
-        button.setPosition(300, 500);
+        button.setPosition(400, 350);
         button.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
-                game.setScreen(new ChooseDifficultyScreen(game, isMathMode));
+                game.setScreen(new MainMenuScreen(game));
+                game.userName = textField.getText();
                 //!Important!
-                MainMenuScreen.this.dispose();
-                if(screen != null) screen.dispose();
+                SetNameScreen.this.dispose();
             }
         });
         stage.addActor(button);
-        TextButton scoreBoard = new TextButton("Show score records", skin);
-        scoreBoard.setSize(200, 100);
-        scoreBoard.setPosition(300, 100);
-        scoreBoard.addListener(new ChangeListener() {
-            @Override
-            public void changed(ChangeEvent event, Actor actor) {
-                screen = new SwingTableScreen(game);
-            }
-        });
-        stage.addActor(scoreBoard);
+        stage.addActor(textField);
     }
 
     @Override
@@ -69,8 +53,6 @@ public class MainMenuScreen implements Screen {
         game.batch.setProjectionMatrix(camera.combined);
 
         game.batch.begin();
-        game.font.draw(game.batch, "Welcome to Drop!!! ", 100, 150);
-        game.font.draw(game.batch, "Tap anywhere to begin!", 100, 100);
         stage.draw();
         game.batch.end();
     }

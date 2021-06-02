@@ -7,12 +7,15 @@ public class Main extends Game {
 
 	SpriteBatch batch;
 	BitmapFont font;
+	String userName = "player";
+	Records records;
 
 	public void create() {
 		batch = new SpriteBatch();
 		// Use LibGDX's default Arial font.
 		font = new BitmapFont();
-		this.setScreen(new MainMenuScreen(this));
+		this.setScreen(new SetNameScreen(this));
+		records = new Records();
 	}
 
 	public void render() {
@@ -20,6 +23,7 @@ public class Main extends Game {
 	}
 
 	public void dispose() {
+		records.save();
 		batch.dispose();
 		font.dispose();
 	}
