@@ -1,6 +1,7 @@
 package com.game.snake;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Input.Keys;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.Color;
@@ -90,6 +91,7 @@ public class GameScreen implements Screen {
     private Texture labelForReducedSpeed;
     private Texture labelForMultiplication;
     protected BitmapFont fontForExercise;
+    private boolean lockedMouse;
 
     public GameScreen(final Main gam, GameDifficulty gameDifficulty) {
         this.game = gam;
@@ -183,7 +185,7 @@ public class GameScreen implements Screen {
         layers.add(layer);
         float unitScale = 1 / (float) TILE_SIZE_IN_PIXELS;
         renderer = new OrthogonalTiledMapRenderer(map, unitScale);
-
+        lockedMouse = false;
     }
 
     @Override
@@ -208,30 +210,32 @@ public class GameScreen implements Screen {
 
         // begin a new batch and draw the bucket and
         // all drops
-        if (direction != 2) {
-            if (Gdx.input.isKeyPressed(Keys.UP)) {
+        if (direction != 2 && Gdx.input.isKeyPressed(Keys.UP)) {
                 direction = 1;
-                SnakeHead.image  = new Texture(Gdx.files.internal("snakeHeadDown.png"));
-            }
         }
-        if (direction != 1) {
-            if (Gdx.input.isKeyPressed(Keys.DOWN)) {
+        else if (direction != 1 && Gdx.input.isKeyPressed(Keys.DOWN)) {
                 direction = 2;
-                SnakeHead.image  = new Texture(Gdx.files.internal("snakeHeadUp.png"));
-            }
         }
-        if (direction != 4) {
-            if (Gdx.input.isKeyPressed(Keys.RIGHT)) {
+        else if (direction != 4 && Gdx.input.isKeyPressed(Keys.RIGHT)) {
                 direction = 3;
-                SnakeHead.image  = new Texture(Gdx.files.internal("snakeHeadLeft.png"));
-            }
         }
-        if (direction != 3) {
-            if (Gdx.input.isKeyPressed(Keys.LEFT)) {
+        else if (direction != 3 && Gdx.input.isKeyPressed(Keys.LEFT)) {
                 direction = 4;
-                SnakeHead.image = new Texture(Gdx.files.internal("snakeHeadRight.png"));
-            }
         }
+        if(Gdx.input.isButtonPressed(Input.Buttons.LEFT) && !lockedMouse){
+            direction = (direction < 3) ? direction + 2 : 5 - direction;
+            lockedMouse = true;
+        }
+        if(Gdx.input.isButtonPressed(Input.Buttons.RIGHT) && !lockedMouse){
+            lockedMouse = true;
+            direction = (direction < 3) ? 5 - direction : -2 + direction;
+        }
+
+
+        if(direction == 1) SnakeHead.image  = new Texture(Gdx.files.internal("snakeHeadDown.png"));
+        else if (direction == 2 || direction == 0) SnakeHead.image  = new Texture(Gdx.files.internal("snakeHeadUp.png"));
+        else if(direction == 3) SnakeHead.image  = new Texture(Gdx.files.internal("snakeHeadLeft.png"));
+        else SnakeHead.image = new Texture(Gdx.files.internal("snakeHeadRight.png"));
         game.batch.begin();
 
         if(food != null) game.batch.draw(food.getImage(), foodX, foodY, 1, 1);
@@ -328,6 +332,7 @@ public class GameScreen implements Screen {
         //snake moves
         if (TimeUtils.millis() - lastSnakeMovement > snakeSpeed + speedDelta) {
             scoreLabel.setText("Your score is : " + score.value);
+            lockedMouse = false;
             lastSnakeMovement = TimeUtils.millis();
             if (direction <= 4 && direction >= 1) {
                 if(TimeUtils.millis() - lastScoreDuplication > MillisecondsForActiveScoreDuplication) {
@@ -424,6 +429,7 @@ public class GameScreen implements Screen {
                 finalStage.dispose();
                 GameScreen.this.dispose();
                 game.dispose();
+                System.exit(0);
             }
         });
         toMainMenuButton.addListener(new ChangeListener() {
