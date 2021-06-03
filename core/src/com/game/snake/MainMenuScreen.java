@@ -16,32 +16,37 @@ public class MainMenuScreen implements Screen {
     private Stage stage;
     private boolean isMathMode = false;
     SwingTableScreen screen;
+    //amount of tiles in game
     private static final int MIN_COUNT = 3;
     private static final int MAX_COUNT = 50;
-
+    private Table mathModeOptions;
+    private Table generalTable;
+    private Skin skin;
+    private static final int MAX_FOR_EXERCISE = 1000;
+    private static final int MAX_FOR_EXERCISE_LENGTH = 10;
+    private static final int MIN_FOR_EXERCISE_LENGTH = 2;
+    private static final int MIN_FOR_EXERCISE = 1;
     public MainMenuScreen(final Main gam) {
         game = gam;
         stage = new Stage();
         Gdx.input.setInputProcessor(stage);
         camera = new OrthographicCamera();
         camera.setToOrtho(false, 1000, 680);
-        Skin skin = new Skin(Gdx.files.internal("flat-earth/skin/flat-earth-ui.json"));
-
-        Table table = new Table();
-        table.setFillParent(true);
+        skin = new Skin(Gdx.files.internal("flat-earth/skin/flat-earth-ui.json"));
+        generalTable = new Table();
+        generalTable.setFillParent(true);
         CheckBox checkBoxForMathGame = new CheckBox("   Math Game Mode", skin);
         checkBoxForMathGame.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
                 isMathMode = !isMathMode;
+                if(isMathMode) showMathModeOptions();
+                else removeMathModeOptions();
             }
         });
-        TextButton button = new TextButton("Begin!", skin);
-
-        button.setSize(200, 50);
-        TextButton scoreBoard = new TextButton("Show score records", skin);
-        scoreBoard.setSize(200, 100);
-        scoreBoard.setPosition(300, 100);
+        TextButton beginButton = new TextButton("Begin!", skin);
+        beginButton.setSize(200, 50);
+        TextButton scoreBoard = new TextButton("Show score board", skin);
         scoreBoard.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
@@ -69,20 +74,23 @@ public class MainMenuScreen implements Screen {
                 columnsValueLabel.setText((int) columnsSlider.getValue());
             }
         });
-        table.setPosition(-300,0);
-        table.setTransform(true);
-        table.add(rowsLabel).uniform();
-        table.add(rowsValueSlider);
-        table.add(rowsValueLabel);
-        table.row().pad(10);
-        table.add(columnsLabel ,columnsSlider, columnsValueLabel);
-        table.row().pad(10);
-        table.add(checkBoxForMathGame).padLeft(150);
-        table.row().pad(10);
-        table.add(button).padLeft(100).size(150,50);
-        table.setScale(1.5f);
-        stage.addActor(table);
-        button.addListener(new ChangeListener() {
+        generalTable.setPosition(-300,-100);
+        generalTable.setTransform(true);
+        generalTable.add(rowsLabel);
+        generalTable.add(rowsValueSlider);
+        generalTable.add(rowsValueLabel);
+        generalTable.row().pad(10);
+        generalTable.add(columnsLabel ,columnsSlider, columnsValueLabel);
+        generalTable.row().pad(10);
+        generalTable.add(checkBoxForMathGame).padLeft(150);
+        generalTable.row().pad(10);
+        mathModeOptions = new Table();
+        generalTable.add(mathModeOptions).padLeft(100).colspan(3);
+        generalTable.row();
+        generalTable.add(beginButton).size(230,50).colspan(3);
+        generalTable.setScale(1.5f);
+        stage.addActor(generalTable);
+        beginButton.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
                 game.setScreen(new ChooseDifficultyScreen(game, isMathMode));
@@ -93,6 +101,58 @@ public class MainMenuScreen implements Screen {
                 if(screen != null) screen.dispose();
             }
         });
+        scoreBoard.setSize(200, 50);
+        scoreBoard.setPosition(100, 100);
+        stage.addActor(scoreBoard);
+        TextButton userScreenButton = new TextButton("Change user", skin);
+        userScreenButton.setSize(200, 50);
+        userScreenButton.setPosition(700, 100);
+        userScreenButton.addListener(new ChangeListener() {
+            @Override
+            public void changed(ChangeEvent event, Actor actor) {
+                game.setScreen(new SetNameScreen(game));
+                MainMenuScreen.this.dispose();
+            }
+        });
+        stage.addActor(userScreenButton);
+    }
+
+    private void removeMathModeOptions() {
+        mathModeOptions.clear();
+    }
+
+    private void showMathModeOptions() {
+        final Label maxNumberLabel = new Label("Max number for exercises", skin);
+        final Slider maxValueSlider = new Slider(MIN_FOR_EXERCISE, MAX_FOR_EXERCISE, 1, false, skin);
+        final Label maxValueLabel = new Label(Integer.toString(MIN_FOR_EXERCISE), skin);
+        maxValueSlider.addListener(new ChangeListener() {
+            @Override
+            public void changed(ChangeEvent event, Actor actor) {
+                int value = (int) maxValueSlider.getValue();
+                maxValueLabel.setText(value);
+                MathGameScreen.setMaxForExercise(value);
+            }
+        });
+        // BPM
+        final Label lengthLabel = new Label("Length of an exercise", skin);
+        final Slider lengthSlider = new Slider(MIN_FOR_EXERCISE_LENGTH, MAX_FOR_EXERCISE_LENGTH, 1, false, skin);
+        final Label lengthValueLabel = new Label(Integer.toString(MIN_FOR_EXERCISE_LENGTH), skin);
+        lengthSlider.addListener(new ChangeListener() {
+            @Override
+            public void changed(ChangeEvent event, Actor actor) {
+                int value = (int) lengthSlider.getValue();
+                lengthValueLabel.setText(value);
+                MathGameScreen.setMaxlengthOfExercise(value);
+            }
+        });
+        mathModeOptions.add(maxNumberLabel).padLeft(40);
+        mathModeOptions.add(maxValueSlider).padLeft(120);
+        mathModeOptions.add(maxValueLabel);
+        mathModeOptions.row().pad(10);
+        mathModeOptions.add(lengthLabel).padLeft(40);
+        mathModeOptions.add(lengthSlider).padLeft(130);
+        mathModeOptions.add(lengthValueLabel);
+        mathModeOptions.row().pad(10);
     }
 
     @Override

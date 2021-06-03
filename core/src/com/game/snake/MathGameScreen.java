@@ -164,6 +164,7 @@ public class MathGameScreen extends GameScreen{
     private int generateExercise() {
         int result = rand.nextInt(maxForExercise);
         exercise = result + " ";
+        //length is random
         int length = rand.nextInt(maxlengthOfExercise) + 1;
         for (int i = 0; i < length; i++) {
             result = generateNextStep(result);
@@ -192,5 +193,13 @@ public class MathGameScreen extends GameScreen{
     @Override
     protected void createFinalScreen(String finalMessage) {
         super.createFinalScreen(finalMessage);
+    }
+
+    public static void setMaxForExercise(int maxForExercise) {
+        MathGameScreen.maxForExercise = maxForExercise;
+    }
+
+    public static void setMaxlengthOfExercise(int maxlengthOfExercise) {
+        MathGameScreen.maxlengthOfExercise = maxlengthOfExercise;
     }
 }
