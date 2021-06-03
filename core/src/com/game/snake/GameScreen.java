@@ -63,6 +63,7 @@ public class GameScreen<sound> implements Screen {
     private int snakeTailFirstX;
     private int snakeTailFirstY;
     protected static int direction = 0;
+    protected static int directionPrevious = 0;
     protected Food food;
     //used in creation of food
     protected static List<Class<? extends Food>> advancedFoodClasses =
@@ -217,16 +218,24 @@ public class GameScreen<sound> implements Screen {
         // all drops
         if(!lockedInput) {
             if (direction != 2 && Gdx.input.isKeyPressed(Keys.UP)) {
+               // directionPrevious =direction;
                 direction = 1;
+
                 lockedInput = true;
             } else if (direction != 1 && Gdx.input.isKeyPressed(Keys.DOWN)) {
+              //  directionPrevious =direction;
                 direction = 2;
+
                 lockedInput = true;
             } else if (direction != 4 && Gdx.input.isKeyPressed(Keys.RIGHT)) {
+             //   directionPrevious =direction;
                 direction = 3;
+
                 lockedInput = true;
             } else if (direction != 3 && Gdx.input.isKeyPressed(Keys.LEFT)) {
+               // directionPrevious =direction;
                 direction = 4;
+
                 lockedInput = true;
             }
             if (Gdx.input.isButtonPressed(Input.Buttons.LEFT)) {
@@ -244,6 +253,18 @@ public class GameScreen<sound> implements Screen {
         else if (direction == 2 || direction == 0) SnakeHead.image  = new Texture(Gdx.files.internal("snakeHeadUp.png"));
         else if(direction == 3) SnakeHead.image  = new Texture(Gdx.files.internal("snakeHeadLeft.png"));
         else SnakeHead.image = new Texture(Gdx.files.internal("snakeHeadRight.png"));
+
+        if(direction == 1 && tailsDirections.get(0)==3) SnakeHead.image  = new Texture(Gdx.files.internal("snakeHeadLeftUp2.png"));
+        else if (direction == 1 && tailsDirections.get(0)==4) SnakeHead.image  = new Texture(Gdx.files.internal("snakeHeadRightUp2.png"));
+        else if (direction == 2 && tailsDirections.get(0)==3) SnakeHead.image  = new Texture(Gdx.files.internal("snakeHeadDownLeft1.png"));
+        else if (direction == 2 && tailsDirections.get(0)==4) SnakeHead.image  = new Texture(Gdx.files.internal("snakeHeadDownRight2.png"));
+        else if (direction == 3 && tailsDirections.get(0)==1) SnakeHead.image  = new Texture(Gdx.files.internal("snakeHeadDownRight1.png"));
+        else if (direction == 3 && tailsDirections.get(0)==2) SnakeHead.image  = new Texture(Gdx.files.internal("snakeHeadUpRight2.png"));
+        else if (direction == 4 && tailsDirections.get(0)==1) SnakeHead.image  = new Texture(Gdx.files.internal("snakeHeadRightDown2.png"));
+        else if (direction == 4 && tailsDirections.get(0)==2) SnakeHead.image  = new Texture(Gdx.files.internal("snakeHeadLeftUp1.png"));
+
+       // else SnakeHead.image = new Texture(Gdx.files.internal("snakeHeadRight.png"));
+
         game.batch.begin();
 
         if(food != null) game.batch.draw(food.getImage(), foodX, foodY, 1, 1);
