@@ -2,6 +2,10 @@ package com.game.snake;
 
 import java.io.Serializable;
 
+/**
+ * class that defines one record that is written in database when a game has ended
+ * gameInformation is just general info that isn't meant to be sorted by
+ */
 public class Record implements Serializable {
     public int score;
     public GameDifficulty gameDifficulty;

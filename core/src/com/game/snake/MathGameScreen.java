@@ -8,6 +8,12 @@ import com.badlogic.gdx.utils.TimeUtils;
 
 import java.util.ArrayList;
 
+/**
+ * screen that defines math game mode
+ * extends game screen
+ * almost all logic is done in overridden createFood
+ *
+ */
 public class MathGameScreen extends GameScreen{
     //time in seconds to solve exercise. Less with increased difficulty
     private static int maxTimerInSeconds = 35;
@@ -45,6 +51,7 @@ public class MathGameScreen extends GameScreen{
     @Override
     public void render(float delta) {
         super.render(delta);
+        //update the time that is left for the player to answer the question
         if(!isOver && !isPaused) {
             timerLabel.setText(Long.toString((timerInMillis - TimeUtils.millis()) / 1000));
             if (timerInMillis <= TimeUtils.millis()) {
@@ -58,6 +65,9 @@ public class MathGameScreen extends GameScreen{
         game.batch.end();
     }
 
+    /**
+     * overridden to check for multiple food items
+     */
     @Override
     protected void checkForFood() {
         for (MathFood food:
@@ -71,7 +81,11 @@ public class MathGameScreen extends GameScreen{
         }
         moveSnake();
     }
-    //most of the creation is done here
+
+    /**
+     * creates new exercise and all the random answers for it
+     * also creates stage / labels because this method is called before this screen`s constructor
+     */
     protected void createFood(){
         if(mathAnswersStage == null) mathAnswersStage = new Stage();
 

@@ -52,8 +52,8 @@ public class GameScreen implements Screen {
     private Stage finalStage;
     private OrthogonalTiledMapRenderer renderer;
     //amount of rows/columns
-    protected int tileColumns = 15;
-    protected int tileRows = 15;
+    protected int tileColumns;
+    protected int tileRows;
     //snake parameters
     private int snakeTailFirstX;
     private int snakeTailFirstY;
@@ -113,6 +113,8 @@ public class GameScreen implements Screen {
                 advancedFoodSpawnChance = 0.15f;
                 break;
         }
+        tileRows = game.tileRows;
+        tileColumns = game.tileColumns;
         MillisecondsForActiveScoreDuplication = snakeSpeed * 20;
         lastScoreDuplication = 0;
         speedDelta = 0;
@@ -501,18 +503,22 @@ public class GameScreen implements Screen {
         }
         else {
             food = new StandardFood();
-            food.setOnConsume(new Food.Consumable() {
-                @Override
-                public void consume() {
-                    snakeTails.add(new SnakeTail(1,1));
-                    X.addFirst(snakeTailFirstX);
-                    Y.addFirst(snakeTailFirstY);
-                    tailsDirections.addFirst(direction);
-                }
-            });
+            food.setOnConsume(getStandardEffect());
         }
     }
+
     //set different effects for different food
+    private Food.Consumable getStandardEffect(){
+        return new Food.Consumable() {
+            @Override
+            public void consume() {
+                snakeTails.add(new SnakeTail(1,1));
+                X.addFirst(snakeTailFirstX);
+                Y.addFirst(snakeTailFirstY);
+                tailsDirections.addFirst(direction);
+            }
+        };
+    }
     private Food.Consumable getScoreTriplicationEffect() {
         return new Food.Consumable() {
             @Override

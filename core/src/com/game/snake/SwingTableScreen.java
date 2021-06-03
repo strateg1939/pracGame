@@ -69,11 +69,11 @@ public class SwingTableScreen extends JFrame {
             @Override
             public Class<?> getColumnClass(int columnIndex) {
                 if(columnIndex == 4) return Boolean.class;
-                if(columnIndex == 1) return Integer.class;
+                if(columnIndex == 1 || columnIndex == 3) return Integer.class;
                 return super.getColumnClass(columnIndex);
             }
         };
-        String[] columnsHeader = {"Username", "Score", "Difficulty", "Snake size", "Was math game mode played", "Other information"};
+        String[] columnsHeader = {"Username", "Score", "Difficulty", "Snake size", "Math game mode", "Other information"};
         tableModel.setColumnIdentifiers(columnsHeader);
         for (Record record : game.records.getRecords()) {
             if(userName == null || record.userName.equals(userName)) {

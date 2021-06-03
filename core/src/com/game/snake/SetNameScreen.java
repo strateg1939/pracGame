@@ -12,6 +12,10 @@ import com.badlogic.gdx.scenes.scene2d.ui.TextField;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.utils.ScreenUtils;
 
+/**
+ * screen for user to set name in
+ * should be first that user sees when loads the game
+ */
 public class SetNameScreen implements Screen {
     final Main game;
     private OrthographicCamera camera;

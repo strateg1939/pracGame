@@ -3,6 +3,10 @@ package com.game.snake;
 import java.io.*;
 import java.util.ArrayList;
 
+/**
+ * class that loads / saves all records
+ * ObjectInput/Output is used to load/save
+ */
 public class Records {
     private ArrayList<Record> records;
     private static final String recordsFileName = "saves.txt";
