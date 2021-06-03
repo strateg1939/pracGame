@@ -119,7 +119,6 @@ public class MathGameScreen extends GameScreen{
             });
             answers.add(mathFood);
         }
-        System.out.println(answers.size());
         Label.LabelStyle style = new Label.LabelStyle(fontForExercise, Color.BLACK);
         exerciseLabel = new Label(exercise, style);
         exerciseLabel.setSize(10, 10);

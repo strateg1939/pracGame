@@ -26,7 +26,7 @@ public class MainMenuScreen implements Screen {
     private Skin skin;
     private static final int MAX_FOR_EXERCISE = 1000;
     private static final int MAX_FOR_EXERCISE_LENGTH = 10;
-    private static final int MIN_FOR_EXERCISE_LENGTH = 2;
+    private static final int MIN_FOR_EXERCISE_LENGTH = 1;
     private static final int MIN_FOR_EXERCISE = 1;
     public MainMenuScreen(final Main gam) {
         game = gam;
@@ -117,6 +117,8 @@ public class MainMenuScreen implements Screen {
             }
         });
         stage.addActor(userScreenButton);
+        MathGameScreen.setMaxForExercise(MIN_FOR_EXERCISE);
+        MathGameScreen.setMaxlengthOfExercise(MIN_FOR_EXERCISE_LENGTH);
     }
 
     private void removeMathModeOptions() {
