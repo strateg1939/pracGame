@@ -33,6 +33,10 @@ import java.util.*;
 import java.util.ArrayList;
 
 public class GameScreen<sound> implements Screen {
+    //sounds
+    public static Sound music = Gdx.audio.newSound(Gdx.files.internal("music.mp3"));
+    public static Sound sound1 = Gdx.audio.newSound(Gdx.files.internal("eat1.mp3"));
+    //
     public static final int WIDTH_IN_PIXELS = 1000;
     public static final int HEIGHT_IN_PIXELS = 680;
     final Main game;
@@ -568,8 +572,7 @@ public class GameScreen<sound> implements Screen {
     }
 
 
-    Sound music = Gdx.audio.newSound(Gdx.files.internal("music.mp3"));
-    Sound sound1 = Gdx.audio.newSound(Gdx.files.internal("eat1.mp3"));
+
    // Sound sound2 = Gdx.audio.newSound(Gdx.files.internal("eat2.aac"));
     @Override
     public void show() {
