@@ -2,6 +2,10 @@ package com.game.snake;
 
 import com.badlogic.gdx.graphics.Texture;
 
+/**
+ * abstract class that all food is extended from
+ * invoke and define setOnConsume in game when creating new food
+ */
 public abstract class Food {
     private Consumable consumable;
     public void setOnConsume(Consumable consume){

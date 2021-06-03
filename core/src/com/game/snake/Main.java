@@ -9,6 +9,10 @@ public class Main extends Game {
 	BitmapFont font;
 	String userName = "player";
 	Records records;
+	int tileRows;
+	int tileColumns;
+	static final int WORLD_WIDTH = 1000;
+	static final int WORLD_HEIGHT = 680;
 
 	public void create() {
 		batch = new SpriteBatch();

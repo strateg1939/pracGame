@@ -25,6 +25,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.utils.TimeUtils;
+import com.badlogic.gdx.utils.viewport.StretchViewport;
 
 import java.util.LinkedList;
 import java.util.Random;
@@ -57,8 +58,8 @@ public class GameScreen<sound> implements Screen {
     private Stage finalStage;
     private OrthogonalTiledMapRenderer renderer;
     //amount of rows/columns
-    protected int tileColumns = 15;
-    protected int tileRows = 15;
+    protected int tileColumns;
+    protected int tileRows;
     //snake parameters
     private int snakeTailFirstX;
     private int snakeTailFirstY;
@@ -119,6 +120,8 @@ public class GameScreen<sound> implements Screen {
                 advancedFoodSpawnChance = 0.15f;
                 break;
         }
+        tileRows = game.tileRows;
+        tileColumns = game.tileColumns;
         MillisecondsForActiveScoreDuplication = snakeSpeed * 20;
         lastScoreDuplication = 0;
         speedDelta = 0;
@@ -133,10 +136,10 @@ public class GameScreen<sound> implements Screen {
         scoreLabel = new Label("Your score is : " + score.value, style);
         scoreLabel.setSize(10,10);
         scoreLabel.setPosition(10,660);
-        effectsStage = new Stage();
+        effectsStage = new Stage(new StretchViewport(Main.WORLD_WIDTH, Main.WORLD_HEIGHT));
         effectsStage.addActor(scoreLabel);
-        pauseStage = new Stage();
-        finalStage = new Stage();
+        pauseStage = new Stage(new StretchViewport(Main.WORLD_WIDTH, Main.WORLD_HEIGHT));
+        finalStage = new Stage(new StretchViewport(Main.WORLD_WIDTH, Main.WORLD_HEIGHT));
         //snake
         lastSnakeMovement = TimeUtils.millis();
         if(tileRows < 2) throw new RuntimeException("TO FEW COLUMNS");
@@ -527,18 +530,22 @@ public class GameScreen<sound> implements Screen {
         }
         else {
             food = new StandardFood();
-            food.setOnConsume(new Food.Consumable() {
-                @Override
-                public void consume() {
-                    snakeTails.add(new SnakeTail(1,1));
-                    X.addFirst(snakeTailFirstX);
-                    Y.addFirst(snakeTailFirstY);
-                    tailsDirections.addFirst(direction);
-                }
-            });
+            food.setOnConsume(getStandardEffect());
         }
     }
+
     //set different effects for different food
+    private Food.Consumable getStandardEffect(){
+        return new Food.Consumable() {
+            @Override
+            public void consume() {
+                snakeTails.add(new SnakeTail(1,1));
+                X.addFirst(snakeTailFirstX);
+                Y.addFirst(snakeTailFirstY);
+                tailsDirections.addFirst(direction);
+            }
+        };
+    }
     private Food.Consumable getScoreTriplicationEffect() {
         return new Food.Consumable() {
             @Override

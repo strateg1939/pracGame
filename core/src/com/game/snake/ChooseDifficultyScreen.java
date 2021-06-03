@@ -12,6 +12,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.utils.ScreenUtils;
+import com.badlogic.gdx.utils.viewport.StretchViewport;
 
 public class ChooseDifficultyScreen implements Screen {
     final Main game;
@@ -23,7 +24,7 @@ public class ChooseDifficultyScreen implements Screen {
     public ChooseDifficultyScreen(final Main gam, boolean isMathMode) {
         this.isMathMode = isMathMode;
         game = gam;
-        stage = new Stage();
+        stage = new Stage(new StretchViewport(Main.WORLD_WIDTH, Main.WORLD_HEIGHT));
         Gdx.input.setInputProcessor(stage);
         Skin skin = new Skin(Gdx.files.internal("flat-earth/skin/flat-earth-ui.json"));
         //creates buttons for difficulty choosing
@@ -31,7 +32,7 @@ public class ChooseDifficultyScreen implements Screen {
         stage.addActor(getDefaultButtonForThisScreen("Medium", 200, GameDifficulty.MEDIUM, skin));
         stage.addActor(getDefaultButtonForThisScreen("Hard", 50, GameDifficulty.HARD, skin));
         camera = new OrthographicCamera();
-        camera.setToOrtho(false, 1000, 680);
+        camera.setToOrtho(false, Main.WORLD_WIDTH, Main.WORLD_HEIGHT);
         FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal("OpenSans-Regular.ttf"));
         FreeTypeFontGenerator.FreeTypeFontParameter parameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
         parameter.size = 30;
