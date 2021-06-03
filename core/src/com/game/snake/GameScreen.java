@@ -4,6 +4,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Input.Keys;
 import com.badlogic.gdx.Screen;
+import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
@@ -31,7 +32,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.*;
 import java.util.ArrayList;
 
-public class GameScreen implements Screen {
+public class GameScreen<sound> implements Screen {
     public static final int WIDTH_IN_PIXELS = 1000;
     public static final int HEIGHT_IN_PIXELS = 680;
     final Main game;
@@ -566,11 +567,15 @@ public class GameScreen implements Screen {
     public void resize(int width, int height) {
     }
 
+
+    Sound music = Gdx.audio.newSound(Gdx.files.internal("music.mp3"));
+    Sound sound1 = Gdx.audio.newSound(Gdx.files.internal("eat1.mp3"));
+   // Sound sound2 = Gdx.audio.newSound(Gdx.files.internal("eat2.aac"));
     @Override
     public void show() {
         // start the playback of the background music
         // when the screen is shown
-        //       rainMusic.play();
+               music.play();
     }
 
     @Override
@@ -636,8 +641,8 @@ public class GameScreen implements Screen {
 
     @Override
     public void dispose() {
-        //       dropSound.dispose();
-        //       rainMusic.dispose();
+              sound1.dispose();
+
     }
 
     /**
