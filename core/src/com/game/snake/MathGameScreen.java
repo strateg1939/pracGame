@@ -5,6 +5,7 @@ import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.utils.TimeUtils;
+import com.badlogic.gdx.utils.viewport.StretchViewport;
 
 import java.util.ArrayList;
 
@@ -87,7 +88,7 @@ public class MathGameScreen extends GameScreen{
      * also creates stage / labels because this method is called before this screen`s constructor
      */
     protected void createFood(){
-        if(mathAnswersStage == null) mathAnswersStage = new Stage();
+        if(mathAnswersStage == null) mathAnswersStage = new Stage(new StretchViewport(Main.WORLD_WIDTH, Main.WORLD_HEIGHT));
 
         mathAnswersStage.clear();
         answers = new ArrayList<>();
@@ -127,7 +128,7 @@ public class MathGameScreen extends GameScreen{
         for (MathFood answer:
              answers) {
             Label answerLabel = new Label(Integer.toString(answer.answer), style);
-            answerLabel.setPosition((answer.x + 0.3f) * GameScreen.WIDTH_IN_PIXELS / tileColumns, answer.y * GameScreen.HEIGHT_IN_PIXELS / (tileRows + 1));
+            answerLabel.setPosition((answer.x + 0.2f) * Main.WORLD_WIDTH / tileColumns, answer.y * Main.WORLD_HEIGHT / (tileRows + 1));
             mathAnswersStage.addActor(answerLabel);
         }
         timerInMillis = TimeUtils.millis() + maxTimerInSeconds * 1000;

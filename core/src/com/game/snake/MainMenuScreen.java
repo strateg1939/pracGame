@@ -8,6 +8,8 @@ import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.utils.ScreenUtils;
+import com.badlogic.gdx.utils.viewport.ScalingViewport;
+import com.badlogic.gdx.utils.viewport.StretchViewport;
 
 public class MainMenuScreen implements Screen {
 
@@ -28,10 +30,10 @@ public class MainMenuScreen implements Screen {
     private static final int MIN_FOR_EXERCISE = 1;
     public MainMenuScreen(final Main gam) {
         game = gam;
-        stage = new Stage();
+        stage = new Stage(new StretchViewport(Main.WORLD_WIDTH, Main.WORLD_HEIGHT));
         Gdx.input.setInputProcessor(stage);
         camera = new OrthographicCamera();
-        camera.setToOrtho(false, 1000, 680);
+        camera.setToOrtho(false, Main.WORLD_WIDTH, Main.WORLD_HEIGHT);
         skin = new Skin(Gdx.files.internal("flat-earth/skin/flat-earth-ui.json"));
         generalTable = new Table();
         generalTable.setFillParent(true);
@@ -167,6 +169,7 @@ public class MainMenuScreen implements Screen {
 
     @Override
     public void resize(int width, int height) {
+        stage.getViewport().update(width, height, true);
     }
 
     @Override

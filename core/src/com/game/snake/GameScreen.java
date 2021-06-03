@@ -24,6 +24,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.utils.TimeUtils;
+import com.badlogic.gdx.utils.viewport.StretchViewport;
 
 import java.util.LinkedList;
 import java.util.Random;
@@ -129,10 +130,10 @@ public class GameScreen implements Screen {
         scoreLabel = new Label("Your score is : " + score.value, style);
         scoreLabel.setSize(10,10);
         scoreLabel.setPosition(10,660);
-        effectsStage = new Stage();
+        effectsStage = new Stage(new StretchViewport(Main.WORLD_WIDTH, Main.WORLD_HEIGHT));
         effectsStage.addActor(scoreLabel);
-        pauseStage = new Stage();
-        finalStage = new Stage();
+        pauseStage = new Stage(new StretchViewport(Main.WORLD_WIDTH, Main.WORLD_HEIGHT));
+        finalStage = new Stage(new StretchViewport(Main.WORLD_WIDTH, Main.WORLD_HEIGHT));
         //snake
         lastSnakeMovement = TimeUtils.millis();
         if(tileRows < 2) throw new RuntimeException("TO FEW COLUMNS");
