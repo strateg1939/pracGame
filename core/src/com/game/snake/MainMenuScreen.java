@@ -19,7 +19,7 @@ public class MainMenuScreen implements Screen {
     private boolean isMathMode = false;
     SwingTableScreen screen;
     //amount of tiles in game
-    private static final int MIN_COUNT = 3;
+    private static final int MIN_COUNT = 6;
     private static final int MAX_COUNT = 50;
     private Table mathModeOptions;
     private Table generalTable;
