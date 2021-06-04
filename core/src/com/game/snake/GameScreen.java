@@ -323,7 +323,7 @@ public class GameScreen<sound> implements Screen {
                     }else if (direction == 2 && tailsDirections.get(i+1) == 4) {
                         snakeTails.get(i).setImage(snakeDownRight);
                     }else if (direction == 3 && tailsDirections.get(i+1) == 3) {
-                        snakeTails.get(i).setImage(snakeUpRight2);
+                        snakeTails.get(i).setImage(snakeLeftDown2);
                     }else if (direction == 4 && tailsDirections.get(i+1) == 4) {
                         snakeTails.get(i).setImage(snakeDownRight);//
                     }else if (direction == 4 && tailsDirections.get(i+1) == 3) {
