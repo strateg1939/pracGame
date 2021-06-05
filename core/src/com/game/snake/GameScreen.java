@@ -69,9 +69,12 @@ public class GameScreen<sound> implements Screen {
     Texture snakeTailRight = new Texture(Gdx.files.internal("snakeTailRight.png"));
 
     //sounds
-    public static Sound music = Gdx.audio.newSound(Gdx.files.internal("music.mp3"));
+    public static Sound music = Gdx.audio.newSound(Gdx.files.internal("dE.mp3"));
     public static Sound sound1 = Gdx.audio.newSound(Gdx.files.internal("eat1.mp3"));
     public static Sound buttonS = Gdx.audio.newSound(Gdx.files.internal("button.mp3"));
+    public static Sound slider = Gdx.audio.newSound(Gdx.files.internal("wood4.mp3"));
+    public static Sound fail = Gdx.audio.newSound(Gdx.files.internal("fail.mp3"));
+
     //
     public static final int WIDTH_IN_PIXELS = 1000;
     public static final int HEIGHT_IN_PIXELS = 680;
@@ -492,11 +495,15 @@ public class GameScreen<sound> implements Screen {
             for(int i = 0; i < snakeTails.size(); i++){
                 if(snakeHead.x == X.get(i) && snakeHead.y == Y.get(i)){
                     createFinalScreen("You have collided with yourself");
+                    fail.play();
+                    music.stop();
                 }
             }
             //check if head collides with borders
             if(snakeHead.x < 0 || snakeHead.x > tileColumns - 1 || snakeHead.y > tileRows - 1 || snakeHead.y < 0){
                 createFinalScreen("You have collided with borders");
+                fail.play();
+                music.stop();
             }
         }
 

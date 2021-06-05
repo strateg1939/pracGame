@@ -14,6 +14,8 @@ import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.utils.viewport.StretchViewport;
 
+import static com.game.snake.GameScreen.music;
+
 public class ChooseDifficultyScreen implements Screen {
     final Main game;
     private OrthographicCamera camera;
@@ -48,6 +50,13 @@ public class ChooseDifficultyScreen implements Screen {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
                     GameScreen.buttonS.play();
+                    if(gameDifficulty.equals(GameDifficulty.EASY)){
+                        music = Gdx.audio.newSound(Gdx.files.internal("dE.mp3"));
+                    }else if(gameDifficulty.equals(GameDifficulty.MEDIUM)){
+                        music = Gdx.audio.newSound(Gdx.files.internal("dM.mp3"));
+                    }else if(gameDifficulty.equals(GameDifficulty.HARD)){
+                        music = Gdx.audio.newSound(Gdx.files.internal("dH.mp3"));
+                    }
                 game.setScreen((isMathMode) ? new MathGameScreen(game, gameDifficulty) : new GameScreen(game, gameDifficulty));
                 //!Important!
                 ChooseDifficultyScreen.this.dispose();

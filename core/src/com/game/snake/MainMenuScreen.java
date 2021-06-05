@@ -41,6 +41,7 @@ public class MainMenuScreen implements Screen {
         checkBoxForMathGame.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
+                GameScreen.buttonS.play();
                 isMathMode = !isMathMode;
                 if(isMathMode) showMathModeOptions();
                 else removeMathModeOptions();
@@ -63,6 +64,7 @@ public class MainMenuScreen implements Screen {
         rowsValueSlider.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
+                GameScreen.slider.play();
                 float value = rowsValueSlider.getValue();
                 rowsValueLabel.setText((int) value);
             }
@@ -74,6 +76,7 @@ public class MainMenuScreen implements Screen {
         columnsSlider.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
+                GameScreen.slider.play();
                 columnsValueLabel.setText((int) columnsSlider.getValue());
             }
         });
@@ -135,6 +138,7 @@ public class MainMenuScreen implements Screen {
         maxValueSlider.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
+                GameScreen.slider.play();
                 int value = (int) maxValueSlider.getValue();
                 maxValueLabel.setText(value);
                 MathGameScreen.setMaxForExercise(value);
@@ -147,6 +151,7 @@ public class MainMenuScreen implements Screen {
         lengthSlider.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
+                GameScreen.slider.play();
                 int value = (int) lengthSlider.getValue();
                 lengthValueLabel.setText(value);
                 MathGameScreen.setMaxlengthOfExercise(value);
