@@ -68,6 +68,16 @@ public class GameScreen<sound> implements Screen {
     Texture snakeTailDown =new Texture(Gdx.files.internal("snakeTailDown.png"));
     Texture snakeTailRight = new Texture(Gdx.files.internal("snakeTailRight.png"));
 
+    //Tiles Texture
+    public static Texture currentTiles2 = new Texture(Gdx.files.internal("tiles2.png"));
+    public static Texture currentTiles = new Texture(Gdx.files.internal("tiles.png"));
+    public static Texture tiles2 = new Texture(Gdx.files.internal("tiles2.png"));
+    public static Texture tiles = new Texture(Gdx.files.internal("tiles.png"));
+    public static Texture tiles2_2 = new Texture(Gdx.files.internal("tiles2_2.png"));
+    public static Texture tiles_2 = new Texture(Gdx.files.internal("tiles_2.png"));
+    public static Texture tiles2_3 = new Texture(Gdx.files.internal("tiles2_3.png"));
+    public static Texture tiles_3 = new Texture(Gdx.files.internal("tiles_3.png"));
+
     //sounds
     public static Sound music = Gdx.audio.newSound(Gdx.files.internal("dE.mp3"));
     public static Sound sound1 = Gdx.audio.newSound(Gdx.files.internal("eat1.mp3"));
@@ -75,6 +85,9 @@ public class GameScreen<sound> implements Screen {
     public static Sound buttonS = Gdx.audio.newSound(Gdx.files.internal("button.mp3"));
     public static Sound slider = Gdx.audio.newSound(Gdx.files.internal("pop.mp3"));
     public static Sound fail = Gdx.audio.newSound(Gdx.files.internal("fail.mp3"));
+    public static Sound nice = Gdx.audio.newSound(Gdx.files.internal("nice.mp3"));
+    public static Sound bonus = Gdx.audio.newSound(Gdx.files.internal("bonus.mp3"));
+    public static Sound slow = Gdx.audio.newSound(Gdx.files.internal("slow.mp3"));
 
     //
     public static final int WIDTH_IN_PIXELS = 1000;
@@ -206,8 +219,8 @@ public class GameScreen<sound> implements Screen {
         camera = new OrthographicCamera();
         camera.setToOrtho(false, tileColumns, tileRows +1);
         //load map
-        TextureRegion[][] splitTilesDark = TextureRegion.split(new Texture(Gdx.files.internal("tiles2.png")), TILE_SIZE_IN_PIXELS, TILE_SIZE_IN_PIXELS);
-        TextureRegion[][] splitTilesLight = TextureRegion.split(new Texture(Gdx.files.internal("tiles.png")), TILE_SIZE_IN_PIXELS, TILE_SIZE_IN_PIXELS);
+        TextureRegion[][] splitTilesDark = TextureRegion.split(currentTiles2, TILE_SIZE_IN_PIXELS, TILE_SIZE_IN_PIXELS);
+        TextureRegion[][] splitTilesLight = TextureRegion.split(currentTiles, TILE_SIZE_IN_PIXELS, TILE_SIZE_IN_PIXELS);
         TiledMap map = new TiledMap();
         MapLayers layers = map.getLayers();
 
@@ -377,7 +390,7 @@ public class GameScreen<sound> implements Screen {
                     }else if (direction == 1 && tailsDirections.get(i+1) == 1) {
                         snakeTails.get(i).setImage(snakeRightDown);//
                     }else if (direction == 2 && tailsDirections.get(i+1) == 2) {
-                        snakeTails.get(i).setImage(snakeUpLeft);//
+                        snakeTails.get(i).setImage(snakeLeftUp2);//
                     }else if (direction == 1 && tailsDirections.get(i+1) == 2) {
                         snakeTails.get(i).setImage(snakeLeftUp2);//
                     }else if (direction == 2 && tailsDirections.get(i+1) == 1) {
@@ -626,7 +639,11 @@ public class GameScreen<sound> implements Screen {
         return new Food.Consumable() {
             @Override
             public void consume() {
-                sound2.play();
+                if(rand.nextInt(100)>89){
+                    nice.play();
+                }else {
+                    sound2.play();
+                }
                 snakeTails.add(new SnakeTail(1,1));
                 X.addFirst(snakeTailFirstX);
                 Y.addFirst(snakeTailFirstY);
@@ -638,7 +655,7 @@ public class GameScreen<sound> implements Screen {
         return new Food.Consumable() {
             @Override
             public void consume() {
-                sound1.play();
+                bonus.play();
                 moveSnake();
                 lastScoreDuplication = TimeUtils.millis();
                 labelForMultiplication = new ScoreTriplicate().getImage();
@@ -650,7 +667,7 @@ public class GameScreen<sound> implements Screen {
         return new Food.Consumable() {
             @Override
             public void consume() {
-                sound1.play();
+                bonus.play();
                 moveSnake();
                 lastScoreDuplication = TimeUtils.millis();
                 labelForMultiplication = new ScoreDuplicate().getImage();
@@ -662,7 +679,11 @@ public class GameScreen<sound> implements Screen {
         return new Food.Consumable() {
             @Override
             public void consume() {
-                sound1.play();
+                if(rand.nextInt(100)>85){
+                    nice.play();
+                }else {
+                    sound1.play();
+                }
                 snakeTails.add(new SnakeTail(1,1));
                 X.addFirst(snakeTailFirstX);
                 Y.addFirst(snakeTailFirstY);
@@ -679,7 +700,7 @@ public class GameScreen<sound> implements Screen {
         return new Food.Consumable() {
             @Override
             public void consume() {
-                sound1.play();
+               slow.play();
                 speedDelta = 200;
                 moveSnake();
                 labelForReducedSpeed = new ReduceSpeedFood().getImage();
