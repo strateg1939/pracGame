@@ -700,9 +700,9 @@ public class GameScreen<sound> implements Screen {
 
     @Override
     public void pause() {
-
         music.pause();
         if (Gdx.input.isKeyPressed(Keys.SPACE)) {
+            music.resume();
             buttonS.play();
             pauseStage.clear();
             isPaused = false;
