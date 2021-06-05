@@ -119,7 +119,12 @@ public class MathGameScreen extends GameScreen{
             });
             answers.add(mathFood);
         }
-        Label.LabelStyle style = new Label.LabelStyle(fontForExercise, Color.BLACK);
+        Label.LabelStyle style;
+        if(ChooseDifficultyScreen.Diff.equals("hard")){
+             style = new Label.LabelStyle(fontForExercise, Color.WHITE);
+        }else {
+             style = new Label.LabelStyle(fontForExercise, Color.BLACK);
+        }
         exerciseLabel = new Label(exercise, style);
         exerciseLabel.setSize(10, 10);
         exerciseLabel.setPosition(scoreLabel.getMaxWidth() + 300, 660);

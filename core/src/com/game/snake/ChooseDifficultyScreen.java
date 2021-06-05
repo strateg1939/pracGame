@@ -21,6 +21,7 @@ public class ChooseDifficultyScreen implements Screen {
     private OrthographicCamera camera;
     private Stage stage;
     private boolean isMathMode;
+    protected static String Diff = "";
     BitmapFont font12;
 
     public ChooseDifficultyScreen(final Main gam, boolean isMathMode) {
@@ -51,14 +52,17 @@ public class ChooseDifficultyScreen implements Screen {
             public void changed(ChangeEvent event, Actor actor) {
                     GameScreen.buttonS.play();
                     if(gameDifficulty.equals(GameDifficulty.EASY)){
+                        Diff="easy";
                         music = Gdx.audio.newSound(Gdx.files.internal("dE.mp3"));
                         currentTiles=tiles;
                         currentTiles2=tiles2;
                     }else if(gameDifficulty.equals(GameDifficulty.MEDIUM)){
+                        Diff="medium";
                         music = Gdx.audio.newSound(Gdx.files.internal("dM.mp3"));
                         currentTiles=tiles_2;
                         currentTiles2=tiles2_2;
                     }else if(gameDifficulty.equals(GameDifficulty.HARD)){
+                        Diff="hard";
                         music = Gdx.audio.newSound(Gdx.files.internal("dH.mp3"));
                         currentTiles=tiles_3;
                         currentTiles2=tiles2_3;
