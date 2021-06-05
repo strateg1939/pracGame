@@ -71,8 +71,9 @@ public class GameScreen<sound> implements Screen {
     //sounds
     public static Sound music = Gdx.audio.newSound(Gdx.files.internal("dE.mp3"));
     public static Sound sound1 = Gdx.audio.newSound(Gdx.files.internal("eat1.mp3"));
+    public static Sound sound2 = Gdx.audio.newSound(Gdx.files.internal("eat3.mp3"));
     public static Sound buttonS = Gdx.audio.newSound(Gdx.files.internal("button.mp3"));
-    public static Sound slider = Gdx.audio.newSound(Gdx.files.internal("wood4.mp3"));
+    public static Sound slider = Gdx.audio.newSound(Gdx.files.internal("pop.mp3"));
     public static Sound fail = Gdx.audio.newSound(Gdx.files.internal("fail.mp3"));
 
     //
@@ -608,6 +609,7 @@ public class GameScreen<sound> implements Screen {
             } catch (InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
                 e.printStackTrace();
             }
+
             if(food instanceof ReduceSpeedFood) food.setOnConsume(getReducedSpeedEffect());
             else if(food instanceof DoubleStandardFood) food.setOnConsume(getDoubleInstanceEffect());
             else if (food instanceof ScoreDuplicate) food.setOnConsume(getScoreDuplicationEffect());
@@ -624,6 +626,7 @@ public class GameScreen<sound> implements Screen {
         return new Food.Consumable() {
             @Override
             public void consume() {
+                sound2.play();
                 snakeTails.add(new SnakeTail(1,1));
                 X.addFirst(snakeTailFirstX);
                 Y.addFirst(snakeTailFirstY);
@@ -635,6 +638,7 @@ public class GameScreen<sound> implements Screen {
         return new Food.Consumable() {
             @Override
             public void consume() {
+                sound1.play();
                 moveSnake();
                 lastScoreDuplication = TimeUtils.millis();
                 labelForMultiplication = new ScoreTriplicate().getImage();
@@ -646,6 +650,7 @@ public class GameScreen<sound> implements Screen {
         return new Food.Consumable() {
             @Override
             public void consume() {
+                sound1.play();
                 moveSnake();
                 lastScoreDuplication = TimeUtils.millis();
                 labelForMultiplication = new ScoreDuplicate().getImage();
@@ -657,6 +662,7 @@ public class GameScreen<sound> implements Screen {
         return new Food.Consumable() {
             @Override
             public void consume() {
+                sound1.play();
                 snakeTails.add(new SnakeTail(1,1));
                 X.addFirst(snakeTailFirstX);
                 Y.addFirst(snakeTailFirstY);
@@ -673,6 +679,7 @@ public class GameScreen<sound> implements Screen {
         return new Food.Consumable() {
             @Override
             public void consume() {
+                sound1.play();
                 speedDelta = 200;
                 moveSnake();
                 labelForReducedSpeed = new ReduceSpeedFood().getImage();
@@ -765,7 +772,6 @@ public class GameScreen<sound> implements Screen {
 
     @Override
     public void dispose() {
-              sound1.dispose();
 
     }
 

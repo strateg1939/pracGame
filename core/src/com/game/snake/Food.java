@@ -21,7 +21,6 @@ public abstract class Food {
      */
     public void consume(IntWrapper score, IntWrapper scoreMultiplier){
         consumable.consume();
-        GameScreen.sound1.play();
         score.value += getScoreIncrease() * scoreMultiplier.value;
         scoreMultiplier.value = getScoreDuplication();
     }
