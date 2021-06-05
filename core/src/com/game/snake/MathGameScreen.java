@@ -46,7 +46,7 @@ public class MathGameScreen extends GameScreen{
         }
         foodX = tileColumns + 10;
         foodY = tileRows + 10;
-        timerInMillis = TimeUtils.millis() + maxTimerInSeconds * 1000;
+        timerInMillis = TimeUtils.millis() + maxTimerInSeconds * 1000L;
     }
 
     @Override
@@ -99,8 +99,11 @@ public class MathGameScreen extends GameScreen{
                 mathFood.x = generateRandomInBounds(0, tileColumns);
                 mathFood.y = generateRandomInBounds(0, tileRows);
                 boolean isOverlapping = false;
-                for (int j = 0; j < answers.size(); j++) {
-                    if(answers.get(j).x == mathFood.x && answers.get(j).y == mathFood.y) isOverlapping = true;
+                for (MathFood answer : answers) {
+                    if (answer.x == mathFood.x && answer.y == mathFood.y) {
+                        isOverlapping = true;
+                        break;
+                    }
                 }
                 if((mathFood.x == snakeHead.x && mathFood.y == snakeHead.y) || isOverlapping) continue;
                 break;
@@ -135,10 +138,10 @@ public class MathGameScreen extends GameScreen{
             answerLabel.setPosition((answer.x + 0.2f) * Main.WORLD_WIDTH / tileColumns, answer.y * Main.WORLD_HEIGHT / (tileRows + 1));
             mathAnswersStage.addActor(answerLabel);
         }
-        timerInMillis = TimeUtils.millis() + maxTimerInSeconds * 1000;
+        timerInMillis = TimeUtils.millis() + maxTimerInSeconds * 1000L;
         timerLabel = new Label(Integer.toString(maxForExercise), style);
         timerLabel.setSize(10, 10);
-        timerLabel.setPosition(800, 660);
+        timerLabel.setPosition(900, 660);
         mathAnswersStage.addActor(timerLabel);
 
     }

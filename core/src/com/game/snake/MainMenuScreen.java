@@ -31,6 +31,7 @@ public class MainMenuScreen implements Screen {
 
     public MainMenuScreen(final Main gam) {
         game = gam;
+        game.isNoBordersMode = false;
         stage = new Stage(new StretchViewport(Main.WORLD_WIDTH, Main.WORLD_HEIGHT));
         Gdx.input.setInputProcessor(stage);
         camera = new OrthographicCamera();
@@ -38,7 +39,7 @@ public class MainMenuScreen implements Screen {
         skin = new Skin(Gdx.files.internal("flat-earth/skin/flat-earth-ui.json"));
         generalTable = new Table();
         generalTable.setFillParent(true);
-        CheckBox checkBoxForMathGame = new CheckBox("   Math Game Mode", skin);
+        CheckBox checkBoxForMathGame = new CheckBox("   Math Game mode", skin);
         checkBoxForMathGame.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
@@ -46,6 +47,14 @@ public class MainMenuScreen implements Screen {
                 isMathMode = !isMathMode;
                 if (isMathMode) showMathModeOptions();
                 else removeMathModeOptions();
+            }
+        });
+        CheckBox checkBoxForNoBorders = new CheckBox("   No borders mode", skin);
+        checkBoxForNoBorders.addListener(new ChangeListener() {
+            @Override
+            public void changed(ChangeEvent event, Actor actor) {
+                Textures.buttonS.play();
+                game.isNoBordersMode = !game.isNoBordersMode;
             }
         });
         TextButton beginButton = new TextButton("Begin!", skin);
@@ -94,6 +103,9 @@ public class MainMenuScreen implements Screen {
         mathModeOptions = new Table();
         generalTable.add(mathModeOptions).padLeft(100).colspan(3);
         generalTable.row();
+        //don`t know why it is 127 when it lines with other checkbox
+        generalTable.add(checkBoxForNoBorders).padLeft(127);
+        generalTable.row().pad(10);
         generalTable.add(beginButton).size(230, 50).colspan(3);
         generalTable.setScale(1.5f);
         stage.addActor(generalTable);

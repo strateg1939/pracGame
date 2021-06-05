@@ -13,6 +13,7 @@ public class Main extends Game {
 	int tileColumns;
 	static final int WORLD_WIDTH = 1000;
 	static final int WORLD_HEIGHT = 680;
+	boolean isNoBordersMode;
 
 	public void create() {
 		batch = new SpriteBatch();
@@ -20,6 +21,12 @@ public class Main extends Game {
 		font = new BitmapFont();
 		this.setScreen(new SetNameScreen(this));
 		records = new Records();
+		//initialize textures
+		try {
+			Class.forName("com.game.snake.Textures");
+		} catch (ClassNotFoundException e) {
+			e.printStackTrace();
+		}
 	}
 
 	public void render() {

@@ -4,7 +4,6 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Input.Keys;
 import com.badlogic.gdx.Screen;
-import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
@@ -96,6 +95,8 @@ public class GameScreen implements Screen {
     private Texture labelForMultiplication;
     protected BitmapFont fontForExercise;
     private boolean lockedInput;
+    private Texture currentTilesLight;
+    private Texture currentTilesDark;
 
     public GameScreen(final Main gam, GameDifficulty gameDifficulty) {
         this.game = gam;
@@ -108,8 +109,8 @@ public class GameScreen implements Screen {
                 snakeSpeed = 500;
                 advancedFoodSpawnChance = 0.5f;
                 Textures.music = Gdx.audio.newSound(Gdx.files.internal("dE.mp3"));
-                Textures.currentTiles = Textures.tiles;
-                Textures.currentTiles2 = Textures.tiles2;
+                currentTilesLight = Textures.tiles;
+                currentTilesDark = Textures.tiles2;
                 imagex2 = new Texture(Gdx.files.internal("x2.png"));
                 imagex3 = new Texture(Gdx.files.internal("x3.png"));
                 break;
@@ -117,15 +118,15 @@ public class GameScreen implements Screen {
                 snakeSpeed = 350;
                 advancedFoodSpawnChance = 0.3f;
                 Textures.music = Gdx.audio.newSound(Gdx.files.internal("dM.mp3"));
-                Textures.currentTiles = Textures.tiles_2;
-                Textures.currentTiles2 = Textures.tiles2_2;
+                currentTilesLight = Textures.tiles_2;
+                currentTilesDark = Textures.tiles2_2;
                 imagex2 = new Texture(Gdx.files.internal("x2.png"));
                 imagex3 = new Texture(Gdx.files.internal("x3.png"));
                 break;
             case HARD:
                 Textures.music = Gdx.audio.newSound(Gdx.files.internal("dH.mp3"));
-                Textures.currentTiles = Textures.tiles_3;
-                Textures.currentTiles2 = Textures.tiles2_3;
+                currentTilesLight = Textures.tiles_3;
+                currentTilesDark = Textures.tiles2_3;
                 imagex2 = new Texture(Gdx.files.internal("x2Hard.png"));
                 imagex3 = new Texture(Gdx.files.internal("x3Hard.png"));
                 snakeSpeed = 200;
@@ -178,8 +179,8 @@ public class GameScreen implements Screen {
         camera = new OrthographicCamera();
         camera.setToOrtho(false, tileColumns, tileRows +1);
         //load map
-        TextureRegion[][] splitTilesDark = TextureRegion.split(Textures.currentTiles2, TILE_SIZE_IN_PIXELS, TILE_SIZE_IN_PIXELS);
-        TextureRegion[][] splitTilesLight = TextureRegion.split(Textures.currentTiles, TILE_SIZE_IN_PIXELS, TILE_SIZE_IN_PIXELS);
+        TextureRegion[][] splitTilesDark = TextureRegion.split(currentTilesDark, TILE_SIZE_IN_PIXELS, TILE_SIZE_IN_PIXELS);
+        TextureRegion[][] splitTilesLight = TextureRegion.split(currentTilesLight, TILE_SIZE_IN_PIXELS, TILE_SIZE_IN_PIXELS);
         TiledMap map = new TiledMap();
         MapLayers layers = map.getLayers();
 
@@ -387,7 +388,7 @@ public class GameScreen implements Screen {
                     }else if (tailsDirections.get(i-1) == 4 && tailsDirections.get(i+1) == 4) {
                         snakeTails.get(i).setImage(Textures.snakeDownRight);//new//
                     }else
-                    snakeTails.get(i).setImage(new Texture(Gdx.files.internal("Textures.snakeRight.png")));
+                    snakeTails.get(i).setImage(Textures.snakeRight);
                 } else if (tailsDirections.get(i) == 3) {
                     if (tailsDirections.get(i-1) == 3 && tailsDirections.get(i+1) == 1) {
                         snakeTails.get(i).setImage(Textures.snakeDownRight2);
@@ -471,9 +472,7 @@ public class GameScreen implements Screen {
                 }
             }
             //check if head collides with borders
-            if(snakeHead.x < 0 || snakeHead.x > tileColumns - 1 || snakeHead.y > tileRows - 1 || snakeHead.y < 0){
-                createFinalScreen("You have collided with borders");
-            }
+            checkForBorders();
         }
 
         // process user input
@@ -487,6 +486,17 @@ public class GameScreen implements Screen {
             }
         }
     }
+
+    private void checkForBorders() {
+        if(snakeHead.x < 0 || snakeHead.x > tileColumns - 1 || snakeHead.y > tileRows - 1 || snakeHead.y < 0){
+            if(game.isNoBordersMode){
+                if(snakeHead.x < 0 || snakeHead.x > tileColumns - 1) snakeHead.x = tileColumns - Math.abs(snakeHead.x);
+                else snakeHead.y = tileRows - Math.abs(snakeHead.y);
+            }
+            else createFinalScreen("You have collided with borders");
+        }
+    }
+
     /**
     check if snake is eating foor
      */
