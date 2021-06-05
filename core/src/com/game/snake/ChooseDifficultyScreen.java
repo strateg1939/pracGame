@@ -24,7 +24,6 @@ public class ChooseDifficultyScreen implements Screen {
     private OrthographicCamera camera;
     private Stage stage;
     private boolean isMathMode;
-    protected static String Diff = "";
     BitmapFont font12;
 
     public ChooseDifficultyScreen(final Main gam, boolean isMathMode) {
@@ -53,29 +52,7 @@ public class ChooseDifficultyScreen implements Screen {
         button.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
-                    GameScreen.buttonS.play();
-                    if(gameDifficulty.equals(GameDifficulty.EASY)){
-                        Diff="easy";
-                        music = Gdx.audio.newSound(Gdx.files.internal("dE.mp3"));
-                        currentTiles=tiles;
-                        currentTiles2=tiles2;
-                        imagex2 = new Texture(Gdx.files.internal("x2.png"));
-                        imagex3 = new Texture(Gdx.files.internal("x3.png"));
-                    }else if(gameDifficulty.equals(GameDifficulty.MEDIUM)){
-                        Diff="medium";
-                        music = Gdx.audio.newSound(Gdx.files.internal("dM.mp3"));
-                        currentTiles=tiles_2;
-                        currentTiles2=tiles2_2;
-                        imagex2 = new Texture(Gdx.files.internal("x2.png"));
-                        imagex3 = new Texture(Gdx.files.internal("x3.png"));
-                    }else if(gameDifficulty.equals(GameDifficulty.HARD)){
-                        Diff="hard";
-                        music = Gdx.audio.newSound(Gdx.files.internal("dH.mp3"));
-                        currentTiles=tiles_3;
-                        currentTiles2=tiles2_3;
-                        imagex2 = new Texture(Gdx.files.internal("x2Hard.png"));
-                        imagex3 = new Texture(Gdx.files.internal("x3Hard.png"));
-                    }
+                Textures.buttonS.play();
                 game.setScreen((isMathMode) ? new MathGameScreen(game, gameDifficulty) : new GameScreen(game, gameDifficulty));
                 //!Important!
                 ChooseDifficultyScreen.this.dispose();

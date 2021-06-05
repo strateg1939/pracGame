@@ -42,7 +42,7 @@ public class SetNameScreen implements Screen {
         button.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
-                GameScreen.buttonS.play();
+                Textures.buttonS.play();
                 game.setScreen(new MainMenuScreen(game));
                 game.userName = textField.getText();
                 //!Important!

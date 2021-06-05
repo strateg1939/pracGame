@@ -31,67 +31,12 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.*;
 import java.util.ArrayList;
 
-public class GameScreen<sound> implements Screen {
+import static com.game.snake.ScoreDuplicate.imagex2;
+import static com.game.snake.ScoreTriplicate.imagex3;
+
+public class GameScreen implements Screen {
     //Texstures
-    Texture snakeUp = new Texture(Gdx.files.internal("snakeUp.png"));
-    Texture snakeLeft = new Texture(Gdx.files.internal("snakeLeft.png"));
-    Texture snakeDown =new Texture(Gdx.files.internal("snakeDown.png"));
-    Texture snakeRight = new Texture(Gdx.files.internal("snakeRight.png"));
 
-    Texture snakeUpLeft = new Texture(Gdx.files.internal("snakeUpLeft.png"));
-    Texture snakeRightDown =new Texture(Gdx.files.internal("snakeRightDown.png"));
-    Texture snakeDownRight = new Texture(Gdx.files.internal("snakeDownRight.png"));
-    Texture snakeLeftUp = new Texture(Gdx.files.internal("snakeLeftUp.png"));
-
-    Texture snakeDownRight2 = new Texture(Gdx.files.internal("snakeDownRight2.png"));
-    Texture snakeLeftDown2 =new Texture(Gdx.files.internal("snakeLeftDown2.png"));
-    Texture snakeLeftUp2 = new Texture(Gdx.files.internal("snakeLeftUp2.png"));
-    Texture snakeUpRight2 = new Texture(Gdx.files.internal("snakeUpRight2.png"));
-
-    Texture snakeHeadLeft = new Texture(Gdx.files.internal("snakeHeadLeft.png"));
-    Texture snakeHeadRight =new Texture(Gdx.files.internal("snakeHeadRight.png"));
-    Texture snakeHeadDown = new Texture(Gdx.files.internal("snakeHeadDown.png"));
-    Texture snakeHeadUp = new Texture(Gdx.files.internal("snakeHeadUp.png"));
-
-    Texture snakeHeadDownLeft1 = new Texture(Gdx.files.internal("snakeHeadDownLeft1.png"));
-    Texture snakeHeadDownRight1 =new Texture(Gdx.files.internal("snakeHeadDownRight1.png"));
-    Texture snakeHeadLeftUp1 = new Texture(Gdx.files.internal("snakeHeadLeftUp1.png"));
-    Texture snakeHeadRightUp1 = new Texture(Gdx.files.internal("snakeHeadRightUp1.png"));
-
-    Texture snakeHeadLeftUp2 = new Texture(Gdx.files.internal("snakeHeadLeftUp2.png"));
-    Texture snakeHeadDownRight2 =new Texture(Gdx.files.internal("snakeHeadDownRight2.png"));
-    Texture snakeHeadUpRight2 = new Texture(Gdx.files.internal("snakeHeadUpRight2.png"));
-    Texture snakeHeadRightDown2 = new Texture(Gdx.files.internal("snakeHeadRightDown2.png"));
-
-    Texture snakeTailUp = new Texture(Gdx.files.internal("snakeTailUp.png"));
-    Texture snakeTailLeft = new Texture(Gdx.files.internal("snakeTailLeft.png"));
-    Texture snakeTailDown =new Texture(Gdx.files.internal("snakeTailDown.png"));
-    Texture snakeTailRight = new Texture(Gdx.files.internal("snakeTailRight.png"));
-
-    //Tiles Texture
-    public static Texture currentTiles2 = new Texture(Gdx.files.internal("tiles2.png"));
-    public static Texture currentTiles = new Texture(Gdx.files.internal("tiles.png"));
-    public static Texture tiles2 = new Texture(Gdx.files.internal("tiles2.png"));
-    public static Texture tiles = new Texture(Gdx.files.internal("tiles.png"));
-    public static Texture tiles2_2 = new Texture(Gdx.files.internal("tiles2_2.png"));
-    public static Texture tiles_2 = new Texture(Gdx.files.internal("tiles_2.png"));
-    public static Texture tiles2_3 = new Texture(Gdx.files.internal("tiles2_3.png"));
-    public static Texture tiles_3 = new Texture(Gdx.files.internal("tiles_3.png"));
-
-    //sounds
-    public static Sound music = Gdx.audio.newSound(Gdx.files.internal("dE.mp3"));
-    public static Sound sound1 = Gdx.audio.newSound(Gdx.files.internal("eat1.mp3"));
-    public static Sound sound2 = Gdx.audio.newSound(Gdx.files.internal("eat3.mp3"));
-    public static Sound buttonS = Gdx.audio.newSound(Gdx.files.internal("button.mp3"));
-    public static Sound slider = Gdx.audio.newSound(Gdx.files.internal("pop.mp3"));
-    public static Sound fail = Gdx.audio.newSound(Gdx.files.internal("fail.mp3"));
-    public static Sound nice = Gdx.audio.newSound(Gdx.files.internal("nice.mp3"));
-    public static Sound bonus = Gdx.audio.newSound(Gdx.files.internal("bonus.mp3"));
-    public static Sound slow = Gdx.audio.newSound(Gdx.files.internal("slow.mp3"));
-
-    //
-    public static final int WIDTH_IN_PIXELS = 1000;
-    public static final int HEIGHT_IN_PIXELS = 680;
     final Main game;
     //better not change
     private static final int TILE_SIZE_IN_PIXELS = 23;
@@ -102,7 +47,7 @@ public class GameScreen<sound> implements Screen {
     //all that is not a simple food
     protected float advancedFoodSpawnChance;
     OrthographicCamera camera;
-    private GameDifficulty gameDifficulty;
+    protected GameDifficulty gameDifficulty;
     //for pause
     protected boolean isPaused;
     protected boolean isOver;
@@ -116,7 +61,6 @@ public class GameScreen<sound> implements Screen {
     private int snakeTailFirstX;
     private int snakeTailFirstY;
     protected static int direction = 0;
-    protected static int directionPrevious = 0;
     protected Food food;
     //used in creation of food
     protected static List<Class<? extends Food>> advancedFoodClasses =
@@ -163,12 +107,27 @@ public class GameScreen<sound> implements Screen {
             case EASY:
                 snakeSpeed = 500;
                 advancedFoodSpawnChance = 0.5f;
+                Textures.music = Gdx.audio.newSound(Gdx.files.internal("dE.mp3"));
+                Textures.currentTiles = Textures.tiles;
+                Textures.currentTiles2 = Textures.tiles2;
+                imagex2 = new Texture(Gdx.files.internal("x2.png"));
+                imagex3 = new Texture(Gdx.files.internal("x3.png"));
                 break;
             case MEDIUM:
                 snakeSpeed = 350;
                 advancedFoodSpawnChance = 0.3f;
+                Textures.music = Gdx.audio.newSound(Gdx.files.internal("dM.mp3"));
+                Textures.currentTiles = Textures.tiles_2;
+                Textures.currentTiles2 = Textures.tiles2_2;
+                imagex2 = new Texture(Gdx.files.internal("x2.png"));
+                imagex3 = new Texture(Gdx.files.internal("x3.png"));
                 break;
             case HARD:
+                Textures.music = Gdx.audio.newSound(Gdx.files.internal("dH.mp3"));
+                Textures.currentTiles = Textures.tiles_3;
+                Textures.currentTiles2 = Textures.tiles2_3;
+                imagex2 = new Texture(Gdx.files.internal("x2Hard.png"));
+                imagex3 = new Texture(Gdx.files.internal("x3Hard.png"));
                 snakeSpeed = 200;
                 advancedFoodSpawnChance = 0.15f;
                 break;
@@ -219,8 +178,8 @@ public class GameScreen<sound> implements Screen {
         camera = new OrthographicCamera();
         camera.setToOrtho(false, tileColumns, tileRows +1);
         //load map
-        TextureRegion[][] splitTilesDark = TextureRegion.split(currentTiles2, TILE_SIZE_IN_PIXELS, TILE_SIZE_IN_PIXELS);
-        TextureRegion[][] splitTilesLight = TextureRegion.split(currentTiles, TILE_SIZE_IN_PIXELS, TILE_SIZE_IN_PIXELS);
+        TextureRegion[][] splitTilesDark = TextureRegion.split(Textures.currentTiles2, TILE_SIZE_IN_PIXELS, TILE_SIZE_IN_PIXELS);
+        TextureRegion[][] splitTilesLight = TextureRegion.split(Textures.currentTiles, TILE_SIZE_IN_PIXELS, TILE_SIZE_IN_PIXELS);
         TiledMap map = new TiledMap();
         MapLayers layers = map.getLayers();
 
@@ -304,19 +263,19 @@ public class GameScreen<sound> implements Screen {
             }
         }
 
-        if(direction == 1) SnakeHead.image  =snakeHeadDown;
-        else if (direction == 2 || direction == 0) SnakeHead.image  = snakeHeadUp;
-        else if(direction == 3) SnakeHead.image  = snakeHeadLeft;
-        else SnakeHead.image = snakeHeadRight;
+        if(direction == 1) SnakeHead.image  =Textures.snakeHeadDown;
+        else if (direction == 2 || direction == 0) SnakeHead.image  = Textures.snakeHeadUp;
+        else if(direction == 3) SnakeHead.image  = Textures.snakeHeadLeft;
+        else SnakeHead.image = Textures.snakeHeadRight;
 
-        if(direction == 1 && tailsDirections.get(0)==3) SnakeHead.image  = snakeHeadLeftUp2;
-        else if (direction == 1 && tailsDirections.get(0)==4) SnakeHead.image  = snakeHeadRightUp1;
-        else if (direction == 2 && tailsDirections.get(0)==3) SnakeHead.image  =snakeHeadDownLeft1;
-        else if (direction == 2 && tailsDirections.get(0)==4) SnakeHead.image  = snakeHeadDownRight2;
-        else if (direction == 3 && tailsDirections.get(0)==1) SnakeHead.image  = snakeHeadDownRight1;
-        else if (direction == 3 && tailsDirections.get(0)==2) SnakeHead.image  = snakeHeadUpRight2;
-        else if (direction == 4 && tailsDirections.get(0)==1) SnakeHead.image  = snakeHeadRightDown2;
-        else if (direction == 4 && tailsDirections.get(0)==2) SnakeHead.image  =snakeHeadLeftUp1;
+        if(direction == 1 && tailsDirections.get(0)==3) SnakeHead.image  = Textures.snakeHeadLeftUp2;
+        else if (direction == 1 && tailsDirections.get(0)==4) SnakeHead.image  = Textures.snakeHeadRightUp1;
+        else if (direction == 2 && tailsDirections.get(0)==3) SnakeHead.image  =Textures.snakeHeadDownLeft1;
+        else if (direction == 2 && tailsDirections.get(0)==4) SnakeHead.image  = Textures.snakeHeadDownRight2;
+        else if (direction == 3 && tailsDirections.get(0)==1) SnakeHead.image  = Textures.snakeHeadDownRight1;
+        else if (direction == 3 && tailsDirections.get(0)==2) SnakeHead.image  = Textures.snakeHeadUpRight2;
+        else if (direction == 4 && tailsDirections.get(0)==1) SnakeHead.image  = Textures.snakeHeadRightDown2;
+        else if (direction == 4 && tailsDirections.get(0)==2) SnakeHead.image  =Textures.snakeHeadLeftUp1;
 
 
         game.batch.begin();
@@ -326,139 +285,139 @@ public class GameScreen<sound> implements Screen {
         for (int i = 0; i < snakeTails.size(); i++) {
             if(i==snakeTails.size()-1){
                 if(tailsDirections.get(i)==1){
-                    snakeTails.get(i).setImage(snakeTailUp);
+                    snakeTails.get(i).setImage(Textures.snakeTailUp);
                 }else if(tailsDirections.get(i)==2){
-                    snakeTails.get(i).setImage(snakeTailDown);
+                    snakeTails.get(i).setImage(Textures.snakeTailDown);
                 }else if(tailsDirections.get(i)==3){
-                    snakeTails.get(i).setImage(snakeTailRight);
+                    snakeTails.get(i).setImage(Textures.snakeTailRight);
                 }else if(tailsDirections.get(i)==4){
-                    snakeTails.get(i).setImage(snakeTailLeft);
+                    snakeTails.get(i).setImage(Textures.snakeTailLeft);
                 }
             }else
 
             if(i==0) {
                 if (tailsDirections.get(i) == 1) {
                     if (direction == 1 && tailsDirections.get(i+1) == 4) {
-                        snakeTails.get(i).setImage(snakeUpRight2);
+                        snakeTails.get(i).setImage(Textures.snakeUpRight2);
                     }else if (direction == 1 && tailsDirections.get(i+1) == 3) {
-                        snakeTails.get(i).setImage(snakeUpLeft);
+                        snakeTails.get(i).setImage(Textures.snakeUpLeft);
                     }else if (direction == 3 && tailsDirections.get(i+1) == 3) {
-                        snakeTails.get(i).setImage(snakeUpLeft);//
+                        snakeTails.get(i).setImage(Textures.snakeUpLeft);//
                     }else if (direction == 4 && tailsDirections.get(i+1) == 4) {
-                        snakeTails.get(i).setImage(snakeUpRight2);//
+                        snakeTails.get(i).setImage(Textures.snakeUpRight2);//
                     }else if (direction == 3 && tailsDirections.get(i+1) == 4) {
-                      snakeTails.get(i).setImage(snakeUpRight2);////
+                      snakeTails.get(i).setImage(Textures.snakeUpRight2);////
                     }else if (direction == 4 && tailsDirections.get(i+1) == 3) {
-                        snakeTails.get(i).setImage(snakeUpLeft);////
+                        snakeTails.get(i).setImage(Textures.snakeUpLeft);////
                     }else
-                    snakeTails.get(i).setImage(snakeLeft);
+                    snakeTails.get(i).setImage(Textures.snakeLeft);
                 } else if (tailsDirections.get(i) == 2) {
                     if (direction == 2 && tailsDirections.get(i+1) == 3) {
-                        snakeTails.get(i).setImage(snakeLeftDown2);
+                        snakeTails.get(i).setImage(Textures.snakeLeftDown2);
                     }else if (direction == 2 && tailsDirections.get(i+1) == 4) {
-                        snakeTails.get(i).setImage(snakeDownRight);
+                        snakeTails.get(i).setImage(Textures.snakeDownRight);
                     }else if (direction == 3 && tailsDirections.get(i+1) == 3) {
-                        snakeTails.get(i).setImage(snakeLeftDown2);
+                        snakeTails.get(i).setImage(Textures.snakeLeftDown2);
                     }else if (direction == 4 && tailsDirections.get(i+1) == 4) {
-                        snakeTails.get(i).setImage(snakeDownRight);//
+                        snakeTails.get(i).setImage(Textures.snakeDownRight);//
                     }else if (direction == 4 && tailsDirections.get(i+1) == 3) {
-                        snakeTails.get(i).setImage(snakeLeftDown2);//
+                        snakeTails.get(i).setImage(Textures.snakeLeftDown2);//
                     }else if (direction == 3 && tailsDirections.get(i+1) == 4) {
-                        snakeTails.get(i).setImage(snakeDownRight);//
+                        snakeTails.get(i).setImage(Textures.snakeDownRight);//
                     }else
-                        snakeTails.get(i).setImage(snakeRight);
+                        snakeTails.get(i).setImage(Textures.snakeRight);
                 } else if (tailsDirections.get(i) == 3) {
                     if (direction == 3 && tailsDirections.get(i+1) == 1) {
-                        snakeTails.get(i).setImage(snakeDownRight2);
+                        snakeTails.get(i).setImage(Textures.snakeDownRight2);
                     }else if (direction == 3 && tailsDirections.get(i+1) == 2) {
-                        snakeTails.get(i).setImage(snakeLeftUp);
+                        snakeTails.get(i).setImage(Textures.snakeLeftUp);
                     }else if (direction == 1 && tailsDirections.get(i+1) == 1) {
-                        snakeTails.get(i).setImage(snakeDownRight2);///////
+                        snakeTails.get(i).setImage(Textures.snakeDownRight2);///////
                     }else if (direction == 2 && tailsDirections.get(i+1) == 2) {
-                        snakeTails.get(i).setImage(snakeLeftUp);
+                        snakeTails.get(i).setImage(Textures.snakeLeftUp);
                     }else if (direction == 2 && tailsDirections.get(i+1) == 1) {
-                        snakeTails.get(i).setImage(snakeDownRight2);
+                        snakeTails.get(i).setImage(Textures.snakeDownRight2);
                     }else if (direction == 1 && tailsDirections.get(i+1) == 2) {
-                        snakeTails.get(i).setImage(snakeLeftUp);
+                        snakeTails.get(i).setImage(Textures.snakeLeftUp);
                     }else
-                        snakeTails.get(i).setImage(snakeUp);
+                        snakeTails.get(i).setImage(Textures.snakeUp);
                 } else {
                     if (direction == 4 && tailsDirections.get(i+1) == 2) {
-                        snakeTails.get(i).setImage(snakeLeftUp2);
+                        snakeTails.get(i).setImage(Textures.snakeLeftUp2);
                     }else if (direction == 4 && tailsDirections.get(i+1) == 1) {
-                        snakeTails.get(i).setImage(snakeRightDown);
+                        snakeTails.get(i).setImage(Textures.snakeRightDown);
                     }else if (direction == 1 && tailsDirections.get(i+1) == 1) {
-                        snakeTails.get(i).setImage(snakeRightDown);//
+                        snakeTails.get(i).setImage(Textures.snakeRightDown);//
                     }else if (direction == 2 && tailsDirections.get(i+1) == 2) {
-                        snakeTails.get(i).setImage(snakeLeftUp2);//
+                        snakeTails.get(i).setImage(Textures.snakeLeftUp2);//
                     }else if (direction == 1 && tailsDirections.get(i+1) == 2) {
-                        snakeTails.get(i).setImage(snakeLeftUp2);//
+                        snakeTails.get(i).setImage(Textures.snakeLeftUp2);//
                     }else if (direction == 2 && tailsDirections.get(i+1) == 1) {
-                        snakeTails.get(i).setImage(snakeRightDown);//
+                        snakeTails.get(i).setImage(Textures.snakeRightDown);//
                     }else
-                        snakeTails.get(i).setImage(snakeDown);
+                        snakeTails.get(i).setImage(Textures.snakeDown);
                 }
             }else{
                 if (tailsDirections.get(i) == 1) {
                     if (tailsDirections.get(i-1) == 1 && tailsDirections.get(i+1) == 4) {
-                        snakeTails.get(i).setImage(snakeUpRight2);
+                        snakeTails.get(i).setImage(Textures.snakeUpRight2);
                     }else if (tailsDirections.get(i-1) == 1 && tailsDirections.get(i+1) == 3) {
-                        snakeTails.get(i).setImage(snakeUpLeft);
+                        snakeTails.get(i).setImage(Textures.snakeUpLeft);
                     }else if (tailsDirections.get(i-1) == 3 && tailsDirections.get(i+1) == 4) {
-                        snakeTails.get(i).setImage(snakeUpRight2);
+                        snakeTails.get(i).setImage(Textures.snakeUpRight2);
                     }else if (tailsDirections.get(i-1) == 4 && tailsDirections.get(i+1) == 3) {
-                        snakeTails.get(i).setImage(snakeUpLeft);
+                        snakeTails.get(i).setImage(Textures.snakeUpLeft);
                     }else if (tailsDirections.get(i-1) == 3 && tailsDirections.get(i+1) == 3) {
-                        snakeTails.get(i).setImage(snakeUpLeft);//new//
+                        snakeTails.get(i).setImage(Textures.snakeUpLeft);//new//
                     }else if (tailsDirections.get(i-1) == 4 && tailsDirections.get(i+1) == 4) {
-                        snakeTails.get(i).setImage(snakeUpRight2);//new//
+                        snakeTails.get(i).setImage(Textures.snakeUpRight2);//new//
                     }else
-                    snakeTails.get(i).setImage(snakeLeft);
+                    snakeTails.get(i).setImage(Textures.snakeLeft);
                 } else if (tailsDirections.get(i) == 2) {
                     if (tailsDirections.get(i-1) == 2 && tailsDirections.get(i+1) == 3) {
-                       snakeTails.get(i).setImage(snakeLeftDown2);
+                       snakeTails.get(i).setImage(Textures.snakeLeftDown2);
                     }else if (tailsDirections.get(i-1) == 2 && tailsDirections.get(i+1) == 4) {
-                        snakeTails.get(i).setImage(snakeDownRight);
+                        snakeTails.get(i).setImage(Textures.snakeDownRight);
                     }else if (tailsDirections.get(i-1) == 4 && tailsDirections.get(i+1) == 3) {
-                        snakeTails.get(i).setImage(snakeLeftDown2);
+                        snakeTails.get(i).setImage(Textures.snakeLeftDown2);
                     }else if (tailsDirections.get(i-1) == 3 && tailsDirections.get(i+1) == 4) {
-                        snakeTails.get(i).setImage(snakeDownRight);
+                        snakeTails.get(i).setImage(Textures.snakeDownRight);
                     }else if (tailsDirections.get(i-1) == 3 && tailsDirections.get(i+1) == 3) {
-                        snakeTails.get(i).setImage(snakeLeftDown2);//new//
+                        snakeTails.get(i).setImage(Textures.snakeLeftDown2);//new//
                     }else if (tailsDirections.get(i-1) == 4 && tailsDirections.get(i+1) == 4) {
-                        snakeTails.get(i).setImage(snakeDownRight);//new//
+                        snakeTails.get(i).setImage(Textures.snakeDownRight);//new//
                     }else
-                    snakeTails.get(i).setImage(new Texture(Gdx.files.internal("snakeRight.png")));
+                    snakeTails.get(i).setImage(new Texture(Gdx.files.internal("Textures.snakeRight.png")));
                 } else if (tailsDirections.get(i) == 3) {
                     if (tailsDirections.get(i-1) == 3 && tailsDirections.get(i+1) == 1) {
-                        snakeTails.get(i).setImage(snakeDownRight2);
+                        snakeTails.get(i).setImage(Textures.snakeDownRight2);
                     }else if (tailsDirections.get(i-1) == 3 && tailsDirections.get(i+1) == 2) {
-                        snakeTails.get(i).setImage(snakeLeftUp);
+                        snakeTails.get(i).setImage(Textures.snakeLeftUp);
                     }else if (tailsDirections.get(i-1) == 1 && tailsDirections.get(i+1) == 2) {
-                        snakeTails.get(i).setImage(snakeLeftUp);
+                        snakeTails.get(i).setImage(Textures.snakeLeftUp);
                     }else if (tailsDirections.get(i-1) == 2 && tailsDirections.get(i+1) == 1) {
-                        snakeTails.get(i).setImage(snakeDownRight2);
+                        snakeTails.get(i).setImage(Textures.snakeDownRight2);
                     }else if (tailsDirections.get(i-1) == 1 && tailsDirections.get(i+1) == 1) {
-                        snakeTails.get(i).setImage(snakeDownRight2);//new//
+                        snakeTails.get(i).setImage(Textures.snakeDownRight2);//new//
                     }else if (tailsDirections.get(i-1) == 2 && tailsDirections.get(i+1) == 2) {
-                        snakeTails.get(i).setImage(snakeLeftUp);//new//
+                        snakeTails.get(i).setImage(Textures.snakeLeftUp);//new//
                     }else
-                    snakeTails.get(i).setImage(snakeUp);
+                    snakeTails.get(i).setImage(Textures.snakeUp);
                 } else {
                     if (tailsDirections.get(i-1) == 4 && tailsDirections.get(i+1) == 2) {
-                        snakeTails.get(i).setImage(snakeLeftUp2);
+                        snakeTails.get(i).setImage(Textures.snakeLeftUp2);
                     }else if (tailsDirections.get(i-1) == 4 && tailsDirections.get(i+1) == 1) {
-                        snakeTails.get(i).setImage(snakeRightDown);
+                        snakeTails.get(i).setImage(Textures.snakeRightDown);
                     }else if (tailsDirections.get(i-1) == 2 && tailsDirections.get(i+1) == 1) {
-                        snakeTails.get(i).setImage(snakeRightDown);
+                        snakeTails.get(i).setImage(Textures.snakeRightDown);
                     }else if (tailsDirections.get(i-1) == 1 && tailsDirections.get(i+1) == 2) {
-                          snakeTails.get(i).setImage(snakeLeftUp2);
+                          snakeTails.get(i).setImage(Textures.snakeLeftUp2);
                     }else if (tailsDirections.get(i-1) == 1 && tailsDirections.get(i+1) == 1) {
-                        snakeTails.get(i).setImage(snakeRightDown);//new
+                        snakeTails.get(i).setImage(Textures.snakeRightDown);//new
                     }else if (tailsDirections.get(i-1) == 2 && tailsDirections.get(i+1) == 2) {
-                        snakeTails.get(i).setImage(snakeLeftUp2);//new
+                        snakeTails.get(i).setImage(Textures.snakeLeftUp2);//new
                     }else
-                    snakeTails.get(i).setImage(snakeDown);
+                    snakeTails.get(i).setImage(Textures.snakeDown);
                 }
             }
                 game.batch.draw(snakeTails.get(i).getImage(), X.get(i), Y.get(i), 1, 1);
@@ -509,15 +468,11 @@ public class GameScreen<sound> implements Screen {
             for(int i = 0; i < snakeTails.size(); i++){
                 if(snakeHead.x == X.get(i) && snakeHead.y == Y.get(i)){
                     createFinalScreen("You have collided with yourself");
-                    fail.play();
-                    music.stop();
                 }
             }
             //check if head collides with borders
             if(snakeHead.x < 0 || snakeHead.x > tileColumns - 1 || snakeHead.y > tileRows - 1 || snakeHead.y < 0){
                 createFinalScreen("You have collided with borders");
-                fail.play();
-                music.stop();
             }
         }
 
@@ -566,6 +521,8 @@ public class GameScreen<sound> implements Screen {
     }
 
     protected void createFinalScreen(String finalMessage) {
+        Textures.music.stop();
+        Textures.fail.play();
         isOver = true;
         Gdx.input.setInputProcessor(finalStage);
         Button toMainMenuButton = getSettingsButton("To Menu", 300);
@@ -593,7 +550,7 @@ public class GameScreen<sound> implements Screen {
         parameter.size = 30;
         BitmapFont font12 = generator.generateFont(parameter);
         generator.dispose();
-        Label.LabelStyle style = new Label.LabelStyle(font12, Color.WHITE);
+        Label.LabelStyle style = new Label.LabelStyle(font12,(gameDifficulty == GameDifficulty.MEDIUM) ? Color.BLACK : Color.WHITE);
         Label finalScoreLabel = new Label("Your final score is : " + score.value, style);
         finalScoreLabel.setStyle(style);
         finalScoreLabel.setPosition(300, 450);
@@ -640,9 +597,9 @@ public class GameScreen<sound> implements Screen {
             @Override
             public void consume() {
                 if(rand.nextInt(100)>89){
-                    nice.play();
+                    Textures.nice.play();
                 }else {
-                    sound2.play();
+                    Textures.sound2.play();
                 }
                 snakeTails.add(new SnakeTail(1,1));
                 X.addFirst(snakeTailFirstX);
@@ -655,7 +612,7 @@ public class GameScreen<sound> implements Screen {
         return new Food.Consumable() {
             @Override
             public void consume() {
-                bonus.play();
+                Textures.bonus.play();
                 moveSnake();
                 lastScoreDuplication = TimeUtils.millis();
                 labelForMultiplication = new ScoreTriplicate().getImage();
@@ -667,7 +624,7 @@ public class GameScreen<sound> implements Screen {
         return new Food.Consumable() {
             @Override
             public void consume() {
-                bonus.play();
+                Textures.bonus.play();
                 moveSnake();
                 lastScoreDuplication = TimeUtils.millis();
                 labelForMultiplication = new ScoreDuplicate().getImage();
@@ -680,9 +637,9 @@ public class GameScreen<sound> implements Screen {
             @Override
             public void consume() {
                 if(rand.nextInt(100)>85){
-                    nice.play();
+                    Textures.nice.play();
                 }else {
-                    sound1.play();
+                    Textures.sound1.play();
                 }
                 snakeTails.add(new SnakeTail(1,1));
                 X.addFirst(snakeTailFirstX);
@@ -700,7 +657,7 @@ public class GameScreen<sound> implements Screen {
         return new Food.Consumable() {
             @Override
             public void consume() {
-               slow.play();
+               Textures.slow.play();
                 speedDelta = 200;
                 moveSnake();
                 labelForReducedSpeed = new ReduceSpeedFood().getImage();
@@ -714,12 +671,11 @@ public class GameScreen<sound> implements Screen {
 
 
 
-   // Sound sound2 = Gdx.audio.newSound(Gdx.files.internal("eat2.aac"));
     @Override
     public void show() {
         // start the playback of the background music
         // when the screen is shown
-               music.play();
+        Textures.music.play();
     }
 
     @Override
@@ -728,10 +684,10 @@ public class GameScreen<sound> implements Screen {
 
     @Override
     public void pause() {
-        music.pause();
+        Textures.music.pause();
         if (Gdx.input.isKeyPressed(Keys.SPACE)) {
-            music.resume();
-            buttonS.play();
+            Textures.music.resume();
+            Textures.buttonS.play();
             pauseStage.clear();
             isPaused = false;
             try {
@@ -749,7 +705,7 @@ public class GameScreen<sound> implements Screen {
         exitButton.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
-                buttonS.play();
+                Textures.buttonS.play();
                 pauseStage.dispose();
                 GameScreen.this.dispose();
                 game.dispose();
@@ -758,8 +714,8 @@ public class GameScreen<sound> implements Screen {
         resumeButton.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
-                buttonS.play();
-                music.resume();
+                Textures.buttonS.play();
+                Textures.music.resume();
                 pauseStage.clear();
                 try {
                     Thread.sleep(200);
@@ -772,7 +728,7 @@ public class GameScreen<sound> implements Screen {
         toMainMenuButton.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
-                buttonS.play();
+                Textures.buttonS.play();
                 game.setScreen(new MainMenuScreen(game));
                 pauseStage.dispose();
                 GameScreen.this.dispose();
@@ -799,7 +755,7 @@ public class GameScreen<sound> implements Screen {
     /**
      * create button
      * @param buttonText text
-     * @param positionY X position is equal for all buttons
+     * @param positionY X position is equal for all Textures.buttons
      * @return
      */
     private Button getSettingsButton(String buttonText, float positionY) {

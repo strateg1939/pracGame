@@ -120,7 +120,7 @@ public class MathGameScreen extends GameScreen{
             answers.add(mathFood);
         }
         Label.LabelStyle style;
-        if(ChooseDifficultyScreen.Diff.equals("hard")){
+        if(gameDifficulty == GameDifficulty.HARD){
              style = new Label.LabelStyle(fontForExercise, Color.WHITE);
         }else {
              style = new Label.LabelStyle(fontForExercise, Color.BLACK);

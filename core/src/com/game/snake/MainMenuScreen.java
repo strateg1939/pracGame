@@ -28,6 +28,7 @@ public class MainMenuScreen implements Screen {
     private static final int MAX_FOR_EXERCISE_LENGTH = 10;
     private static final int MIN_FOR_EXERCISE_LENGTH = 1;
     private static final int MIN_FOR_EXERCISE = 1;
+
     public MainMenuScreen(final Main gam) {
         game = gam;
         stage = new Stage(new StretchViewport(Main.WORLD_WIDTH, Main.WORLD_HEIGHT));
@@ -41,9 +42,9 @@ public class MainMenuScreen implements Screen {
         checkBoxForMathGame.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
-                GameScreen.buttonS.play();
+                Textures.buttonS.play();
                 isMathMode = !isMathMode;
-                if(isMathMode) showMathModeOptions();
+                if (isMathMode) showMathModeOptions();
                 else removeMathModeOptions();
             }
         });
@@ -53,7 +54,7 @@ public class MainMenuScreen implements Screen {
         scoreBoard.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
-                GameScreen.buttonS.play();
+                Textures.buttonS.play();
                 screen = new SwingTableScreen(game);
             }
         });
@@ -64,7 +65,7 @@ public class MainMenuScreen implements Screen {
         rowsValueSlider.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
-                GameScreen.slider.play();
+                Textures.slider.play();
                 float value = rowsValueSlider.getValue();
                 rowsValueLabel.setText((int) value);
             }
@@ -76,36 +77,36 @@ public class MainMenuScreen implements Screen {
         columnsSlider.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
-                GameScreen.slider.play();
+                Textures.slider.play();
                 columnsValueLabel.setText((int) columnsSlider.getValue());
             }
         });
-        generalTable.setPosition(-300,-100);
+        generalTable.setPosition(-300, -100);
         generalTable.setTransform(true);
         generalTable.add(rowsLabel);
         generalTable.add(rowsValueSlider);
         generalTable.add(rowsValueLabel);
         generalTable.row().pad(10);
-        generalTable.add(columnsLabel ,columnsSlider, columnsValueLabel);
+        generalTable.add(columnsLabel, columnsSlider, columnsValueLabel);
         generalTable.row().pad(10);
         generalTable.add(checkBoxForMathGame).padLeft(150);
         generalTable.row().pad(10);
         mathModeOptions = new Table();
         generalTable.add(mathModeOptions).padLeft(100).colspan(3);
         generalTable.row();
-        generalTable.add(beginButton).size(230,50).colspan(3);
+        generalTable.add(beginButton).size(230, 50).colspan(3);
         generalTable.setScale(1.5f);
         stage.addActor(generalTable);
         beginButton.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
-                GameScreen.buttonS.play();
+                Textures.buttonS.play();
                 game.setScreen(new ChooseDifficultyScreen(game, isMathMode));
                 game.tileRows = (int) rowsValueSlider.getValue();
                 game.tileColumns = (int) columnsSlider.getValue();
                 //!Important!
                 MainMenuScreen.this.dispose();
-                if(screen != null) screen.dispose();
+                if (screen != null) screen.dispose();
             }
         });
         scoreBoard.setSize(200, 50);
@@ -117,7 +118,7 @@ public class MainMenuScreen implements Screen {
         userScreenButton.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
-                GameScreen.buttonS.play();
+                Textures.buttonS.play();
                 game.setScreen(new SetNameScreen(game));
                 MainMenuScreen.this.dispose();
             }
@@ -138,7 +139,7 @@ public class MainMenuScreen implements Screen {
         maxValueSlider.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
-                GameScreen.slider.play();
+                Textures.slider.play();
                 int value = (int) maxValueSlider.getValue();
                 maxValueLabel.setText(value);
                 MathGameScreen.setMaxForExercise(value);
@@ -151,7 +152,7 @@ public class MainMenuScreen implements Screen {
         lengthSlider.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
-                GameScreen.slider.play();
+                Textures.slider.play();
                 int value = (int) lengthSlider.getValue();
                 lengthValueLabel.setText(value);
                 MathGameScreen.setMaxlengthOfExercise(value);
