@@ -47,6 +47,7 @@ public class ChooseDifficultyScreen implements Screen {
         button.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
+                    GameScreen.buttonS.play();
                 game.setScreen((isMathMode) ? new MathGameScreen(game, gameDifficulty) : new GameScreen(game, gameDifficulty));
                 //!Important!
                 ChooseDifficultyScreen.this.dispose();

@@ -52,6 +52,7 @@ public class MainMenuScreen implements Screen {
         scoreBoard.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
+                GameScreen.buttonS.play();
                 screen = new SwingTableScreen(game);
             }
         });
@@ -95,6 +96,7 @@ public class MainMenuScreen implements Screen {
         beginButton.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
+                GameScreen.buttonS.play();
                 game.setScreen(new ChooseDifficultyScreen(game, isMathMode));
                 game.tileRows = (int) rowsValueSlider.getValue();
                 game.tileColumns = (int) columnsSlider.getValue();
@@ -112,6 +114,7 @@ public class MainMenuScreen implements Screen {
         userScreenButton.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
+                GameScreen.buttonS.play();
                 game.setScreen(new SetNameScreen(game));
                 MainMenuScreen.this.dispose();
             }

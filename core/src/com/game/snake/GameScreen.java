@@ -71,6 +71,7 @@ public class GameScreen<sound> implements Screen {
     //sounds
     public static Sound music = Gdx.audio.newSound(Gdx.files.internal("music.mp3"));
     public static Sound sound1 = Gdx.audio.newSound(Gdx.files.internal("eat1.mp3"));
+    public static Sound buttonS = Gdx.audio.newSound(Gdx.files.internal("button.mp3"));
     //
     public static final int WIDTH_IN_PIXELS = 1000;
     public static final int HEIGHT_IN_PIXELS = 680;
@@ -106,6 +107,7 @@ public class GameScreen<sound> implements Screen {
     protected int foodX;
     protected int foodY;
     Random rand = new Random();
+    private int flag = 0;
     //Snake snake;
     public ArrayList<SnakeTail> snakeTails = new ArrayList<>();
     //!!!size of x and y is 1 bigger than tails
@@ -284,7 +286,6 @@ public class GameScreen<sound> implements Screen {
                 direction = (direction < 3) ? 5 - direction : -2 + direction;
             }
         }
-
 
         if(direction == 1) SnakeHead.image  =snakeHeadDown;
         else if (direction == 2 || direction == 0) SnakeHead.image  = snakeHeadUp;
@@ -692,7 +693,10 @@ public class GameScreen<sound> implements Screen {
 
     @Override
     public void pause() {
+
+        music.pause();
         if (Gdx.input.isKeyPressed(Keys.SPACE)) {
+            buttonS.play();
             pauseStage.clear();
             isPaused = false;
             try {
@@ -703,12 +707,14 @@ public class GameScreen<sound> implements Screen {
             return;
         }
         Gdx.input.setInputProcessor(pauseStage);
+
         final Button resumeButton = getSettingsButton("Resume", 450);
         Button toMainMenuButton = getSettingsButton("To Menu", 300);
         Button exitButton = getSettingsButton("Exit", 150);
         exitButton.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
+                buttonS.play();
                 pauseStage.dispose();
                 GameScreen.this.dispose();
                 game.dispose();
@@ -717,6 +723,8 @@ public class GameScreen<sound> implements Screen {
         resumeButton.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
+                buttonS.play();
+                music.resume();
                 pauseStage.clear();
                 try {
                     Thread.sleep(200);
@@ -729,6 +737,7 @@ public class GameScreen<sound> implements Screen {
         toMainMenuButton.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
+                buttonS.play();
                 game.setScreen(new MainMenuScreen(game));
                 pauseStage.dispose();
                 GameScreen.this.dispose();

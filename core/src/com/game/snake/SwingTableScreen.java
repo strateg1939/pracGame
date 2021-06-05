@@ -18,6 +18,7 @@ public class SwingTableScreen extends JFrame {
         setLocationRelativeTo(null);
         setVisible(true);
 
+
         MenuBar menuBar = new MenuBar();
         PopupMenu menu = new PopupMenu("Options");
         MenuItem menuScore = new MenuItem("Sort by highest score", new MenuShortcut(KeyEvent.VK_S));
@@ -34,6 +35,7 @@ public class SwingTableScreen extends JFrame {
         button.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
+                GameScreen.buttonS.play();
                 if(generalTable.getSelectedColumn() != 0) return;
                 String username = (String) generalTable.getValueAt(generalTable.getSelectedRow(), 0);
                 final JTable userSpecialTable = getTableModel(username);
@@ -44,6 +46,7 @@ public class SwingTableScreen extends JFrame {
                 button.addActionListener(new ActionListener() {
                     @Override
                     public void actionPerformed(ActionEvent e) {
+                        GameScreen.buttonS.play();
                         SwingTableScreen.this.dispose();
                         new SwingTableScreen(game);
                     }
