@@ -108,7 +108,7 @@ public class GameScreen implements Screen {
             case EASY:
                 snakeSpeed = 500;
                 advancedFoodSpawnChance = 0.5f;
-                Textures.music = Gdx.audio.newSound(Gdx.files.internal("dE.mp3"));
+                Textures.gameMusic = Gdx.audio.newMusic(Gdx.files.internal("dE.mp3"));
                 currentTilesLight = Textures.tiles;
                 currentTilesDark = Textures.tiles2;
                 imagex2 = new Texture(Gdx.files.internal("x2.png"));
@@ -117,14 +117,14 @@ public class GameScreen implements Screen {
             case MEDIUM:
                 snakeSpeed = 350;
                 advancedFoodSpawnChance = 0.3f;
-                Textures.music = Gdx.audio.newSound(Gdx.files.internal("dM.mp3"));
+                Textures.gameMusic = Gdx.audio.newMusic(Gdx.files.internal("dM.mp3"));
                 currentTilesLight = Textures.tiles_2;
                 currentTilesDark = Textures.tiles2_2;
                 imagex2 = new Texture(Gdx.files.internal("x2.png"));
                 imagex3 = new Texture(Gdx.files.internal("x3.png"));
                 break;
             case HARD:
-                Textures.music = Gdx.audio.newSound(Gdx.files.internal("dH.mp3"));
+                Textures.gameMusic = Gdx.audio.newMusic(Gdx.files.internal("dH.mp3"));
                 currentTilesLight = Textures.tiles_3;
                 currentTilesDark = Textures.tiles2_3;
                 imagex2 = new Texture(Gdx.files.internal("x2Hard.png"));
@@ -531,7 +531,8 @@ public class GameScreen implements Screen {
     }
 
     protected void createFinalScreen(String finalMessage) {
-        Textures.music.stop();
+        Textures.gameMusic.stop();
+        Textures.pauseMusic.play();
         Textures.fail.play();
         isOver = true;
         Gdx.input.setInputProcessor(finalStage);
@@ -683,9 +684,11 @@ public class GameScreen implements Screen {
 
     @Override
     public void show() {
-        // start the playback of the background music
+        Textures.pauseMusic.stop();
+        // start the playback of the background gameMusic
         // when the screen is shown
-        Textures.music.play();
+        Textures.gameMusic.setLooping(true);
+        Textures.gameMusic.play();
     }
 
     @Override
@@ -694,10 +697,12 @@ public class GameScreen implements Screen {
 
     @Override
     public void pause() {
-        Textures.music.pause();
+        Textures.gameMusic.pause();
+        Textures.pauseMusic.play();
         if (Gdx.input.isKeyPressed(Keys.SPACE)) {
-            Textures.music.resume();
+            Textures.gameMusic.play();
             Textures.buttonS.play();
+            Textures.pauseMusic.stop();
             pauseStage.clear();
             isPaused = false;
             try {
@@ -725,7 +730,8 @@ public class GameScreen implements Screen {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
                 Textures.buttonS.play();
-                Textures.music.resume();
+                Textures.gameMusic.play();
+                Textures.pauseMusic.stop();
                 pauseStage.clear();
                 try {
                     Thread.sleep(200);

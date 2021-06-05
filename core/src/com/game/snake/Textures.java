@@ -1,6 +1,7 @@
 package com.game.snake;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.Texture;
 
@@ -51,7 +52,8 @@ public class Textures {
     public static Texture tiles_3 = new Texture(Gdx.files.internal("tiles_3.png"));
 
     //sounds
-    public static Sound music = Gdx.audio.newSound(Gdx.files.internal("dE.mp3"));
+    public static Music gameMusic = Gdx.audio.newMusic(Gdx.files.internal("dE.mp3"));
+    public static Music pauseMusic = Gdx.audio.newMusic(Gdx.files.internal("pause.mp3"));
     public static Sound sound1 = Gdx.audio.newSound(Gdx.files.internal("eat1.mp3"));
     public static Sound sound2 = Gdx.audio.newSound(Gdx.files.internal("eat3.mp3"));
     public static Sound buttonS = Gdx.audio.newSound(Gdx.files.internal("button.mp3"));

@@ -72,6 +72,9 @@ public class SetNameScreen implements Screen {
 
     @Override
     public void show() {
+        Textures.pauseMusic.stop();
+        Textures.pauseMusic.setLooping(true);
+        Textures.pauseMusic.play();
     }
 
     @Override
