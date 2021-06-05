@@ -4,11 +4,11 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
 
 public class ScoreDuplicate extends Food{
-    private static Texture image;
+    protected static Texture imagex2;
     private static int scoreIncrease;
     private static final int scoreDuplication = 2;
     static {
-        image = new Texture(Gdx.files.internal("x2.png"));
+        imagex2 = new Texture(Gdx.files.internal("x2.png"));
         scoreIncrease = 50;
     }
 
@@ -18,7 +18,7 @@ public class ScoreDuplicate extends Food{
     }
     @Override
     public Texture getImage() {
-        return image;
+        return imagex2;
     }
 
     @Override

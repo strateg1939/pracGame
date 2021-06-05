@@ -3,6 +3,7 @@ package com.game.snake;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.OrthographicCamera;
+import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import com.badlogic.gdx.scenes.scene2d.Actor;
@@ -15,6 +16,8 @@ import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.utils.viewport.StretchViewport;
 
 import static com.game.snake.GameScreen.*;
+import static com.game.snake.ScoreDuplicate.imagex2;
+import static com.game.snake.ScoreTriplicate.imagex3;
 
 public class ChooseDifficultyScreen implements Screen {
     final Main game;
@@ -56,16 +59,22 @@ public class ChooseDifficultyScreen implements Screen {
                         music = Gdx.audio.newSound(Gdx.files.internal("dE.mp3"));
                         currentTiles=tiles;
                         currentTiles2=tiles2;
+                        imagex2 = new Texture(Gdx.files.internal("x2.png"));
+                        imagex3 = new Texture(Gdx.files.internal("x3.png"));
                     }else if(gameDifficulty.equals(GameDifficulty.MEDIUM)){
                         Diff="medium";
                         music = Gdx.audio.newSound(Gdx.files.internal("dM.mp3"));
                         currentTiles=tiles_2;
                         currentTiles2=tiles2_2;
+                        imagex2 = new Texture(Gdx.files.internal("x2.png"));
+                        imagex3 = new Texture(Gdx.files.internal("x3.png"));
                     }else if(gameDifficulty.equals(GameDifficulty.HARD)){
                         Diff="hard";
                         music = Gdx.audio.newSound(Gdx.files.internal("dH.mp3"));
                         currentTiles=tiles_3;
                         currentTiles2=tiles2_3;
+                        imagex2 = new Texture(Gdx.files.internal("x2Hard.png"));
+                        imagex3 = new Texture(Gdx.files.internal("x3Hard.png"));
                     }
                 game.setScreen((isMathMode) ? new MathGameScreen(game, gameDifficulty) : new GameScreen(game, gameDifficulty));
                 //!Important!
