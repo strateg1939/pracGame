@@ -280,7 +280,6 @@ public class GameScreen implements Screen {
 
 
         game.batch.begin();
-
         if(food != null) game.batch.draw(food.getImage(), foodX, foodY, 1, 1);
         game.batch.draw(snakeHead.getImage(), snakeHead.x, snakeHead.y, 1, 1);
         for (int i = 0; i < snakeTails.size(); i++) {
@@ -490,8 +489,18 @@ public class GameScreen implements Screen {
     private void checkForBorders() {
         if(snakeHead.x < 0 || snakeHead.x > tileColumns - 1 || snakeHead.y > tileRows - 1 || snakeHead.y < 0){
             if(game.isNoBordersMode){
-                if(snakeHead.x < 0 || snakeHead.x > tileColumns - 1) snakeHead.x = tileColumns - Math.abs(snakeHead.x);
-                else snakeHead.y = tileRows - Math.abs(snakeHead.y);
+                if(snakeHead.x < 0 || snakeHead.x > tileColumns - 1){
+                    snakeHead.x = tileColumns - Math.abs(snakeHead.x);
+                }
+                else {
+                    snakeHead.y = tileRows - Math.abs(snakeHead.y);
+                }
+                checkForFood();
+                for(int i = 0; i < snakeTails.size(); i++){
+                    if(snakeHead.x == X.get(i) && snakeHead.y == Y.get(i)){
+                        createFinalScreen("You have collided with yourself");
+                    }
+                }
             }
             else createFinalScreen("You have collided with borders");
         }
