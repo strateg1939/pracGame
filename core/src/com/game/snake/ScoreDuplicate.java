@@ -1,6 +1,7 @@
 package com.game.snake;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.Texture;
 
 public class ScoreDuplicate extends Food{
@@ -24,5 +25,10 @@ public class ScoreDuplicate extends Food{
     @Override
     public int getScoreDuplication() {
         return scoreDuplication;
+    }
+
+    @Override
+    public Sound getEatingSound() {
+        return Textures.bonus;
     }
 }

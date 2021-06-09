@@ -108,25 +108,25 @@ public class GameScreen implements Screen {
             case EASY:
                 snakeSpeed = 500;
                 advancedFoodSpawnChance = 0.5f;
-                Textures.gameMusic = Gdx.audio.newMusic(Gdx.files.internal("dE.mp3"));
-                currentTilesLight = Textures.tiles;
-                currentTilesDark = Textures.tiles2;
+                Textures.gameMusic = Textures.easyMusic;
+                currentTilesLight = Textures.tilesEasyLight;
+                currentTilesDark = Textures.tilesEasyDark;
                 imagex2 = new Texture(Gdx.files.internal("x2.png"));
                 imagex3 = new Texture(Gdx.files.internal("x3.png"));
                 break;
             case MEDIUM:
                 snakeSpeed = 350;
                 advancedFoodSpawnChance = 0.3f;
-                Textures.gameMusic = Gdx.audio.newMusic(Gdx.files.internal("dM.mp3"));
-                currentTilesLight = Textures.tiles_2;
-                currentTilesDark = Textures.tiles2_2;
+                Textures.gameMusic = Textures.mediumMusic;
+                currentTilesLight = Textures.tilesMediumLight;
+                currentTilesDark = Textures.tilesMediumDark;
                 imagex2 = new Texture(Gdx.files.internal("x2.png"));
                 imagex3 = new Texture(Gdx.files.internal("x3.png"));
                 break;
             case HARD:
-                Textures.gameMusic = Gdx.audio.newMusic(Gdx.files.internal("dH.mp3"));
-                currentTilesLight = Textures.tiles_3;
-                currentTilesDark = Textures.tiles2_3;
+                Textures.gameMusic = Textures.hardMusic;
+                currentTilesLight = Textures.tilesHardLight;
+                currentTilesDark = Textures.tilesHardDark;
                 imagex2 = new Texture(Gdx.files.internal("x2Hard.png"));
                 imagex3 = new Texture(Gdx.files.internal("x3Hard.png"));
                 snakeSpeed = 200;
@@ -465,11 +465,7 @@ public class GameScreen implements Screen {
                 checkForFood();
             }
             //check if head collides with body
-            for(int i = 0; i < snakeTails.size(); i++){
-                if(snakeHead.x == X.get(i) && snakeHead.y == Y.get(i)){
-                    createFinalScreen("You have collided with yourself");
-                }
-            }
+            checkForYourself();
             //check if head collides with borders
             checkForBorders();
         }
@@ -489,20 +485,20 @@ public class GameScreen implements Screen {
     private void checkForBorders() {
         if(snakeHead.x < 0 || snakeHead.x > tileColumns - 1 || snakeHead.y > tileRows - 1 || snakeHead.y < 0){
             if(game.isNoBordersMode){
-                if(snakeHead.x < 0 || snakeHead.x > tileColumns - 1){
+                if(snakeHead.x < 0 || snakeHead.x > tileColumns - 1)
                     snakeHead.x = tileColumns - Math.abs(snakeHead.x);
-                }
-                else {
-                    snakeHead.y = tileRows - Math.abs(snakeHead.y);
-                }
+                else snakeHead.y = tileRows - Math.abs(snakeHead.y);
                 checkForFood();
-                for(int i = 0; i < snakeTails.size(); i++){
-                    if(snakeHead.x == X.get(i) && snakeHead.y == Y.get(i)){
-                        createFinalScreen("You have collided with yourself");
-                    }
-                }
+                checkForYourself();
             }
             else createFinalScreen("You have collided with borders");
+        }
+    }
+    private void checkForYourself(){
+        for(int i = 0; i < snakeTails.size(); i++){
+            if(snakeHead.x == X.get(i) && snakeHead.y == Y.get(i)){
+                createFinalScreen("You have collided with yourself");
+            }
         }
     }
 
@@ -616,11 +612,6 @@ public class GameScreen implements Screen {
         return new Food.Consumable() {
             @Override
             public void consume() {
-                if(rand.nextInt(100)>89){
-                    Textures.nice.play();
-                }else {
-                    Textures.sound2.play();
-                }
                 snakeTails.add(new SnakeTail(1,1));
                 X.addFirst(snakeTailFirstX);
                 Y.addFirst(snakeTailFirstY);
@@ -632,7 +623,6 @@ public class GameScreen implements Screen {
         return new Food.Consumable() {
             @Override
             public void consume() {
-                Textures.bonus.play();
                 moveSnake();
                 lastScoreDuplication = TimeUtils.millis();
                 labelForMultiplication = new ScoreTriplicate().getImage();
@@ -644,7 +634,6 @@ public class GameScreen implements Screen {
         return new Food.Consumable() {
             @Override
             public void consume() {
-                Textures.bonus.play();
                 moveSnake();
                 lastScoreDuplication = TimeUtils.millis();
                 labelForMultiplication = new ScoreDuplicate().getImage();
@@ -656,11 +645,6 @@ public class GameScreen implements Screen {
         return new Food.Consumable() {
             @Override
             public void consume() {
-                if(rand.nextInt(100)>85){
-                    Textures.nice.play();
-                }else {
-                    Textures.sound1.play();
-                }
                 snakeTails.add(new SnakeTail(1,1));
                 X.addFirst(snakeTailFirstX);
                 Y.addFirst(snakeTailFirstY);
@@ -677,7 +661,6 @@ public class GameScreen implements Screen {
         return new Food.Consumable() {
             @Override
             public void consume() {
-               Textures.slow.play();
                 speedDelta = 200;
                 moveSnake();
                 labelForReducedSpeed = new ReduceSpeedFood().getImage();
@@ -790,5 +773,12 @@ public class GameScreen implements Screen {
         button.setPosition(300, positionY);
         return button;
     }
+    public enum Directions{
+        DOWN,
+        LEFT,
+        UP,
+        RIGHT
+    }
 
 }
+

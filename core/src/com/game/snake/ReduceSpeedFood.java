@@ -1,6 +1,7 @@
 package com.game.snake;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.Texture;
 
 public class ReduceSpeedFood extends Food{
@@ -18,5 +19,10 @@ public class ReduceSpeedFood extends Food{
     @Override
     public Texture getImage() {
         return image;
+    }
+
+    @Override
+    public Sound getEatingSound() {
+        return Textures.slow;
     }
 }

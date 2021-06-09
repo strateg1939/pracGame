@@ -1,5 +1,6 @@
 package com.game.snake;
 
+import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.Texture;
 
 /**
@@ -16,16 +17,18 @@ public abstract class Food {
     /**
      * does what was set on consume
      * and increases score
-     *
+     * and plays an eating sound
      * @param score
      */
     public void consume(IntWrapper score, IntWrapper scoreMultiplier){
         consumable.consume();
         score.value += getScoreIncrease() * scoreMultiplier.value;
         scoreMultiplier.value = getScoreDuplication();
+        getEatingSound().play();
     }
     public abstract Texture getImage();
     public int getScoreDuplication(){return 1;}
+    public abstract Sound getEatingSound();
 
     interface Consumable{
         void consume();
