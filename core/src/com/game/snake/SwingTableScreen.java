@@ -1,10 +1,8 @@
 package com.game.snake;
 
-import jdk.javadoc.internal.doclets.formats.html.markup.Table;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
-import javax.swing.table.TableModel;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;

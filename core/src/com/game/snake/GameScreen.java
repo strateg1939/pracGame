@@ -68,8 +68,6 @@ public class GameScreen implements Screen {
     protected int foodX;
     protected int foodY;
     Random rand = new Random();
-    private int flag = 0;
-    //Snake snake;
     public ArrayList<SnakeTail> snakeTails = new ArrayList<>();
     //!!!size of x and y is 1 bigger than tails
     //to properly add new pieces of snake when it eats
@@ -95,6 +93,7 @@ public class GameScreen implements Screen {
     private Texture labelForReducedSpeed;
     private Texture labelForMultiplication;
     protected BitmapFont fontForExercise;
+    //when input is locked nothing can be inputed
     private boolean lockedInput;
     private Texture currentTilesLight;
     private Texture currentTilesDark;
@@ -231,30 +230,22 @@ public class GameScreen implements Screen {
         // coordinate system specified by the camera.
         game.batch.setProjectionMatrix(camera.combined);
 
-        // begin a new batch and draw the bucket and
-        // all drops
+        //input handling
         if (!lockedInput) {
             if (direction != Directions.DOWN && Gdx.input.isKeyPressed(Keys.UP)) {
-                // directionPrevious =direction;
                 direction = Directions.UP;
-
                 lockedInput = true;
             } else if (direction != Directions.UP && Gdx.input.isKeyPressed(Keys.DOWN)) {
-                //  directionPrevious =direction;
                 direction = Directions.DOWN;
-
                 lockedInput = true;
             } else if (direction != Directions.LEFT && Gdx.input.isKeyPressed(Keys.RIGHT)) {
-                //   directionPrevious =direction;
                 direction = Directions.RIGHT;
-
                 lockedInput = true;
             } else if (direction != Directions.RIGHT && Gdx.input.isKeyPressed(Keys.LEFT)) {
-                // directionPrevious =direction;
                 direction = Directions.LEFT;
-
                 lockedInput = true;
             }
+            //mouse controls depend on snakes direction
             if (direction != null) {
                 if (Gdx.input.isButtonPressed(Input.Buttons.LEFT)) {
                     direction = direction.previous();
@@ -268,8 +259,11 @@ public class GameScreen implements Screen {
         }
 
         game.batch.begin();
+        //draw food
         if (food != null) game.batch.draw(food.getImage(), foodX, foodY, 1, 1);
+        //initial snake image
         if (direction == null) game.batch.draw(snakeHead.getImage(), snakeHead.x, snakeHead.y, 1, 1);
+        //draw snake
         else {
             if(direction.previous() == tailsDirections.get(0)) SnakeHead.image = Textures.snakeHeadRightUp;
             else if(direction.next() == tailsDirections.get(0)) SnakeHead.image = Textures.snakeHeadLeftUp;
@@ -297,6 +291,7 @@ public class GameScreen implements Screen {
             scoreLabel.setText("Your score is : " + score.value);
             lockedInput = false;
             lastSnakeMovement = TimeUtils.millis();
+            //to not move snake when only loaded
             if (direction != null) {
                 if (TimeUtils.millis() - lastScoreDuplication > MillisecondsForActiveScoreDuplication) {
                     lastScoreDuplication = 0;
@@ -326,8 +321,6 @@ public class GameScreen implements Screen {
             //check if head collides with borders
             checkForBorders();
         }
-
-        // process user input
         //set pause on Space
         if (Gdx.input.isKeyPressed(Keys.SPACE)) {
             isPaused = true;
@@ -351,6 +344,9 @@ public class GameScreen implements Screen {
         }
     }
 
+    /**
+     * check for collisions with itself
+     */
     private void checkForYourself() {
         for (int i = 0; i < snakeTails.size(); i++) {
             if (snakeHead.x == X.get(i) && snakeHead.y == Y.get(i)) {
@@ -360,7 +356,7 @@ public class GameScreen implements Screen {
     }
 
     /**
-     * check if snake is eating foor
+     * check if snake is eating food
      */
     protected void checkForFood() {
         if (snakeHead.x == foodX && snakeHead.y == foodY) {
@@ -543,7 +539,7 @@ public class GameScreen implements Screen {
     @Override
     public void hide() {
     }
-
+    //show pause screen
     @Override
     public void pause() {
         Textures.gameMusic.pause();
@@ -619,7 +615,8 @@ public class GameScreen implements Screen {
 
     /**
      * create button
-     *
+     * with same skin
+     * for this screen
      * @param buttonText text
      * @param positionY  X position is equal for all Textures.buttons
      * @return
@@ -632,11 +629,21 @@ public class GameScreen implements Screen {
         return button;
     }
 
-    //rotates the image with center of rotation in the middle
+    /**
+     * draws a texture and rotates it relative to the center of the texture
+     * @param batch batch to draw on
+     * @param texture
+     * @param x
+     * @param y
+     * @param rotation 0 < angle < 360
+     */
     private void drawWithRotation(SpriteBatch batch, Texture texture, float x, float y, float rotation) {
         batch.draw(texture, x, y, 1.0f / 2, 1.0f / 2, 1, 1, 1, 1, rotation, 0, 0, texture.getWidth(), texture.getHeight(), false, false);
     }
 
+    /**
+     * directions of the snake
+     */
     public enum Directions {
         DOWN,
         RIGHT,
@@ -654,6 +661,7 @@ public class GameScreen implements Screen {
         public Directions next() {
             return (this == LEFT) ? DOWN : getValues().get(getValues().indexOf(this) + 1);
         }
+        //all images are set to be looking down
         public float getAngle(){
             return this.getValues().indexOf(this) * 90;
         }
