@@ -6,19 +6,19 @@ import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.Texture;
 
 public class Textures {
-    static Texture snakeUp = new Texture(Gdx.files.internal("snake\\snakeUp.png"));
+    static Texture snakeStraight = new Texture(Gdx.files.internal("snake\\snakeRight.png"));
 
-    static Texture snakeUpLeft = new Texture(Gdx.files.internal("snake\\snakeUpLeft.png"));
+    static Texture snakeUpLeft = new Texture(Gdx.files.internal("snake\\snakeDownRight.png"));
 
-    static Texture snakeUpRight2 = new Texture(Gdx.files.internal("snake\\snakeUpRight2.png"));
+    static Texture snakeUpRight = new Texture(Gdx.files.internal("snake\\snakeLeftDown2.png"));
 
-    static Texture snakeHeadLeft = new Texture(Gdx.files.internal("snake\\snakeHeadLeft.png"));
+    static Texture snakeHeadLeft = new Texture(Gdx.files.internal("snake\\snakeHeadUp.png"));
 
-    static Texture snakeHeadRightUp1 = new Texture(Gdx.files.internal("snake\\snakeHeadRightUp1.png"));
+    static Texture snakeHeadRightUp = new Texture(Gdx.files.internal("snake\\snakeHeadDownRight2.png"));
 
-    static Texture snakeHeadLeftUp2 = new Texture(Gdx.files.internal("snake\\snakeHeadLeftUp2.png"));
+    static Texture snakeHeadLeftUp = new Texture(Gdx.files.internal("snake\\snakeHeadDownLeft1.png"));
 
-    static Texture snakeTailUp = new Texture(Gdx.files.internal("snake\\snakeTailUp.png"));
+    static Texture snakeTail = new Texture(Gdx.files.internal("snake\\snakeTailDown.png"));
 
     //Tiles Texture
     public static Texture tilesEasyDark = new Texture(Gdx.files.internal("tiles2.png"));

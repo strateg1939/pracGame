@@ -20,6 +20,6 @@ public class SnakeHead extends Snake{
         return image;
     }
     public static void setDefaultImage(){
-        image = new Texture(Gdx.files.internal("snakeHeadUp.png"));
+        image = new Texture(Gdx.files.internal("snake\\snakeHeadUp.png"));
     }
 }

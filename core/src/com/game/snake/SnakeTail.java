@@ -6,7 +6,7 @@ import com.badlogic.gdx.graphics.Texture;
 public class SnakeTail extends Snake{
     protected Texture image;
     public SnakeTail(int x, int y){
-        image = new Texture(Gdx.files.internal("snakeRight.png"));
+        image = new Texture(Gdx.files.internal("snake\\snakeRight.png"));
     }
 
 

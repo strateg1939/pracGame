@@ -8,6 +8,7 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import com.badlogic.gdx.maps.MapLayers;
@@ -59,7 +60,7 @@ public class GameScreen implements Screen {
     //snake parameters
     private int snakeTailFirstX;
     private int snakeTailFirstY;
-    protected static int direction = 0;
+    protected static Directions direction = null;
     protected Food food;
     //used in creation of food
     protected static List<Class<? extends Food>> advancedFoodClasses =
@@ -74,7 +75,7 @@ public class GameScreen implements Screen {
     //to properly add new pieces of snake when it eats
     LinkedList<Integer> X = new LinkedList<>();
     LinkedList<Integer> Y = new LinkedList<>();
-    LinkedList<Integer> tailsDirections = new LinkedList<>();
+    LinkedList<Directions> tailsDirections = new LinkedList<>();
     protected SnakeHead snakeHead;
     //timer on movement
     private long lastSnakeMovement;
@@ -104,7 +105,7 @@ public class GameScreen implements Screen {
         score = new IntWrapper(0);
         scoreMultiplier = new IntWrapper(0);
         //difficulty
-        switch(gameDifficulty){
+        switch (gameDifficulty) {
             case EASY:
                 snakeSpeed = 500;
                 advancedFoodSpawnChance = 0.5f;
@@ -141,33 +142,33 @@ public class GameScreen implements Screen {
         //labels
         FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal("OpenSans-Regular.ttf"));
         FreeTypeFontGenerator.FreeTypeFontParameter parameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
-        int sizeOfFont = (int)( 30 * Math.pow(1/2.0, (tileRows - 25) / 10.0) );
+        int sizeOfFont = (int) (30 * Math.pow(1 / 2.0, (tileRows - 25) / 10.0));
         parameter.size = (sizeOfFont > 30) ? 30 : sizeOfFont;
         fontForExercise = generator.generateFont(parameter);
         generator.dispose();
         Label.LabelStyle style = new Label.LabelStyle(fontForExercise, Color.BLACK);
         scoreLabel = new Label("Your score is : " + score.value, style);
-        scoreLabel.setSize(10,10);
-        scoreLabel.setPosition(10,660);
+        scoreLabel.setSize(10, 10);
+        scoreLabel.setPosition(10, 660);
         effectsStage = new Stage(new StretchViewport(Main.WORLD_WIDTH, Main.WORLD_HEIGHT));
         effectsStage.addActor(scoreLabel);
         pauseStage = new Stage(new StretchViewport(Main.WORLD_WIDTH, Main.WORLD_HEIGHT));
         finalStage = new Stage(new StretchViewport(Main.WORLD_WIDTH, Main.WORLD_HEIGHT));
         //snake
         lastSnakeMovement = TimeUtils.millis();
-        if(tileRows < 2) throw new RuntimeException("TO FEW COLUMNS");
+        if (tileRows < 2) throw new RuntimeException("TO FEW COLUMNS");
         snakeHead = new SnakeHead(rand.nextInt(tileColumns), rand.nextInt(tileRows - 1));
-        snakeTails.add(new SnakeTail(1,1));
+        snakeTails.add(new SnakeTail(1, 1));
         snakeTailFirstX = snakeHead.x;
         X.add(snakeTailFirstX);
         X.add(snakeTailFirstX);
         snakeTailFirstY = snakeHead.y + 1;
         Y.add(snakeTailFirstY);
         Y.add(snakeTailFirstY + 1);
-        direction = 0;
+        direction = null;
         SnakeHead.setDefaultImage();
-        tailsDirections.add(2);
-        tailsDirections.add(2);
+        tailsDirections.add(Directions.DOWN);
+        tailsDirections.add(Directions.DOWN);
         //food
         do {
             foodX = rand.nextInt(tileColumns);
@@ -177,7 +178,7 @@ public class GameScreen implements Screen {
         createFood();
         // create the camera and the SpriteBatch
         camera = new OrthographicCamera();
-        camera.setToOrtho(false, tileColumns, tileRows +1);
+        camera.setToOrtho(false, tileColumns, tileRows + 1);
         //load map
         TextureRegion[][] splitTilesDark = TextureRegion.split(currentTilesDark, TILE_SIZE_IN_PIXELS, TILE_SIZE_IN_PIXELS);
         TextureRegion[][] splitTilesLight = TextureRegion.split(currentTilesLight, TILE_SIZE_IN_PIXELS, TILE_SIZE_IN_PIXELS);
@@ -216,7 +217,7 @@ public class GameScreen implements Screen {
             pause();
             return;
         }
-        if(isOver){
+        if (isOver) {
             showFinalScreen();
             return;
         }
@@ -232,200 +233,60 @@ public class GameScreen implements Screen {
 
         // begin a new batch and draw the bucket and
         // all drops
-        if(!lockedInput) {
-            if (direction != 2 && Gdx.input.isKeyPressed(Keys.UP)) {
-               // directionPrevious =direction;
-                direction = 1;
+        if (!lockedInput) {
+            if (direction != Directions.DOWN && Gdx.input.isKeyPressed(Keys.UP)) {
+                // directionPrevious =direction;
+                direction = Directions.UP;
 
                 lockedInput = true;
-            } else if (direction != 1 && Gdx.input.isKeyPressed(Keys.DOWN)) {
-              //  directionPrevious =direction;
-                direction = 2;
+            } else if (direction != Directions.UP && Gdx.input.isKeyPressed(Keys.DOWN)) {
+                //  directionPrevious =direction;
+                direction = Directions.DOWN;
 
                 lockedInput = true;
-            } else if (direction != 4 && Gdx.input.isKeyPressed(Keys.RIGHT)) {
-             //   directionPrevious =direction;
-                direction = 3;
+            } else if (direction != Directions.LEFT && Gdx.input.isKeyPressed(Keys.RIGHT)) {
+                //   directionPrevious =direction;
+                direction = Directions.RIGHT;
 
                 lockedInput = true;
-            } else if (direction != 3 && Gdx.input.isKeyPressed(Keys.LEFT)) {
-               // directionPrevious =direction;
-                direction = 4;
+            } else if (direction != Directions.RIGHT && Gdx.input.isKeyPressed(Keys.LEFT)) {
+                // directionPrevious =direction;
+                direction = Directions.LEFT;
 
                 lockedInput = true;
             }
-            if (Gdx.input.isButtonPressed(Input.Buttons.LEFT)) {
-                direction = (direction < 3) ? direction + 2 : 5 - direction;
-                lockedInput = true;
-            }
-            if (Gdx.input.isButtonPressed(Input.Buttons.RIGHT)) {
-                lockedInput = true;
-                direction = (direction < 3) ? 5 - direction : -2 + direction;
+            if (direction != null) {
+                if (Gdx.input.isButtonPressed(Input.Buttons.LEFT)) {
+                    direction = direction.previous();
+                    lockedInput = true;
+                }
+                if (Gdx.input.isButtonPressed(Input.Buttons.RIGHT)) {
+                    lockedInput = true;
+                    direction = direction.next();
+                }
             }
         }
-
-        if(direction == 1) SnakeHead.image  =Textures.snakeHeadDown;
-        else if (direction == 2 || direction == 0) SnakeHead.image  = Textures.snakeHeadUp;
-        else if(direction == 3) SnakeHead.image  = Textures.snakeHeadLeft;
-        else SnakeHead.image = Textures.snakeHeadRight;
-
-        if(direction == 1 && tailsDirections.get(0)==3) SnakeHead.image  = Textures.snakeHeadLeftUp2;
-        else if (direction == 1 && tailsDirections.get(0)==4) SnakeHead.image  = Textures.snakeHeadRightUp1;
-        else if (direction == 2 && tailsDirections.get(0)==3) SnakeHead.image  =Textures.snakeHeadDownLeft1;
-        else if (direction == 2 && tailsDirections.get(0)==4) SnakeHead.image  = Textures.snakeHeadDownRight2;
-        else if (direction == 3 && tailsDirections.get(0)==1) SnakeHead.image  = Textures.snakeHeadDownRight1;
-        else if (direction == 3 && tailsDirections.get(0)==2) SnakeHead.image  = Textures.snakeHeadUpRight2;
-        else if (direction == 4 && tailsDirections.get(0)==1) SnakeHead.image  = Textures.snakeHeadRightDown2;
-        else if (direction == 4 && tailsDirections.get(0)==2) SnakeHead.image  =Textures.snakeHeadLeftUp1;
-
 
         game.batch.begin();
-        if(food != null) game.batch.draw(food.getImage(), foodX, foodY, 1, 1);
-        game.batch.draw(snakeHead.getImage(), snakeHead.x, snakeHead.y, 1, 1);
-        for (int i = 0; i < snakeTails.size(); i++) {
-            if(i==snakeTails.size()-1){
-                if(tailsDirections.get(i)==1){
-                    snakeTails.get(i).setImage(Textures.snakeTailUp);
-                }else if(tailsDirections.get(i)==2){
-                    snakeTails.get(i).setImage(Textures.snakeTailDown);
-                }else if(tailsDirections.get(i)==3){
-                    snakeTails.get(i).setImage(Textures.snakeTailRight);
-                }else if(tailsDirections.get(i)==4){
-                    snakeTails.get(i).setImage(Textures.snakeTailLeft);
-                }
-            }else
-
-            if(i==0) {
-                if (tailsDirections.get(i) == 1) {
-                    if (direction == 1 && tailsDirections.get(i+1) == 4) {
-                        snakeTails.get(i).setImage(Textures.snakeUpRight2);
-                    }else if (direction == 1 && tailsDirections.get(i+1) == 3) {
-                        snakeTails.get(i).setImage(Textures.snakeUpLeft);
-                    }else if (direction == 3 && tailsDirections.get(i+1) == 3) {
-                        snakeTails.get(i).setImage(Textures.snakeUpLeft);//
-                    }else if (direction == 4 && tailsDirections.get(i+1) == 4) {
-                        snakeTails.get(i).setImage(Textures.snakeUpRight2);//
-                    }else if (direction == 3 && tailsDirections.get(i+1) == 4) {
-                      snakeTails.get(i).setImage(Textures.snakeUpRight2);////
-                    }else if (direction == 4 && tailsDirections.get(i+1) == 3) {
-                        snakeTails.get(i).setImage(Textures.snakeUpLeft);////
-                    }else
-                    snakeTails.get(i).setImage(Textures.snakeLeft);
-                } else if (tailsDirections.get(i) == 2) {
-                    if (direction == 2 && tailsDirections.get(i+1) == 3) {
-                        snakeTails.get(i).setImage(Textures.snakeLeftDown2);
-                    }else if (direction == 2 && tailsDirections.get(i+1) == 4) {
-                        snakeTails.get(i).setImage(Textures.snakeDownRight);
-                    }else if (direction == 3 && tailsDirections.get(i+1) == 3) {
-                        snakeTails.get(i).setImage(Textures.snakeLeftDown2);
-                    }else if (direction == 4 && tailsDirections.get(i+1) == 4) {
-                        snakeTails.get(i).setImage(Textures.snakeDownRight);//
-                    }else if (direction == 4 && tailsDirections.get(i+1) == 3) {
-                        snakeTails.get(i).setImage(Textures.snakeLeftDown2);//
-                    }else if (direction == 3 && tailsDirections.get(i+1) == 4) {
-                        snakeTails.get(i).setImage(Textures.snakeDownRight);//
-                    }else
-                        snakeTails.get(i).setImage(Textures.snakeRight);
-                } else if (tailsDirections.get(i) == 3) {
-                    if (direction == 3 && tailsDirections.get(i+1) == 1) {
-                        snakeTails.get(i).setImage(Textures.snakeDownRight2);
-                    }else if (direction == 3 && tailsDirections.get(i+1) == 2) {
-                        snakeTails.get(i).setImage(Textures.snakeLeftUp);
-                    }else if (direction == 1 && tailsDirections.get(i+1) == 1) {
-                        snakeTails.get(i).setImage(Textures.snakeDownRight2);///////
-                    }else if (direction == 2 && tailsDirections.get(i+1) == 2) {
-                        snakeTails.get(i).setImage(Textures.snakeLeftUp);
-                    }else if (direction == 2 && tailsDirections.get(i+1) == 1) {
-                        snakeTails.get(i).setImage(Textures.snakeDownRight2);
-                    }else if (direction == 1 && tailsDirections.get(i+1) == 2) {
-                        snakeTails.get(i).setImage(Textures.snakeLeftUp);
-                    }else
-                        snakeTails.get(i).setImage(Textures.snakeUp);
-                } else {
-                    if (direction == 4 && tailsDirections.get(i+1) == 2) {
-                        snakeTails.get(i).setImage(Textures.snakeLeftUp2);
-                    }else if (direction == 4 && tailsDirections.get(i+1) == 1) {
-                        snakeTails.get(i).setImage(Textures.snakeRightDown);
-                    }else if (direction == 1 && tailsDirections.get(i+1) == 1) {
-                        snakeTails.get(i).setImage(Textures.snakeRightDown);//
-                    }else if (direction == 2 && tailsDirections.get(i+1) == 2) {
-                        snakeTails.get(i).setImage(Textures.snakeLeftUp2);//
-                    }else if (direction == 1 && tailsDirections.get(i+1) == 2) {
-                        snakeTails.get(i).setImage(Textures.snakeLeftUp2);//
-                    }else if (direction == 2 && tailsDirections.get(i+1) == 1) {
-                        snakeTails.get(i).setImage(Textures.snakeRightDown);//
-                    }else
-                        snakeTails.get(i).setImage(Textures.snakeDown);
-                }
-            }else{
-                if (tailsDirections.get(i) == 1) {
-                    if (tailsDirections.get(i-1) == 1 && tailsDirections.get(i+1) == 4) {
-                        snakeTails.get(i).setImage(Textures.snakeUpRight2);
-                    }else if (tailsDirections.get(i-1) == 1 && tailsDirections.get(i+1) == 3) {
-                        snakeTails.get(i).setImage(Textures.snakeUpLeft);
-                    }else if (tailsDirections.get(i-1) == 3 && tailsDirections.get(i+1) == 4) {
-                        snakeTails.get(i).setImage(Textures.snakeUpRight2);
-                    }else if (tailsDirections.get(i-1) == 4 && tailsDirections.get(i+1) == 3) {
-                        snakeTails.get(i).setImage(Textures.snakeUpLeft);
-                    }else if (tailsDirections.get(i-1) == 3 && tailsDirections.get(i+1) == 3) {
-                        snakeTails.get(i).setImage(Textures.snakeUpLeft);//new//
-                    }else if (tailsDirections.get(i-1) == 4 && tailsDirections.get(i+1) == 4) {
-                        snakeTails.get(i).setImage(Textures.snakeUpRight2);//new//
-                    }else
-                    snakeTails.get(i).setImage(Textures.snakeLeft);
-                } else if (tailsDirections.get(i) == 2) {
-                    if (tailsDirections.get(i-1) == 2 && tailsDirections.get(i+1) == 3) {
-                       snakeTails.get(i).setImage(Textures.snakeLeftDown2);
-                    }else if (tailsDirections.get(i-1) == 2 && tailsDirections.get(i+1) == 4) {
-                        snakeTails.get(i).setImage(Textures.snakeDownRight);
-                    }else if (tailsDirections.get(i-1) == 4 && tailsDirections.get(i+1) == 3) {
-                        snakeTails.get(i).setImage(Textures.snakeLeftDown2);
-                    }else if (tailsDirections.get(i-1) == 3 && tailsDirections.get(i+1) == 4) {
-                        snakeTails.get(i).setImage(Textures.snakeDownRight);
-                    }else if (tailsDirections.get(i-1) == 3 && tailsDirections.get(i+1) == 3) {
-                        snakeTails.get(i).setImage(Textures.snakeLeftDown2);//new//
-                    }else if (tailsDirections.get(i-1) == 4 && tailsDirections.get(i+1) == 4) {
-                        snakeTails.get(i).setImage(Textures.snakeDownRight);//new//
-                    }else
-                    snakeTails.get(i).setImage(Textures.snakeRight);
-                } else if (tailsDirections.get(i) == 3) {
-                    if (tailsDirections.get(i-1) == 3 && tailsDirections.get(i+1) == 1) {
-                        snakeTails.get(i).setImage(Textures.snakeDownRight2);
-                    }else if (tailsDirections.get(i-1) == 3 && tailsDirections.get(i+1) == 2) {
-                        snakeTails.get(i).setImage(Textures.snakeLeftUp);
-                    }else if (tailsDirections.get(i-1) == 1 && tailsDirections.get(i+1) == 2) {
-                        snakeTails.get(i).setImage(Textures.snakeLeftUp);
-                    }else if (tailsDirections.get(i-1) == 2 && tailsDirections.get(i+1) == 1) {
-                        snakeTails.get(i).setImage(Textures.snakeDownRight2);
-                    }else if (tailsDirections.get(i-1) == 1 && tailsDirections.get(i+1) == 1) {
-                        snakeTails.get(i).setImage(Textures.snakeDownRight2);//new//
-                    }else if (tailsDirections.get(i-1) == 2 && tailsDirections.get(i+1) == 2) {
-                        snakeTails.get(i).setImage(Textures.snakeLeftUp);//new//
-                    }else
-                    snakeTails.get(i).setImage(Textures.snakeUp);
-                } else {
-                    if (tailsDirections.get(i-1) == 4 && tailsDirections.get(i+1) == 2) {
-                        snakeTails.get(i).setImage(Textures.snakeLeftUp2);
-                    }else if (tailsDirections.get(i-1) == 4 && tailsDirections.get(i+1) == 1) {
-                        snakeTails.get(i).setImage(Textures.snakeRightDown);
-                    }else if (tailsDirections.get(i-1) == 2 && tailsDirections.get(i+1) == 1) {
-                        snakeTails.get(i).setImage(Textures.snakeRightDown);
-                    }else if (tailsDirections.get(i-1) == 1 && tailsDirections.get(i+1) == 2) {
-                          snakeTails.get(i).setImage(Textures.snakeLeftUp2);
-                    }else if (tailsDirections.get(i-1) == 1 && tailsDirections.get(i+1) == 1) {
-                        snakeTails.get(i).setImage(Textures.snakeRightDown);//new
-                    }else if (tailsDirections.get(i-1) == 2 && tailsDirections.get(i+1) == 2) {
-                        snakeTails.get(i).setImage(Textures.snakeLeftUp2);//new
-                    }else
-                    snakeTails.get(i).setImage(Textures.snakeDown);
-                }
-            }
-                game.batch.draw(snakeTails.get(i).getImage(), X.get(i), Y.get(i), 1, 1);
-
-
+        if (food != null) game.batch.draw(food.getImage(), foodX, foodY, 1, 1);
+        if (direction == null) game.batch.draw(snakeHead.getImage(), snakeHead.x, snakeHead.y, 1, 1);
+        else {
+            if(direction.previous() == tailsDirections.get(0)) SnakeHead.image = Textures.snakeHeadRightUp;
+            else if(direction.next() == tailsDirections.get(0)) SnakeHead.image = Textures.snakeHeadLeftUp;
+            else SnakeHead.image = Textures.snakeHeadLeft;
+            drawWithRotation(game.batch, snakeHead.getImage(), snakeHead.x, snakeHead.y, direction.getAngle());
         }
-        if(labelForMultiplication != null) game.batch.draw(labelForMultiplication, tileColumns - 2, tileRows, 1,1);
-        if(labelForReducedSpeed != null) game.batch.draw(labelForReducedSpeed, tileColumns - 1, tileRows, 1,1);
+        for (int i = 0; i < snakeTails.size(); i++) {
+            if(i == snakeTails.size() - 1) snakeTails.get(i).image = Textures.snakeTail;
+            else {
+                if(tailsDirections.get(i) == tailsDirections.get(i + 1))  snakeTails.get(i).image = Textures.snakeStraight;
+                else if(tailsDirections.get(i).next() == tailsDirections.get(i + 1)) snakeTails.get(i).image = Textures.snakeUpRight;
+                else  snakeTails.get(i).image = Textures.snakeUpLeft;
+            }
+            drawWithRotation(game.batch, snakeTails.get(i).getImage(), X.get(i), Y.get(i), tailsDirections.get(i).getAngle());
+        }
+        if (labelForMultiplication != null) game.batch.draw(labelForMultiplication, tileColumns - 2, tileRows, 1, 1);
+        if (labelForReducedSpeed != null) game.batch.draw(labelForReducedSpeed, tileColumns - 1, tileRows, 1, 1);
         game.batch.end();
         effectsStage.draw();
         //draw smth here
@@ -436,29 +297,25 @@ public class GameScreen implements Screen {
             scoreLabel.setText("Your score is : " + score.value);
             lockedInput = false;
             lastSnakeMovement = TimeUtils.millis();
-            if (direction <= 4 && direction >= 1) {
-                if(TimeUtils.millis() - lastScoreDuplication > MillisecondsForActiveScoreDuplication) {
+            if (direction != null) {
+                if (TimeUtils.millis() - lastScoreDuplication > MillisecondsForActiveScoreDuplication) {
                     lastScoreDuplication = 0;
                     score.value += SCORE_PER_TICK * snakeTails.size();
                     labelForMultiplication = null;
-                }
-                else{
+                } else {
                     score.value += SCORE_PER_TICK * snakeTails.size() * scoreMultiplier.value;
                 }
-                if(speedDelta > 0) speedDelta -= 10;
+                if (speedDelta > 0) speedDelta -= 10;
                 else labelForReducedSpeed = null;
                 snakeTailFirstX = snakeHead.x;
                 snakeTailFirstY = snakeHead.y;
-                if (direction == 1) {
+                if (direction == Directions.UP) {
                     snakeHead.y++;
-                }
-                else if (direction == 2) {
+                } else if (direction == Directions.DOWN) {
                     snakeHead.y--;
-                }
-                else if (direction == 3) {
+                } else if (direction == Directions.RIGHT) {
                     snakeHead.x++;
-                }
-                else{
+                } else {
                     snakeHead.x--;
                 }
                 //to properly add new snakes first check for food then if no food move
@@ -483,41 +340,40 @@ public class GameScreen implements Screen {
     }
 
     private void checkForBorders() {
-        if(snakeHead.x < 0 || snakeHead.x > tileColumns - 1 || snakeHead.y > tileRows - 1 || snakeHead.y < 0){
-            if(game.isNoBordersMode){
-                if(snakeHead.x < 0 || snakeHead.x > tileColumns - 1)
+        if (snakeHead.x < 0 || snakeHead.x > tileColumns - 1 || snakeHead.y > tileRows - 1 || snakeHead.y < 0) {
+            if (game.isNoBordersMode) {
+                if (snakeHead.x < 0 || snakeHead.x > tileColumns - 1)
                     snakeHead.x = tileColumns - Math.abs(snakeHead.x);
                 else snakeHead.y = tileRows - Math.abs(snakeHead.y);
                 checkForFood();
                 checkForYourself();
-            }
-            else createFinalScreen("You have collided with borders");
+            } else createFinalScreen("You have collided with borders");
         }
     }
-    private void checkForYourself(){
-        for(int i = 0; i < snakeTails.size(); i++){
-            if(snakeHead.x == X.get(i) && snakeHead.y == Y.get(i)){
+
+    private void checkForYourself() {
+        for (int i = 0; i < snakeTails.size(); i++) {
+            if (snakeHead.x == X.get(i) && snakeHead.y == Y.get(i)) {
                 createFinalScreen("You have collided with yourself");
             }
         }
     }
 
     /**
-    check if snake is eating foor
+     * check if snake is eating foor
      */
     protected void checkForFood() {
-        if(snakeHead.x == foodX && snakeHead.y == foodY) {
+        if (snakeHead.x == foodX && snakeHead.y == foodY) {
             food.consume(score, scoreMultiplier);
             //to not spawn food in the same tile as snake head
             while (true) {
                 foodX = rand.nextInt(tileColumns);
                 foodY = rand.nextInt(tileRows);
-                if(foodX == snakeHead.x && foodY == snakeHead.y) continue;
+                if (foodX == snakeHead.x && foodY == snakeHead.y) continue;
                 break;
             }
             createFood();
-        }
-        else{
+        } else {
             //move snake
             moveSnake();
         }
@@ -558,7 +414,7 @@ public class GameScreen implements Screen {
                 game.setScreen(new MainMenuScreen(game));
                 finalStage.dispose();
                 GameScreen.this.dispose();
-                direction = 0;
+                direction = null;
             }
         });
         FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal("OpenSans-Regular.ttf"));
@@ -566,7 +422,7 @@ public class GameScreen implements Screen {
         parameter.size = 30;
         BitmapFont font12 = generator.generateFont(parameter);
         generator.dispose();
-        Label.LabelStyle style = new Label.LabelStyle(font12,(gameDifficulty == GameDifficulty.MEDIUM) ? Color.BLACK : Color.WHITE);
+        Label.LabelStyle style = new Label.LabelStyle(font12, (gameDifficulty == GameDifficulty.MEDIUM) ? Color.BLACK : Color.WHITE);
         Label finalScoreLabel = new Label("Your final score is : " + score.value, style);
         finalScoreLabel.setStyle(style);
         finalScoreLabel.setPosition(300, 450);
@@ -581,44 +437,46 @@ public class GameScreen implements Screen {
                 this instanceof MathGameScreen, game.userName, snakeTails.size() + 1);
         game.records.add(record);
     }
-    protected void showFinalScreen(){
+
+    protected void showFinalScreen() {
         finalStage.draw();
     }
+
     /**
-    creates food
-    call food.consume() when it should be consumed
+     * creates food
+     * call food.consume() when it should be consumed
      */
     protected void createFood() {
-        if(Math.random() < advancedFoodSpawnChance){
+        if (Math.random() < advancedFoodSpawnChance) {
             try {
                 food = advancedFoodClasses.get(rand.nextInt(advancedFoodClasses.size())).getDeclaredConstructor().newInstance();
             } catch (InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
                 e.printStackTrace();
             }
 
-            if(food instanceof ReduceSpeedFood) food.setOnConsume(getReducedSpeedEffect());
-            else if(food instanceof DoubleStandardFood) food.setOnConsume(getDoubleInstanceEffect());
+            if (food instanceof ReduceSpeedFood) food.setOnConsume(getReducedSpeedEffect());
+            else if (food instanceof DoubleStandardFood) food.setOnConsume(getDoubleInstanceEffect());
             else if (food instanceof ScoreDuplicate) food.setOnConsume(getScoreDuplicationEffect());
             else if (food instanceof ScoreTriplicate) food.setOnConsume(getScoreTriplicationEffect());
-        }
-        else {
+        } else {
             food = new StandardFood();
             food.setOnConsume(getStandardEffect());
         }
     }
 
     //set different effects for different food
-    private Food.Consumable getStandardEffect(){
+    private Food.Consumable getStandardEffect() {
         return new Food.Consumable() {
             @Override
             public void consume() {
-                snakeTails.add(new SnakeTail(1,1));
+                snakeTails.add(new SnakeTail(1, 1));
                 X.addFirst(snakeTailFirstX);
                 Y.addFirst(snakeTailFirstY);
                 tailsDirections.addFirst(direction);
             }
         };
     }
+
     private Food.Consumable getScoreTriplicationEffect() {
         return new Food.Consumable() {
             @Override
@@ -645,14 +503,14 @@ public class GameScreen implements Screen {
         return new Food.Consumable() {
             @Override
             public void consume() {
-                snakeTails.add(new SnakeTail(1,1));
+                snakeTails.add(new SnakeTail(1, 1));
                 X.addFirst(snakeTailFirstX);
                 Y.addFirst(snakeTailFirstY);
-                snakeTails.add(new SnakeTail(1,1));
+                snakeTails.add(new SnakeTail(1, 1));
                 X.addLast(X.getLast() - 1);
                 Y.addLast(Y.getLast() - 1);
                 tailsDirections.addFirst(direction);
-                tailsDirections.addLast(1);
+                tailsDirections.addLast(Directions.UP);
             }
         };
     }
@@ -671,7 +529,6 @@ public class GameScreen implements Screen {
     @Override
     public void resize(int width, int height) {
     }
-
 
 
     @Override
@@ -740,7 +597,7 @@ public class GameScreen implements Screen {
                 game.setScreen(new MainMenuScreen(game));
                 pauseStage.dispose();
                 GameScreen.this.dispose();
-                direction = 0;
+                direction = null;
             }
         });
 
@@ -762,8 +619,9 @@ public class GameScreen implements Screen {
 
     /**
      * create button
+     *
      * @param buttonText text
-     * @param positionY X position is equal for all Textures.buttons
+     * @param positionY  X position is equal for all Textures.buttons
      * @return
      */
     private Button getSettingsButton(String buttonText, float positionY) {
@@ -773,11 +631,32 @@ public class GameScreen implements Screen {
         button.setPosition(300, positionY);
         return button;
     }
-    public enum Directions{
+
+    //rotates the image with center of rotation in the middle
+    private void drawWithRotation(SpriteBatch batch, Texture texture, float x, float y, float rotation) {
+        batch.draw(texture, x, y, 1.0f / 2, 1.0f / 2, 1, 1, 1, 1, rotation, 0, 0, texture.getWidth(), texture.getHeight(), false, false);
+    }
+
+    public enum Directions {
         DOWN,
-        LEFT,
+        RIGHT,
         UP,
-        RIGHT
+        LEFT;
+
+        public List<Directions> getValues() {
+            return Arrays.asList(Directions.values());
+        }
+
+        public Directions previous() {
+            return (this == DOWN) ? LEFT : getValues().get(getValues().indexOf(this) - 1);
+        }
+
+        public Directions next() {
+            return (this == LEFT) ? DOWN : getValues().get(getValues().indexOf(this) + 1);
+        }
+        public float getAngle(){
+            return this.getValues().indexOf(this) * 90;
+        }
     }
 
 }
