@@ -18,7 +18,7 @@ public class Textures {
 
     static Texture snakeHeadLeftUp = new Texture(Gdx.files.internal("snake\\snakeHeadDownLeft1.png"));
 
-    static Texture snakeTail = new Texture(Gdx.files.internal("snake\\snakeTailDown.png"));
+    static Texture snakeTail = new Texture(Gdx.files.internal("snake\\snakeTailUp.png"));
 
     //Tiles Texture
     public static Texture tilesEasyDark = new Texture(Gdx.files.internal("tiles2.png"));
